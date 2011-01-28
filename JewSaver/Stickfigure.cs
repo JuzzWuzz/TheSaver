@@ -10,14 +10,13 @@ class Stickfigure
     private Vector2 position;
     private bool moving = false;
 
-    Stickfigure(Vector2 position)
+    public Stickfigure(Vector2 position)
     {
         this.position = position;
     }
 
-    void draw() {    
-        VertexPositionColor[] points = {new VertexPositionColor(new Vector3(position, 1f), Color.Black)};
-
+    public void draw() {    
+        VertexPositionColor[] points = {new VertexPositionColor(new Vector3(position, 0f), Color.White)};
 
         JewSaver.spriteBatch.GraphicsDevice.DrawUserPrimitives<VertexPositionColor>(
             PrimitiveType.PointList,
@@ -26,7 +25,10 @@ class Stickfigure
             1);
     }
 
-    void update(){;}
+    public void update(){
+        if (!moving) return;
+        ;
+    }
 
 
 }
