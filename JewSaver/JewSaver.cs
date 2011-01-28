@@ -22,6 +22,7 @@ public class JewSaver : Microsoft.Xna.Framework.Game
     GraphicsDeviceManager graphics;
     public static SpriteBatch spriteBatch;
     MenuTest mainMenu;
+    LevelBase baseLevel;
 
     public JewSaver()
     {
@@ -46,6 +47,10 @@ public class JewSaver : Microsoft.Xna.Framework.Game
         this.Components.Add(new Input(this));
         mainMenu = new MenuTest(this);
         this.Components.Add(mainMenu);
+        baseLevel = new LevelBase(this, 4096);
+        baseLevel.Visible = false;
+        baseLevel.Enabled = false;
+        this.Components.Add(baseLevel);
 
         base.Initialize();
     }
@@ -93,16 +98,26 @@ public class JewSaver : Microsoft.Xna.Framework.Game
     /// <param name="gameTime">Provides a snapshot of timing values.</param>
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
+        GraphicsDevice.Clear(Color.Black);
 
         // TODO: Add your drawing code here
 
         base.Draw(gameTime);
     }
 
-    public static void SwitchState(GameState gameState)
+    public void SwitchState(GameState gameState)
     {
-        // has to be done
+        switch (gameState)
+        {
+            case GameState.LEVEL_1:
+                mainMenu.Visible = false;
+                mainMenu.Enabled = false;
+                baseLevel.Visible = true;
+                baseLevel.Enabled = true;
+                break;
+            default:
+                break;
+        }
     }
 }
 

@@ -11,21 +11,21 @@ public class MenuTest:Menu
     MenuButton options;
     MenuButton exit;
     Sprite back;
+    public static SpriteFont font;
+    JewSaver jewSaver;
 
     public MenuTest(JewSaver game)
         : base(game)
     {
+        jewSaver = game;
     }
 
     public override void Initialize()
     {
         base.Initialize();
-        exit = new MenuButton(buttonTexture, new Point(256, 64), new Point(0, 0), new Point(256, 64), new Point(384, 432));
-        exit.SetTopLeftPixel(new Point(0, 64), new Point(0, 0));
-        newGame = new MenuButton(buttonTexture, new Point(256, 64), new Point(0, 512), new Point(256, 64), new Point(384, 272));
-        newGame.SetTopLeftPixel(new Point(0, 576), new Point(0, 512));
-        options = new MenuButton(buttonTexture, new Point(256, 64), new Point(0, 256), new Point(256, 64), new Point(384, 352));
-        options.SetTopLeftPixel(new Point(0, 320), new Point(0, 256));
+        exit = new MenuButton(buttonTexture, new Point(256, 64), new Point(0, 0), new Point(256, 64), new Point(384, 432), "EXIT");
+        newGame = new MenuButton(buttonTexture, new Point(256, 64), new Point(0, 0), new Point(256, 64), new Point(384, 272), "NEW GAME");
+        options = new MenuButton(buttonTexture, new Point(256, 64), new Point(0, 0), new Point(256, 64), new Point(384, 352), "OPTIONS");
         exit.buttonPressed += OnExitClicked;
         newGame.buttonPressed += OnNewGameClicked;
         options.buttonPressed += OnOptionsClicked;
@@ -39,8 +39,30 @@ public class MenuTest:Menu
     protected override void LoadContent()
     {
         base.LoadContent();
-        buttonTexture = Game.Content.Load<Texture2D>("Textures//MainMenu");
-        background = Game.Content.Load<Texture2D>("Textures//Pretty");
+        Color[] textureData = new Color[64 * 256];
+        for (int i = 0; i < 64; i++)
+        {
+            for (int j = 0; j < 256; j++)
+            {
+                textureData[i * 256 + j] = Color.White;
+            }
+        }
+        buttonTexture = new Texture2D(Game.GraphicsDevice, 256, 64);
+        buttonTexture.SetData<Color>(textureData);
+        Color[] backgroundData = new Color[768 * 1024];
+        Random random = new Random();
+        for (int i = 0; i < 768; i++)
+        {
+            for (int j = 0; j < 1024; j++)
+            {
+                float sin =(float)Math.Abs(Math.Sin(j/1024.0f * 2 * Math.PI));
+                float cos =(float)Math.Abs(Math.Cos(j/1024.0f * 2 * Math.PI));
+                backgroundData[i * 1024 + j] = new Color(sin,0,0, 255);
+            }
+        }
+        background = new Texture2D(Game.GraphicsDevice, 1024, 768);
+        background.SetData<Color>(backgroundData);
+        font = Game.Content.Load<SpriteFont>("ButtonText");
     }
 
     void OnExitClicked()
@@ -50,6 +72,7 @@ public class MenuTest:Menu
 
     void OnNewGameClicked()
     {
+        jewSaver.SwitchState(GameState.LEVEL_1);
     }
 
     void OnOptionsClicked()

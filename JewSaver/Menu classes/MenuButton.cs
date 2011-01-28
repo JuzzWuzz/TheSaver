@@ -12,14 +12,14 @@ public class MenuButton:Sprite, MenuInputElement
     bool selected;
     bool held;
     // top left pixel coordinates for different button states
-    Point selectedTLP;
     Point unselectedTLP;
-    Point pressedTLP;
+    string buttonName;
+    Color textColor;
 
     // button event when pressed
     public event ButtonPressed buttonPressed;
 
-    public MenuButton(Texture2D tex, Point pixelDimensions, Point textureCoord, Point screenDimensions, Point screenCoord)
+    public MenuButton(Texture2D tex, Point pixelDimensions, Point textureCoord, Point screenDimensions, Point screenCoord, string text)
         : base(tex, pixelDimensions.X, pixelDimensions.Y, textureCoord.X, textureCoord.Y, screenDimensions.X, screenDimensions.Y, screenCoord.X, screenCoord.Y)
     {
         enabled = true;
@@ -27,14 +27,7 @@ public class MenuButton:Sprite, MenuInputElement
         selected = false;
         held = false;
         unselectedTLP = topLeftPixel;
-        selectedTLP = topLeftPixel;
-        pressedTLP = topLeftPixel;
-    }
-
-    public void SetTopLeftPixel(Point selected, Point pressed)
-    {
-        selectedTLP = selected;
-        pressedTLP = pressed;
+        buttonName = text;
     }
 
     bool MenuInputElement.Enabled
@@ -67,12 +60,23 @@ public class MenuButton:Sprite, MenuInputElement
         if (visible)
         {
             if (held)
-                topLeftPixel = pressedTLP;
+            {
+                Colour = Color.Black;
+                textColor = Color.White;
+            }
             else if (selected)
-                topLeftPixel = selectedTLP;
+            {
+                Colour = Color.White;
+                textColor = Color.Black;
+            }
             else
-                topLeftPixel = unselectedTLP;
+            {
+                Colour = Color.Black;
+                textColor = Color.White;
+            }
             base.Draw(spriteBatch);
+            Vector2 textDimensions = MenuTest.font.MeasureString(buttonName);
+            spriteBatch.DrawString(MenuTest.font, buttonName, new Vector2(screenRectangle.Center.X,screenRectangle.Center.Y), textColor, 0, 0.5f * textDimensions, 1, SpriteEffects.None, 0);
         }
     }
 

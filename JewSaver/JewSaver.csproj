@@ -70,6 +70,7 @@
     <Reference Include="System">
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Xml">
       <Private>False</Private>
     </Reference>
@@ -84,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Input.cs" />
+    <Compile Include="LevelBase.cs" />
     <Compile Include="Menu classes\Menu.cs" />
     <Compile Include="Menu classes\MenuButton.cs" />
     <Compile Include="Menu classes\MenuInputElement.cs" />
