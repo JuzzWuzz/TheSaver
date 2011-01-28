@@ -30,7 +30,7 @@ class Stickfigure
         lHand = rHand = new Vector2(5, 0);
         lFoot = rFoot = new Vector2(2, 7);
 
-        this.scale = 5;
+        this.scale = 4;
         headSize = 3;
 
         setLimbs(0f);
@@ -63,14 +63,14 @@ class Stickfigure
     private void setLimbs(float dt)
     {
         change += dt;
-        crotch = position;
+        crotch = position + Vector2.Multiply(new Vector2(0, -3 * scale), (float)Math.Sin(change)); ;
         shoulder = crotch + new Vector2(0, -8 * scale) + Vector2.Multiply(new Vector2(4,0), (float)Math.Cos(change));
         neck = shoulder + new Vector2(0, -2 * scale);
         head = neck + new Vector2(0, -headSize * scale);
         lHand = shoulder + new Vector2(5 * scale, 0);
         rHand= shoulder + new Vector2(-5 * scale, 0);
-        rFoot = crotch + new Vector2(-3 * scale, 6 * scale);
-        lFoot = crotch + new Vector2(3 * scale, 6 * scale);
+        rFoot = crotch + new Vector2(-2.5f * scale, 5 * scale) + Vector2.Multiply(new Vector2(2.5f * scale, 3 * scale), (float)Math.Cos(change));
+        lFoot = crotch + new Vector2(2.5f * scale, 5 * scale) + Vector2.Multiply(new Vector2(-2.5f * scale, 3 * scale), (float)Math.Cos(change));
 
     }
 
