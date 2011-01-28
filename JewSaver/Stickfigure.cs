@@ -71,6 +71,21 @@ class Stickfigure
 
     }
 
+    private int vecComp(Vector2 x, Vector2 y)
+    {
+        return x.Y.CompareTo(y.Y);
+    }
+
+    public Vector2 lowestPoint()
+    {
+        List<Vector2> l = new List<Vector2>(6);
+        l.Add(crotch); l.Add(shoulder);
+        l.Add(lHand); l.Add(rHand);
+        l.Add(lFoot); l.Add(rFoot);
+        l.Sort(vecComp);
+        return (l[0]);
+    }
+
     public void draw()
     {
         JewSaver.primitiveBatch.DrawCircle(head, Color.Blue, headSize * scale);
