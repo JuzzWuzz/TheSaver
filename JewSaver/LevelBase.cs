@@ -31,7 +31,7 @@ public class LevelBase:DrawableGameComponent
     {
         base.Initialize();
         for (int i = 0; i < 10; i++)
-            stickies[i] = new Stickfigure(new Vector2(i * 10, i * 10));
+            stickies[i] = new Stickfigure(new Vector2(50 + i * 30, i * 30));
     }
 
     protected override void LoadContent()
