@@ -21,14 +21,18 @@ public class JewSaver : Microsoft.Xna.Framework.Game
 {
     GraphicsDeviceManager graphics;
     public static SpriteBatch spriteBatch;
+    public static int height;
+    public static int width;
     MenuJewSaver mainMenu;
     LevelBase baseLevel;
 
     public JewSaver()
     {
         graphics = new GraphicsDeviceManager(this);
-        graphics.PreferredBackBufferHeight = 768;
-        graphics.PreferredBackBufferWidth = 1024;
+        width = 1024;
+        height = 768;
+        graphics.PreferredBackBufferHeight = height;
+        graphics.PreferredBackBufferWidth = width;
         Content.RootDirectory = "Content";
         this.IsMouseVisible = true;
     }
