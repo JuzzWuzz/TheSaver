@@ -9,10 +9,11 @@ class Stickfigure
 {
     private Vector2 position;
     private bool moving = false;
+
     private Vector2 crotch, shoulder, lHand, rHand, lFoot, rFoot;
     private float roShoulder, roLHand, roRHand, roLFoot, roRFoot;
 
-    //VertexPositionColor[] points;
+    Vector2[] points;
 
     protected Vector2 velocity;
     protected float mass;
@@ -21,6 +22,12 @@ class Stickfigure
     {
         this.position = position;
         roShoulder = roLHand = roRHand = roLFoot = roRFoot = 0f;
+
+        shoulder = new Vector2(0, -10);
+        lHand = rHand = new Vector2(5, 0);
+        lFoot = rFoot = new Vector2(2, 7);
+
+        setLimbs();
 
         this.velocity = Vector2.Zero;
         this.mass = 1.0f;
@@ -39,22 +46,37 @@ class Stickfigure
         velocity += accel * dt;
 
         position += velocity * dt;
+
+        setLimbs();
     }
 
     private void setLimbs()
     {
         crotch = position;
-        //shoulder = position + Vector2.Dot(shoulder, Vector2
+        shoulder = crotch + new Vector2(0, -10);
+        lHand = shoulder + new Vector2(5, 0);
+        rHand= shoulder + new Vector2(-5, 0);
+        rFoot = crotch + new Vector2(-2, 7);
+        lFoot = crotch + new Vector2(2, 7);
+
     }
 
     public void draw()
     {
         JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);
 
+        JewSaver.primitiveBatch.AddVertex(crotch, Color.Red);
+        JewSaver.primitiveBatch.AddVertex(shoulder, Color.Yellow);
 
-        JewSaver.primitiveBatch.AddVertex(position, Color.Red);
-        JewSaver.primitiveBatch.AddVertex(position + new Vector2(0, 10), Color.Yellow);
+        JewSaver.primitiveBatch.AddVertex(crotch, Color.Yellow);
+        JewSaver.primitiveBatch.AddVertex(lFoot, Color.Yellow);
+        JewSaver.primitiveBatch.AddVertex(crotch, Color.Yellow);
+        JewSaver.primitiveBatch.AddVertex(rFoot, Color.Yellow);
 
+        JewSaver.primitiveBatch.AddVertex(shoulder, Color.Yellow);
+        JewSaver.primitiveBatch.AddVertex(lHand, Color.Yellow);
+        JewSaver.primitiveBatch.AddVertex(shoulder, Color.Yellow);
+        JewSaver.primitiveBatch.AddVertex(rHand, Color.Yellow);
 
         JewSaver.primitiveBatch.End();
     }
