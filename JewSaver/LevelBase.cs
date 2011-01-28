@@ -52,6 +52,12 @@ public class LevelBase:DrawableGameComponent
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
+
+        float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        foreach (Stickfigure s in stickies)
+        {
+            s.update(dt);
+        }
     }
 
     public override void Draw(GameTime gameTime)
@@ -59,14 +65,13 @@ public class LevelBase:DrawableGameComponent
         base.Draw(gameTime);
         
         JewSaver.spriteBatch.Begin();
+        JewSaver.spriteBatch.Draw(background, new Vector2(0, 384), new Rectangle(0, 0, 1024, 384), Color.White, 0.0f, Vector2.Zero, 1.0f, SpriteEffects.None, 0.0f);
+        JewSaver.spriteBatch.End();
 
+        // Draw stickies
         foreach (Stickfigure s in stickies)
         {
             s.draw();
         }
-
-        JewSaver.spriteBatch.Draw(background, new Vector2(0, 384), new Rectangle(0, 0, 1024, 384), Color.White);
-
-        JewSaver.spriteBatch.End();
     }
 }

@@ -13,7 +13,10 @@ class Stickfigure
     private Vector2 crotch, shoulder, lHand, rHand, lFoot, rFoot;
     private float roShoulder, roLHand, roRHand, roLFoot, roRFoot;
 
-    VertexPositionColor[] points;
+    Vector2[] points;
+
+    protected Vector2 velocity;
+    protected float mass;
 
     public Stickfigure(Vector2 position)
     {
@@ -23,6 +26,26 @@ class Stickfigure
         shoulder = new Vector2(0, -10);
         lHand = rHand = new Vector2(5, 0);
         lFoot = rFoot = new Vector2(2, 7);
+
+        setLimbs();
+
+        this.velocity = Vector2.Zero;
+        this.mass = 1.0f;
+        moving = true;
+    }
+
+    // Update Method
+    public void update(float dt)
+    {
+        if (!moving)
+            return;
+
+        Vector2 accel = new Vector2(0.0f, -100.0f) / mass;
+        if (position.Y < JewSaver.height / 2.0f)
+            accel *= -1f;
+        velocity += accel * dt;
+
+        position += velocity * dt;
 
         setLimbs();
     }
@@ -47,21 +70,13 @@ class Stickfigure
 
     }
 
-    public void draw() {
+    public void draw()
+    {
+        JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);
 
-        JewSaver.spriteBatch.GraphicsDevice.DrawUserPrimitives<VertexPositionColor>(PrimitiveType.LineList,
-            points,
-            0,
-            3);
+        JewSaver.primitiveBatch.AddVertex(position, Color.Red);
+        JewSaver.primitiveBatch.AddVertex(position + new Vector2(0, 10), Color.Yellow);
+
+        JewSaver.primitiveBatch.End();
     }
-
-    public void update(){
-        if (!moving) return;
-        ;
-
-
-
-    }
-
-
 }
