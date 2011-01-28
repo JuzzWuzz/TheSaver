@@ -13,8 +13,6 @@ class Stickfigure
     private Vector2 crotch, shoulder, lHand, rHand, lFoot, rFoot;
     private float roShoulder, roLHand, roRHand, roLFoot, roRFoot;
 
-    Vector2[] points;
-
     protected Vector2 velocity;
     protected float mass;
 
@@ -59,6 +57,21 @@ class Stickfigure
         rFoot = crotch + new Vector2(-2, 7);
         lFoot = crotch + new Vector2(2, 7);
 
+    }
+
+    private int vecComp(Vector2 x, Vector2 y)
+    {
+        return x.Y.CompareTo(y.Y);
+    }
+
+    public Vector2 lowestPoint()
+    {
+        List<Vector2> l = new List<Vector2>(6);
+        l.Add(crotch); l.Add(shoulder);
+        l.Add(lHand); l.Add(rHand);
+        l.Add(lFoot); l.Add(rFoot);
+        l.Sort(vecComp);
+        return (l[0]);
     }
 
     public void draw()
