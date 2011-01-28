@@ -7,9 +7,9 @@ namespace JewSaver
 {
     class Stickfigure
     {
-        void draw();
+        void draw() {;}
 
-        void update();
+        void update(){;}
 
 
     }
