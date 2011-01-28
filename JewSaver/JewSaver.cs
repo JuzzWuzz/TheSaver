@@ -21,7 +21,7 @@ public class JewSaver : Microsoft.Xna.Framework.Game
 {
     GraphicsDeviceManager graphics;
     public static SpriteBatch spriteBatch;
-    MenuTest mainMenu;
+    MenuJewSaver mainMenu;
     LevelBase baseLevel;
 
     public JewSaver()
@@ -45,7 +45,7 @@ public class JewSaver : Microsoft.Xna.Framework.Game
         
         // add game components here
         this.Components.Add(new Input(this));
-        mainMenu = new MenuTest(this);
+        mainMenu = new MenuJewSaver(this);
         this.Components.Add(mainMenu);
         baseLevel = new LevelBase(this, 4096);
         baseLevel.Visible = false;
