@@ -16,7 +16,7 @@ class Stickfigure
     }
 
     void draw() {    
-        VertexPositionColor[] points = {new VertexPositionColor(position, Color.Black)};
+        VertexPositionColor[] points = {new VertexPositionColor(new Vector3(position, 1f), Color.Black)};
 
 
         JewSaver.spriteBatch.GraphicsDevice.DrawUserPrimitives<VertexPositionColor>(
