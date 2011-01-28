@@ -153,11 +153,9 @@ public class PrimitiveBatch : IDisposable
     {
         Begin(PrimitiveType.PointList);
 
-        AddVertex(position, color);
-
-        for (int i = 1; i < sizeInPx; i++)
+        for (int i = 0; i < sizeInPx; i++)
         {
-            int numOfPoints = i * i;
+            int numOfPoints = Math.Max(i * i, 2);
             for (int j = 0; j < numOfPoints; j++)
             {
                 double theta = j * Math.PI / numOfPoints;

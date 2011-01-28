@@ -30,7 +30,7 @@ class Stickfigure
         lHand = rHand = new Vector2(5, 0);
         lFoot = rFoot = new Vector2(2, 7);
 
-        this.scale = 3;
+        this.scale = 5;
         headSize = 3;
 
         setLimbs();
@@ -88,32 +88,24 @@ class Stickfigure
 
     public void draw()
     {
+        // Draw the head
         JewSaver.primitiveBatch.DrawCircle(head, Color.Blue, headSize * scale);
         
+        // Begin primitive batch
         JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);
 
+        // Draw the main body
         JewSaver.primitiveBatch.AddLine(crotch, neck, Color.Red, Color.Yellow, scale);
 
+        // Draw the arms
+        JewSaver.primitiveBatch.AddLine(shoulder, lHand, Color.Yellow, Color.Yellow, scale);
+        JewSaver.primitiveBatch.AddLine(shoulder, rHand, Color.Yellow, Color.Yellow, scale);
+        
+        // Draw the feet
         JewSaver.primitiveBatch.AddLine(crotch, lFoot, Color.Yellow, Color.Yellow, scale);
         JewSaver.primitiveBatch.AddLine(crotch, rFoot, Color.Yellow, Color.Yellow, scale);
 
-        JewSaver.primitiveBatch.AddLine(shoulder, lHand, Color.Yellow, Color.Yellow, scale);
-        JewSaver.primitiveBatch.AddLine(shoulder, rHand, Color.Yellow, Color.Yellow, scale);
-        /*
-        JewSaver.primitiveBatch.AddVertex(crotch, Color.Red);
-        JewSaver.primitiveBatch.AddVertex(shoulder, Color.Yellow);
-
-        JewSaver.primitiveBatch.AddVertex(crotch, Color.Yellow);
-        JewSaver.primitiveBatch.AddVertex(lFoot, Color.Yellow);
-        JewSaver.primitiveBatch.AddVertex(crotch, Color.Yellow);
-        JewSaver.primitiveBatch.AddVertex(rFoot, Color.Yellow);
-
-        JewSaver.primitiveBatch.AddVertex(shoulder, Color.Yellow);
-        JewSaver.primitiveBatch.AddVertex(lHand, Color.Yellow);
-        JewSaver.primitiveBatch.AddVertex(shoulder, Color.Yellow);
-        JewSaver.primitiveBatch.AddVertex(rHand, Color.Yellow);
-         */
-
+        // End primitive batch
         JewSaver.primitiveBatch.End();
     }
 }
