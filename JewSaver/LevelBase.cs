@@ -65,13 +65,13 @@ public class LevelBase:DrawableGameComponent
         base.Draw(gameTime);
         
         JewSaver.spriteBatch.Begin();
-        JewSaver.spriteBatch.Draw(background, new Vector2(500, 384), new Rectangle(0, 0, 1024, 384), Color.White, 0.0f, Vector2.Zero, 1.0f, SpriteEffects.None, 0.0f);
+        JewSaver.spriteBatch.Draw(background, new Vector2(0, 384), new Rectangle(0, 0, 1024, 384), Color.White, 0.0f, Vector2.Zero, 1.0f, SpriteEffects.None, 0.0f);
+        JewSaver.spriteBatch.End();
 
+        // Draw stickies
         foreach (Stickfigure s in stickies)
         {
             s.draw();
         }
-
-        JewSaver.spriteBatch.End();
     }
 }

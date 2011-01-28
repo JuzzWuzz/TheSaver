@@ -21,6 +21,7 @@ public class JewSaver : Microsoft.Xna.Framework.Game
 {
     GraphicsDeviceManager graphics;
     public static SpriteBatch spriteBatch;
+    public static PrimitiveBatch primitiveBatch;
     public static int height;
     public static int width;
     MenuJewSaver mainMenu;
@@ -67,6 +68,7 @@ public class JewSaver : Microsoft.Xna.Framework.Game
     {
         // Create a new SpriteBatch, which can be used to draw textures.
         spriteBatch = new SpriteBatch(GraphicsDevice);
+        primitiveBatch = new PrimitiveBatch(GraphicsDevice);
 
         // TODO: use this.Content to load your game content here
     }
