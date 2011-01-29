@@ -50,7 +50,7 @@ class Stickfigure
     // Update Method
     public void update(float dt)
     {
-        if (!moving || dead)
+        if (!moving /*|| dead*/)
             return;
 
         // Set the initial force value
@@ -92,11 +92,15 @@ class Stickfigure
     {
         change += dt;
 
-        crotch = position + Vector2.Multiply(new Vector2(0, 3 * scale), (float)Math.Cos(change) + 1);
+        crotch = position;
+        rFoot = crotch + new Vector2(-2.5f * scale, 6 * scale) + Vector2.Multiply(new Vector2(2.5f * scale, 0), (float)Math.Cos(change));
+        lFoot = crotch + new Vector2(2.5f * scale, 6 * scale) + Vector2.Multiply(new Vector2(-2.5f * scale, 0), (float)Math.Cos(change));
+    
+        crotch -= Vector2.Multiply(new Vector2(0, 1.5f * scale), (float)Math.Cos(change) + 1);
 
         //crotch = position + Vector2.Multiply(new Vector2(0, crotchUpAsLegsExtend * scale), (float)Math.Sin(change));
 
-        shoulder = crotch + new Vector2(0, -8 * scale);// + Vector2.Multiply(new Vector2(4,0), (float)Math.Cos(change));
+        shoulder = crotch + new Vector2(0, -8 * scale) + Vector2.Multiply(new Vector2(4,0), (float)Math.Cos(change));
         neck = shoulder + new Vector2(0, -2 * scale);
         head = neck + new Vector2(0, -headSize * scale);
 
