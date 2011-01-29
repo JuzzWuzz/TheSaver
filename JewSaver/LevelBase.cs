@@ -21,8 +21,6 @@ public class LevelBase:DrawableGameComponent
     Tree[] trees;
     Random random;
 
-    int shekalim;
-
     // for testing
     public bool showFrameRate;
 
@@ -66,8 +64,8 @@ public class LevelBase:DrawableGameComponent
         exit.font = font;
         exit.buttonPressed += OnQuitPressed;
         for (int i = 0; i < 10; i++)
-            stickies[i] = new Stickfigure(new Vector2(50 + i * 30, i * 30));
-        moses = new Stickfigure(new Vector2(350, 200));
+            stickies[i] = new Stickfigure(new Vector2(25 + i * 15, 200));
+        moses = new Stickfigure(new Vector2(250, 200));
         moses.SetIsPlayer();
         stars = new Sprite[384];
         for (int i = 0; i < stars.Length; i++)
@@ -83,7 +81,6 @@ public class LevelBase:DrawableGameComponent
             trees[i] = new Tree(new Vector2(random.Next(0, heightMap.Length), JewSaver.height - 20));*/
 
 
-        shekalim = 0;
     }
 
     protected override void LoadContent()
@@ -191,9 +188,9 @@ public class LevelBase:DrawableGameComponent
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             foreach (Stickfigure s in stickies)
             {
-                s.update(dt, heightMap, scrollX);
+                //s.update(dt, heightMap);
             }
-            moses.update(dt, heightMap, scrollX);
+            moses.update(dt, heightMap);
 
             if (moses.position.X >= JewSaver.width / 2.0f)
             {

@@ -13,11 +13,14 @@ public class Input:GameComponent
     public static Vector2 movementDir;
     public static bool leftMouseDown;
     public static bool rightMouseDown;
-    public static bool spaceBarDown;
+    public static bool spaceBarPressed;
     public static bool enterDown;
     public static bool escapeDown;
     public static float mouseScrollValue;
     public static float deltaScroll;
+
+    private static KeyboardState prevState;
+    private static KeyboardState curState;
 
     public Input(Game game)
         : base(game)
@@ -26,6 +29,8 @@ public class Input:GameComponent
         mousePosition = Point.Zero;
         deltaMousePos = Point.Zero;
         movementDir = Vector2.Zero;
+
+        curState = Keyboard.GetState();
     }
 
     public override void Update(GameTime gameTime)
@@ -39,16 +44,17 @@ public class Input:GameComponent
         mouseScrollValue = mouseState.ScrollWheelValue;
         leftMouseDown = mouseState.LeftButton == ButtonState.Pressed;
         rightMouseDown = mouseState.RightButton == ButtonState.Pressed;
-        KeyboardState keyState = Keyboard.GetState();
-        int posX = (keyState.IsKeyDown(Keys.D) || keyState.IsKeyDown(Keys.Right)) ? 1 : 0;
-        int negX = (keyState.IsKeyDown(Keys.A) || keyState.IsKeyDown(Keys.Left)) ? -1 : 0;
-        int posY = (keyState.IsKeyDown(Keys.W) || keyState.IsKeyDown(Keys.Up)) ? 1 : 0;
-        int negY = (keyState.IsKeyDown(Keys.S) || keyState.IsKeyDown(Keys.Down)) ? -1 : 0;
+        prevState = curState;
+        curState = Keyboard.GetState();
+        int posX = (curState.IsKeyDown(Keys.D) || curState.IsKeyDown(Keys.Right)) ? 1 : 0;
+        int negX = (curState.IsKeyDown(Keys.A) || curState.IsKeyDown(Keys.Left)) ? -1 : 0;
+        int posY = (curState.IsKeyDown(Keys.W) || curState.IsKeyDown(Keys.Up)) ? 1 : 0;
+        int negY = (curState.IsKeyDown(Keys.S) || curState.IsKeyDown(Keys.Down)) ? -1 : 0;
         movementDir = new Vector2(posX + negX, posY + negY);
         if (movementDir != Vector2.Zero)
             movementDir.Normalize();
-        spaceBarDown = keyState.IsKeyDown(Keys.Space);
-        enterDown = keyState.IsKeyDown(Keys.Enter);
-        escapeDown = keyState.IsKeyDown(Keys.Escape);
+        spaceBarPressed = curState.IsKeyDown(Keys.Space) && prevState.IsKeyUp(Keys.Space);
+        enterDown = curState.IsKeyDown(Keys.Enter);
+        escapeDown = curState.IsKeyDown(Keys.Escape);
     }
 }
