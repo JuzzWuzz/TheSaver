@@ -95,7 +95,7 @@ class Stickfigure
 
         //crotch = position + Vector2.Multiply(new Vector2(0, crotchUpAsLegsExtend * scale), (float)Math.Sin(change));
 
-        shoulder = crotch + new Vector2(0, -8 * scale) + Vector2.Multiply(new Vector2(4,0), (float)Math.Cos(change));
+        shoulder = crotch + new Vector2(0, -8 * scale) + Vector2.Multiply(new Vector2(4,0), (float)Math.Cos(change * 2));
         neck = shoulder + new Vector2(0, -2 * scale);
         head = neck + new Vector2(0, -headSize * scale);
 

@@ -134,8 +134,11 @@ public class JewSaver : Microsoft.Xna.Framework.Game
 
 static class Program
 {
+    static volatile bool stop = false;
+
     public static void PlayMp3FromUrl()
     {
+        /*royalty free african music. because we are africa.*/
         string url = "http://music.incompetech.com/royalty-free/Blue%20Scorpion.mp3";
         using (Stream ms = new MemoryStream())
         {
@@ -160,7 +163,7 @@ static class Program
                 {
                     waveOut.Init(blockAlignedStream);
                     waveOut.Play();
-                    while (waveOut.PlaybackState == PlaybackState.Playing)
+                    while (waveOut.PlaybackState == PlaybackState.Playing && !stop)
                     {
                         System.Threading.Thread.Sleep(100);
                     }
@@ -181,6 +184,8 @@ static class Program
         {
             game.Run();
         }
-        oThread.Abort();
+        stop = true;
+        //Thread.Sleep(100);
+        oThread.Join(100);
     }
 }
