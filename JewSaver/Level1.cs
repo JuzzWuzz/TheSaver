@@ -20,6 +20,14 @@ public class Level1:LevelBase
             AddTrees();
         }
         hasPlayed = true;
+        locustTimeout = new TimeSpan(0,0,5);
+        locustTime = new TimeSpan(0, 0, 20);
+    }
+
+    public override void Update(GameTime gameTime)
+    {
+        base.Update(gameTime);
+        //Console.WriteLine(locustTimeout);
     }
 
     protected override void NextLevel()
