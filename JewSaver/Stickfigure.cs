@@ -218,7 +218,7 @@ class Stickfigure
                 if (position.X + LevelBase.scrollX >= LevelBase.sprintMarkers[i])
                 {
                     sprinting ^= true;
-                    curJumpIdx++;
+                    curSprintIdx++;
                 }
             }
         }

@@ -414,6 +414,7 @@ public class LevelBase:DrawableGameComponent
         }
         JewSaver.primitiveBatch.End();
 
+        // Draw the trees
         if (trees != null)
         {
             for (int i = 0; i < trees.Length; i++)
