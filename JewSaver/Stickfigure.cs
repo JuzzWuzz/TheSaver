@@ -214,6 +214,10 @@ class Stickfigure
         JewSaver.primitiveBatch.AddLine(crotch, lFoot, color, color, scale);
         JewSaver.primitiveBatch.AddLine(crotch, rFoot, color, color, scale);
 
+        if (isPlayer)
+            JewSaver.primitiveBatch.AddLine(crotch + new Vector2(8, 14),
+                shoulder + new Vector2(8, -10), Color.Black, 2);
+
         // End primitive batch
         JewSaver.primitiveBatch.End();
     }
