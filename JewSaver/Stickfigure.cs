@@ -16,6 +16,7 @@ class Stickfigure
     private bool isPlayer = false;
     private bool moving = false;
     private bool dead = false;
+    public bool Dead {get { return dead; }}
 
     private Vector2 crotch, shoulder, lHand, rHand, lFoot, rFoot, neck, head;
 
@@ -78,10 +79,10 @@ class Stickfigure
         float ground;
         float drag = 0.99f;
 
-        float gp = JewSaver.height - heightmap[(int)LevelBase.scrollX + (int)position.X - scale];
-        float gn = JewSaver.height - heightmap[(int)LevelBase.scrollX + (int)position.X + scale];
+        float gp = JewSaver.height - heightmap[Math.Min(Math.Max(0, (int)(LevelBase.scrollX + position.X - scale)), LevelBase.levelLength - 1)];
+        float gn = JewSaver.height - heightmap[Math.Min(Math.Max(0, (int)(LevelBase.scrollX + position.X + scale)), LevelBase.levelLength - 1)];
         double angle = Math.Atan((double)Math.Abs(gn - gp) / (double)(scale * 2));
-        ground = JewSaver.height - heightmap[(int)LevelBase.scrollX + (int)position.X];
+        ground = JewSaver.height - heightmap[Math.Min(Math.Max(0, (int)(LevelBase.scrollX + position.X)), LevelBase.levelLength - 1)];
 
         setLimbs(dt);
         if (!jumping)
@@ -96,7 +97,7 @@ class Stickfigure
             {
                 // Gradient = /
                 //ground = JewSaver.height - heightmap[(int)LevelBase.scrollX + (int)lFoot.X];
-                if (angle > Math.PI / 8.0f * 3.0f)
+                if (angle > Math.PI / 180.0f * 80.0f)
                 {
                     drag = 0.0f;
                     // Add dt to the timer value and if they are stuck for 4 seconds then kill them
@@ -109,7 +110,7 @@ class Stickfigure
                     // Check to see if they climbing more than 22.5 degrees then start to apply
                     // the drag value based on that up to 67.5 degrees
                     float newAngle = Math.Abs((float)angle - (float)Math.PI / 8.0f);
-                    drag -= 0.03f * newAngle / ((float)Math.PI / 4.0f);
+                    //drag = 0.99f - 0.03f * newAngle / ((float)Math.PI / 8.0f * 3.0f);
                     // Minus dt from timer to reduce death chance
                     timer -= dt;
                 }
@@ -120,7 +121,7 @@ class Stickfigure
             {
                 force = -velocity * mass / dt;
                 // If the impact force is higher than this value then kill stickie
-                if (Math.Abs((force / gravity).Y) >= 40.0f)
+                if (Math.Abs((force / gravity).Y) >= 50.0f)
                     dead = true;
 
                 force = Vector2.Zero;
@@ -144,8 +145,8 @@ class Stickfigure
             {
                 if (position.X + LevelBase.scrollX >= jumpMarkers[i])
                 {
-                    float jumpForce = moveForce * 800.0f;
-                    double jumpAngle = Math.PI / 180.0f * 65.0f;
+                    float jumpForce = moveForce * 250.0f;
+                    double jumpAngle = Math.PI / 180.0f * 45.0f;
                     force = new Vector2(jumpForce * (float)Math.Cos(jumpAngle), -jumpForce * (float)Math.Sin(jumpAngle));
                     jumping = true;
                     curIndex++;
@@ -168,7 +169,7 @@ class Stickfigure
         {
             timer += dt;
         }
-        if (!jumping || (jumping && timer > 1.0f))
+        if (!jumping || (jumping && timer > 0.4f))
         {
             float diff = lowestPoint().Y - ground;
             if (diff > 0)
