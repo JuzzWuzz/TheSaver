@@ -9,13 +9,17 @@ using System.Collections;
 class Stickfigure
 {
     const float gravity = 500.0f;
-    private bool jumping = false;
-
-    static List<float> jumpMarkers = new List<float>();
-
+    const float jumpForce = gravity * 30.0f;
+    const double jumpAngle = Math.PI / 180.0f * 55.0f;
+    
+    
     private bool isPlayer = false;
-    private bool moving = false;
-    public bool dead = false;
+    private bool newStickie;
+    private bool inactive;
+    
+    public bool dead;
+    public bool saved;
+    public bool jumping;
 
     private Vector2 crotch, shoulder, lHand, rHand, lFoot, rFoot, neck, head;
 
@@ -28,13 +32,16 @@ class Stickfigure
     protected float moveForce;
     protected float mass;
     protected float timer;
+    protected float spawnTimer;
     protected Color color;
     protected int curIndex;
+    protected int stickieIndex;
 
-    public Stickfigure(Vector2 position)
+    public Stickfigure(Vector2 position, int index)
     {
         origPosition = position;
         color = Color.Yellow;
+        stickieIndex = index;
         Initialize();
     }
 
@@ -42,7 +49,7 @@ class Stickfigure
     {
         isPlayer = true;
         color = Color.Brown;
-        jumpMarkers.Clear();
+        mass = 1.2f;
     }
 
     public void Initialize()
@@ -59,17 +66,62 @@ class Stickfigure
         this.position = this.origPosition;
         this.velocity = Vector2.Zero;
         this.moveForce = 50.0f;
-        this.mass = 1.0f;
+        this.mass = 1.0f + 1.0f * (float)LevelBase.random.NextDouble();
         this.timer = 0.0f;
-        this.moving = true;
+        this.spawnTimer = 0.0f;
         this.curIndex = 0;
+        this.inactive = false;
+        this.dead = false;
+        this.saved = false;
+        this.jumping = false;
+        this.newStickie = true;
+
+        if (isPlayer)
+            mass = 1.2f;
     }
     
     // Update Method
     public void update(float dt, float[] heightmap)
     {
-        if (!moving || dead)
+        if (inactive)
             return;
+
+        // If a new stickie make invulnarable when starting and spawn one after the other
+        if (newStickie)
+        {
+            spawnTimer += dt;
+            dead = false;
+            if (spawnTimer > 0.75f * stickieIndex)
+            {
+                spawnTimer = 0.0f;
+                newStickie = false;
+            }
+        }
+
+        // Kill falled stickies
+        if (position.Y > JewSaver.height)
+        {
+            dead = true;
+            inactive = true;
+            return;
+        }
+
+        // Save stickes that make it to the end
+        if (position.X > JewSaver.width + 5 * scale)
+        {
+            saved = true;
+            inactive = true;
+            return;
+        }
+        
+        // If not moving or dead then do this until stickie has moved off of screen
+        if (dead)
+        {
+            setLimbs(dt);
+            if (position.X < -5 * scale)
+                inactive = true;
+            return;
+        }
 
         // Set the initial force value
         Vector2 force = new Vector2(0.0f, gravity);
@@ -120,7 +172,7 @@ class Stickfigure
             {
                 force = -velocity * mass / dt;
                 // If the impact force is higher than this value then kill stickie
-                if (Math.Abs((force / gravity).Y) >= 40.0f)
+                if (Math.Abs((force / gravity).Y) >= 50.0f)
                     dead = true;
 
                 force = Vector2.Zero;
@@ -129,23 +181,16 @@ class Stickfigure
             if (isPlayer && dead)
                 dead = false;
             // Factor in walking if not dead
-            if (!dead)
+            if (!dead && !newStickie)
                 force += new Vector2(moveForce * (float)Math.Cos(angle), moveForce * (float)Math.Sin(angle));
-        }
-
-        if (isPlayer && !jumping && Input.spaceBarPressed)
-        {
-            jumpMarkers.Add(position.X + LevelBase.scrollX);
         }
 
         if (!jumping)
         {
-            for (int i = curIndex; i < jumpMarkers.Count; i++)
+            for (int i = curIndex; i < LevelBase.jumpMarkers.Count; i++)
             {
-                if (position.X + LevelBase.scrollX >= jumpMarkers[i])
+                if (position.X + LevelBase.scrollX >= LevelBase.jumpMarkers[i])
                 {
-                    float jumpForce = gravity * 35.0f;
-                    double jumpAngle = Math.PI / 180.0f * 65.0f;
                     force = new Vector2(jumpForce * (float)Math.Cos(jumpAngle), -jumpForce * (float)Math.Sin(jumpAngle));
                     jumping = true;
                     curIndex++;
@@ -225,19 +270,18 @@ class Stickfigure
     public Vector2 lowestPoint()
     {
         List<Vector2> l = new List<Vector2>();
-        l.Add(neck);
         l.Add(crotch);
-        l.Add(shoulder);
-        l.Add(lHand);
-        l.Add(rHand);
         l.Add(lFoot);
         l.Add(rFoot);
         l.Sort(vecComp);
         return (l[0]);
     }
 
-    public void draw()
+    public void draw(float[] heightmap)
     {
+        if (inactive)
+            return;
+
         // Draw the head
         JewSaver.primitiveBatch.DrawCircle(head, Color.Orange, headSize * scale);
         

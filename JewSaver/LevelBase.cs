@@ -17,13 +17,15 @@ public class LevelBase:DrawableGameComponent
     SpriteFont font;
     Texture2D star;
     Sprite[] stars;
-    protected JewSaver jewSaver;
+    private JewSaver jewSaver;
     Tree[] trees;
-    Random random;
+    public static Random random = new Random();
     protected bool hasPlayed;
     Texture2D lifeBarTex;
     Sprite lifeBar;
     public static int levelLength;
+    public static List<float> jumpMarkers = new List<float>();
+    int numberOfStickies;
 
     // for testing
     public bool showFrameRate;
@@ -31,9 +33,10 @@ public class LevelBase:DrawableGameComponent
     // landscape sculpting brush
     Rectangle landscapeBrush;
     float brushSize;
-    int livingStickies;
+    int deadStickies;
+    int savedStickies;
 
-    Stickfigure[] stickies = new Stickfigure[10];
+    Stickfigure[] stickies;
     Stickfigure moses;
 
     /// <summary>
@@ -47,8 +50,9 @@ public class LevelBase:DrawableGameComponent
         levelLength = newLevelLength;
         heightMap = new float [levelLength];
         jewSaver = game;
-        random = new Random();
         hasPlayed = false;
+        numberOfStickies = 10;
+        stickies = new Stickfigure[numberOfStickies];
     }
 
     public override void Initialize()
@@ -73,10 +77,11 @@ public class LevelBase:DrawableGameComponent
         exit = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(1024 - 8 - 96, 8), "QUIT");
         exit.font = font;
         exit.buttonPressed += OnQuitPressed;
-        for (int i = 0; i < 10; i++)
-            stickies[i] = new Stickfigure(new Vector2(25 + i * 15, 200));
-        moses = new Stickfigure(new Vector2(250, 200));
+        for (int i = 0; i < numberOfStickies; i++)
+            stickies[i] = new Stickfigure(new Vector2(-50.0f, 0), i + 1);
+        moses = new Stickfigure(new Vector2(50, 200), 0);
         moses.SetIsPlayer();
+        jumpMarkers.Clear();
         if (!hasPlayed)
         {
             stars = new Sprite[384];
@@ -207,19 +212,32 @@ public class LevelBase:DrawableGameComponent
         {
             (restart as MenuInputElement).CheckInput();
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            livingStickies = 0;
+            deadStickies = 0;
+            savedStickies = 0;
+
+            if (!moses.jumping && Input.spaceBarPressed)
+            {
+                jumpMarkers.Add(moses.position.X + scrollX);
+            }
+
             foreach (Stickfigure s in stickies)
             {
                 s.update(dt, heightMap);
-                if (!s.dead)
-                    livingStickies++;
-            }
-            if (livingStickies == 0)
+                if (s.dead)
+                    deadStickies++;
+                if (s.saved)
+                {
+                    savedStickies++;
+                }
+             }
+            if (numberOfStickies - deadStickies - savedStickies == 0)
             {
+                // Game is over
+                Console.WriteLine("saved: " + savedStickies.ToString());
                 Initialize();
                 return;
             }
-            lifeBar = new Sprite(lifeBarTex, 1, (int)((float)livingStickies / stickies.Length * 256.0f), 0, 256 - (int)((float)livingStickies / stickies.Length * 256.0f), 32, (int)((float)livingStickies / stickies.Length * 256.0f), 8, 120 + 256 - (int)((float)livingStickies / stickies.Length * 256.0f));
+            lifeBar = new Sprite(lifeBarTex, 1, (int)((float)(numberOfStickies - deadStickies) / stickies.Length * 256.0f), 0, 256 - (int)((float)(numberOfStickies - deadStickies) / stickies.Length * 256.0f), 32, (int)((float)(numberOfStickies - deadStickies) / stickies.Length * 256.0f), 8, 120 + 256 - (int)((float)(numberOfStickies - deadStickies) / stickies.Length * 256.0f));
             moses.update(dt, heightMap);
 
             if (moses.position.X >= JewSaver.width / 2.0f)
@@ -318,12 +336,16 @@ public class LevelBase:DrawableGameComponent
 
         else if (levelMode == LevelMode.PLAY)
         {
+            // Draw the jump markers
+            for (int i = 0; i < jumpMarkers.Count; i++)
+                JewSaver.primitiveBatch.DrawCircle(new Vector2(jumpMarkers[i] - scrollX, JewSaver.height - heightMap[Math.Min(Math.Max(0, (int)(jumpMarkers[i])), levelLength - 1)]), Color.Blue, 5);
+
             // Draw stickies
             foreach (Stickfigure s in stickies)
             {
-                s.draw();
+                s.draw(heightMap);
             }
-            moses.draw();
+            moses.draw(heightMap);
             JewSaver.spriteBatch.Begin();
             (restart as MenuInputElement).Draw(JewSaver.spriteBatch);
             lifeBar.Draw(JewSaver.spriteBatch);
