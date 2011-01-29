@@ -27,6 +27,11 @@ public class LevelBase:DrawableGameComponent
     public static List<float> sprintMarkers = new List<float>();
     int numberOfStickies;
 
+    //Swarm stuff
+    protected static List<LocustSwarm> locusts;
+    protected TimeSpan locustTimeout;
+    protected TimeSpan locustTime;
+
     // end screen text
     string finalText;
     float textTimer;
@@ -93,6 +98,10 @@ public class LevelBase:DrawableGameComponent
         moses.SetIsPlayer();
         jumpMarkers.Clear();
         sprintMarkers.Clear();
+
+        locusts = new List<LocustSwarm>();
+        locustTimeout = locustTime = new TimeSpan(0, 5, 0);
+
         if (!hasPlayed)
         {
             stars = new Sprite[JewSaver.height];
@@ -335,6 +344,18 @@ public class LevelBase:DrawableGameComponent
                 }
             }
             moses.update(dt, heightMap);
+
+            locustTimeout -= gameTime.ElapsedGameTime;
+            if (locustTimeout.TotalMilliseconds <= 0)
+            {
+                int plagueLength = random.Next(8, 15);
+                Console.WriteLine("Adding locusts for "+plagueLength+" seconds");
+                locusts.Add(new LocustSwarm(plagueLength));
+                locustTimeout += locustTime;
+            }
+
+            foreach (LocustSwarm swarm in locusts)
+                swarm.update(dt);
         }
 
         // Update the trees
@@ -448,6 +469,10 @@ public class LevelBase:DrawableGameComponent
                 s.draw(heightMap);
             }
             moses.draw(heightMap);
+
+            foreach (LocustSwarm swarm in locusts)
+                swarm.draw();
+
             JewSaver.spriteBatch.Begin();
             (restart as MenuInputElement).Draw(JewSaver.spriteBatch);
 
