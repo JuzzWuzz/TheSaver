@@ -8,7 +8,7 @@ public class MenuJewSaver:Menu
     Texture2D buttonTexture;
     MenuButton newGame;
     MenuButton exit;
-    SpriteFont font;
+    public static SpriteFont font;
     JewSaver jewSaver;
 
     public MenuJewSaver(JewSaver game)

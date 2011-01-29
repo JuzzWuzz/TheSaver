@@ -32,9 +32,10 @@ public class JewSaver : Microsoft.Xna.Framework.Game
     public static int height;
     public static int width;
     MenuJewSaver mainMenu;
-    //LevelBase baseLevel;
     LevelBase currentLevel;
     Level1 level1;
+    Level2 level2;
+    Level3 level3;
 
     public JewSaver()
     {
@@ -61,15 +62,6 @@ public class JewSaver : Microsoft.Xna.Framework.Game
         this.Components.Add(new Input(this));
         mainMenu = new MenuJewSaver(this);
         this.Components.Add(mainMenu);
-        /*baseLevel = new LevelBase(this, 4096);
-        baseLevel.Visible = false;
-        baseLevel.Enabled = false;
-        baseLevel.showFrameRate = false;*/
-        level1 = new Level1(this);
-        level1.Visible = false;
-        level1.Enabled = false;
-        this.Components.Add(level1);
-
         base.Initialize();
     }
 
@@ -163,18 +155,27 @@ public class JewSaver : Microsoft.Xna.Framework.Game
         switch (gameState)
         {
             case GameState.LEVEL_1:
-                mainMenu.Visible = false;
-                mainMenu.Enabled = false;
-                level1.Initialize();
+                this.Components.Remove(mainMenu);
+                level1 = new Level1(this);
+                Components.Add(level1);
                 currentLevel = level1;
-                currentLevel.Visible = true;
-                currentLevel.Enabled = true;
                 break;
             case GameState.MAIN_MENU:
-                mainMenu.Visible = true;
-                mainMenu.Enabled = true;
-                currentLevel.Visible = false;
-                currentLevel.Enabled = false;
+                this.Components.Remove(currentLevel);
+                mainMenu = new MenuJewSaver(this);
+                Components.Add(mainMenu);
+                break;
+            case GameState.LEVEL_2:
+                this.Components.Remove(level1);
+                level2 = new Level2(this);
+                this.Components.Add(level2);
+                currentLevel = level2;
+                break;
+            case GameState.LEVEL_3:
+                this.Components.Remove(level2);
+                level3 = new Level3(this);
+                this.Components.Add(level3);
+                currentLevel = level3;
                 break;
             default:
                 break;

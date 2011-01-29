@@ -77,6 +77,8 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml">
       <Private>False</Private>
     </Reference>
@@ -92,6 +94,8 @@
   <ItemGroup>
     <Compile Include="Input.cs" />
     <Compile Include="Level1.cs" />
+    <Compile Include="Level2.cs" />
+    <Compile Include="Level3.cs" />
     <Compile Include="LevelBase.cs" />
     <Compile Include="Menu classes\Menu.cs" />
     <Compile Include="Menu classes\MenuButton.cs" />

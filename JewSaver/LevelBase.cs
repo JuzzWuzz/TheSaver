@@ -7,6 +7,7 @@ public class LevelBase:DrawableGameComponent
 {
     protected enum LevelMode {EDIT, PLAY};
     protected float[] heightMap;
+    protected bool[] canSculpt;
     protected LevelMode levelMode;
     public static float scrollX;
     float scrollSpeed;
@@ -17,7 +18,7 @@ public class LevelBase:DrawableGameComponent
     SpriteFont font;
     Texture2D star;
     Sprite[] stars;
-    private JewSaver jewSaver;
+    protected JewSaver jewSaver;
     Tree[] trees;
     public static Random random = new Random();
     protected bool hasPlayed;
@@ -25,6 +26,12 @@ public class LevelBase:DrawableGameComponent
     public static List<float> jumpMarkers = new List<float>();
     public static List<float> sprintMarkers = new List<float>();
     int numberOfStickies;
+
+    // end screen text
+    string finalText;
+    float textTimer;
+    bool showText;
+    bool goToNextLevel;
 
     // for testing
     public bool showFrameRate;
@@ -48,6 +55,7 @@ public class LevelBase:DrawableGameComponent
     {
         levelLength = newLevelLength;
         heightMap = new float [levelLength];
+        canSculpt = new bool[levelLength];
         jewSaver = game;
         hasPlayed = false;
         numberOfStickies = 50;
@@ -60,7 +68,10 @@ public class LevelBase:DrawableGameComponent
         if (!hasPlayed)
         {
             for (int i = 0; i < heightMap.Length; i++)
+            {
                 heightMap[i] = (float)(64 + 16 * Math.Sin(i / 4096.0f * Math.PI * 32));
+                canSculpt[i] = true;
+            }
         }
         levelMode = LevelMode.EDIT;
         scrollX = 0;
@@ -90,7 +101,10 @@ public class LevelBase:DrawableGameComponent
                 stars[i] = new Sprite(star, 8, 8, 0, 0, 8, 8, random.Next(2048), random.Next(64));
                 stars[i].Alpha = (64 - stars[i].screenRectangle.Top) / 96.0f;
             }
+            textTimer = 0;
+            showText = false;
         }
+        goToNextLevel = false;
     }
 
     protected override void LoadContent()
@@ -167,14 +181,14 @@ public class LevelBase:DrawableGameComponent
                 {
                     if (lookingForStart)
                     {
-                        if (heightMap[i] >= 16)
+                        if (canSculpt[i])
                         {
                             lookingForStart = false;
                             lastStart = i;
                             intervals.Add(i);
                         }
                     }
-                    else if (heightMap[i] < 16 || (i == endIndex - 1 && !lookingForStart))
+                    else if (!canSculpt[i] || (i == endIndex - 1 && !lookingForStart))
                     {
                         intervals.Add((int)((lastStart + i - 1) / 2.0f));
                         intervals.Add(i);
@@ -222,6 +236,41 @@ public class LevelBase:DrawableGameComponent
                 if (s.saved)
                 {
                     savedStickies++;
+                }
+             }
+            if (!goToNextLevel)
+            {
+                if (!moses.dead)
+                {
+                    if (numberOfStickies - deadStickies - savedStickies == 0)
+                    {
+                        showText = true;
+                        textTimer = 0;
+                        // Game is over
+                        if (savedStickies > 0)
+                        {
+                            finalText = "You can see the Promised Land in the distance!";
+                            //Console.WriteLine("You can see the Promised Land in the distance!");
+                            goToNextLevel = true;
+                            return;
+                        }
+                        else
+                        {
+                            finalText = "You have single-handedly destroyed a nation.";
+                            //Console.WriteLine("You have single-handedly destroyed a nation.");
+                            Initialize();
+                            return;
+                        }
+                    }
+                }
+                else
+                {
+                    showText = true;
+                    textTimer = 0;
+                    finalText = "The nation is leaderless! Another 40 years in the desert...";
+                    //Console.WriteLine("The nation is leaderless! Another 40 years in the desert...");
+                    Initialize();
+                    return;
                 }
             }
 
@@ -301,6 +350,16 @@ public class LevelBase:DrawableGameComponent
         {
             tree.update(heightMap);
         }
+        if (showText)
+        {
+            textTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (textTimer >= 5)
+            {
+                showText = false;
+                if (goToNextLevel)
+                    NextLevel();
+            }
+        }
     }
 
     private void Sculpt(int startIndex, int midIndex, int endIndex, GameTime gameTime, int top)
@@ -355,16 +414,26 @@ public class LevelBase:DrawableGameComponent
         }
         JewSaver.primitiveBatch.End();
 
-        for (int i = 0; i < trees.Length; i++)
+        if (trees != null)
         {
-            trees[i].scrollXValue = scrollX;
-            trees[i].draw();
+            for (int i = 0; i < trees.Length; i++)
+            {
+                trees[i].scrollXValue = scrollX;
+                trees[i].draw();
+            }
         }
 
         if (levelMode == LevelMode.EDIT)
         {
             JewSaver.spriteBatch.Begin();
             (play as MenuInputElement).Draw(JewSaver.spriteBatch);
+            // final text if applicable
+            if (showText)
+            {
+                Vector2 measure = MenuJewSaver.font.MeasureString(finalText);
+                Vector2 centre = new Vector2((JewSaver.width - measure.X) / 2.0f, (JewSaver.height - measure.Y) / 2.0f);
+                JewSaver.spriteBatch.DrawString(MenuJewSaver.font, finalText, centre, new Color(1, 1, 1, (float)Math.Sin(textTimer / 10.0f * 2 * Math.PI)));
+            }
             JewSaver.spriteBatch.End();
         }
 
@@ -398,6 +467,14 @@ public class LevelBase:DrawableGameComponent
             centre = new Vector2((JewSaver.width - font.MeasureString(text).X) / 2.0f, 10.0f + font.LineSpacing);
             JewSaver.spriteBatch.DrawString(font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
             JewSaver.spriteBatch.DrawString(font, text, centre, Color.White);
+            
+            // final text if applicable
+            if (showText)
+            {
+                Vector2 measure = MenuJewSaver.font.MeasureString(finalText);
+                centre = new Vector2((JewSaver.width - measure.X) / 2.0f, (JewSaver.height - measure.Y) / 2.0f);
+                JewSaver.spriteBatch.DrawString(MenuJewSaver.font, finalText, centre, new Color(1, 1, 1, (float)Math.Sin(textTimer / 10.0f * 2 * Math.PI)));
+            }
 
             JewSaver.spriteBatch.End();
         }
@@ -449,9 +526,15 @@ public class LevelBase:DrawableGameComponent
     {
         float mid = (end-start)/2.0f;
         for (int i = start; i < (end - start) / 2 + start; i++)
+        {
             heightMap[i] = CosineInterpolate(heightMap[start], -256, (i - start) / mid);
+            canSculpt[i] = heightMap[i] >= 16;
+        }
         for (int i = (end - start) / 2 + start; i <= end; i++)
-            heightMap[i] = CosineInterpolate(-256, heightMap[end], (i - ((int)mid + start)) / mid); 
+        {
+            heightMap[i] = CosineInterpolate(-256, heightMap[end], (i - ((int)mid + start)) / mid);
+            canSculpt[i] = heightMap[i] >= 16;
+        }
     }
 
     /// <summary>
@@ -471,5 +554,10 @@ public class LevelBase:DrawableGameComponent
                 i++;
             }
         }
+    }
+
+    protected virtual void NextLevel()
+    {
+        // override in child classes
     }
 }
