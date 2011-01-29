@@ -218,6 +218,8 @@ class Stickfigure
             float diff = lowestPoint().Y - ground;
             if (diff > 0)
             {
+                if (jumping)
+                    velocity *= 0.1f;
                 jumping = false;
                 position.Y -= diff;
             }
