@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-public class LevelBase:DrawableGameComponent
+public class LevelBase : DrawableGameComponent
 {
-    protected enum LevelMode {EDIT, PLAY};
+    protected enum LevelMode { EDIT, PLAY };
     protected enum TerrainType { SAND, WATER, CANYON, OTHER };
     public static float[] heightMap;
     protected TerrainType[] canSculpt;
@@ -30,12 +30,14 @@ public class LevelBase:DrawableGameComponent
     float levelTime;
 
     //Swarm stuff
-    protected static List<LocustSwarm> locusts;
+    protected static List<Locust> locusts;
     protected TimeSpan locustTimeout;
     protected TimeSpan locustTime;
+    protected int plagueLength;
+    protected TimeSpan locustSpawner;
 
     // end screen text
-    protected string finalText;
+    protected List<string> finalTexts;
     float textTimer;
     protected bool showText;
     bool goToNextLevel;
@@ -63,11 +65,12 @@ public class LevelBase:DrawableGameComponent
         : base(game)
     {
         levelLength = newLevelLength;
-        heightMap = new float [levelLength];
+        heightMap = new float[levelLength];
         canSculpt = new TerrainType[levelLength];
+        finalTexts = new List<string>();
         jewSaver = game;
         hasPlayed = false;
-        numberOfStickies = 1;
+        numberOfStickies = 50;
         stickies = new Stickfigure[numberOfStickies];
     }
 
@@ -87,7 +90,7 @@ public class LevelBase:DrawableGameComponent
         scrollX = 0;
         scrollSpeed = 300;
         brushSize = 224;
-        landscapeBrush = new Rectangle(0, 0, (int)(brushSize*1.5f), (int)brushSize);
+        landscapeBrush = new Rectangle(0, 0, (int)(brushSize * 1.5f), (int)brushSize);
         play = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(8, 8), "PLAY");
         play.font = font;
         play.buttonPressed += OnPlayPressed;
@@ -97,6 +100,7 @@ public class LevelBase:DrawableGameComponent
         exit = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(JewSaver.width - 8 - 96, 8), "QUIT");
         exit.font = font;
         exit.buttonPressed += OnQuitPressed;
+        stickies = new Stickfigure[numberOfStickies];
         for (int i = 0; i < numberOfStickies; i++)
             stickies[i] = new Stickfigure(new Vector2(-50.0f, 0), i + 1);
         moses = new Stickfigure(new Vector2(50, 200), 0);
@@ -104,8 +108,10 @@ public class LevelBase:DrawableGameComponent
         jumpMarkers.Clear();
         sprintMarkers.Clear();
 
-        locusts = new List<LocustSwarm>();
-        locustTimeout = locustTime = new TimeSpan(0, 5, 0);
+        locusts = new List<Locust>();
+        locustTimeout = new TimeSpan(0, 0, 15);
+        locustTime = new TimeSpan(0, 1, 0);
+        plagueLength = 0;
 
         if (!hasPlayed)
         {
@@ -138,11 +144,11 @@ public class LevelBase:DrawableGameComponent
             }
         }
         star = new Texture2D(Game.GraphicsDevice, 8, 8);
-        Color[] starData = new Color[8*8];
+        Color[] starData = new Color[8 * 8];
         for (int i = -4; i < 4; i++)
         {
             float frac = (float)((4 - Math.Abs(i)) / 4.0f);
-            starData[4 * 8 + i + 4] = new Color(1,1,1,frac);
+            starData[4 * 8 + i + 4] = new Color(1, 1, 1, frac);
             starData[(i + 4) * 8 + 4] = new Color(1, 1, 1, frac);
         }
         star.SetData<Color>(starData);
@@ -223,6 +229,26 @@ public class LevelBase:DrawableGameComponent
         }
         else if (levelMode == LevelMode.PLAY)
         {
+            if (showText)
+            {
+                textTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                if (textTimer >= 4.0f)
+                {
+                    finalTexts.RemoveAt(0);
+                    textTimer = 0.0f;
+                    if (finalTexts.Count <= 0)
+                    {
+                        showText = false;
+                        if (goToNextLevel)
+                        {
+                            NextLevel();
+                        }
+                        else
+                            Initialize();
+                    }
+                }
+                return;
+            }
             (restart as MenuInputElement).CheckInput();
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             deadStickies = 0;
@@ -259,7 +285,8 @@ public class LevelBase:DrawableGameComponent
                     if (s.isFattie)
                         savedFatties++;
                 }
-             }
+            }
+            moses.update(dt);
 
             if (!goToNextLevel)
             {
@@ -270,32 +297,46 @@ public class LevelBase:DrawableGameComponent
                         showText = true;
                         textTimer = 0;
                         // Game is over
-                        if (savedStickies > 0)
+
+                        // Update the totals
+                        JewSaver.finalSavedFatties += savedFatties;
+                        JewSaver.finalSavedFemales += savedFemales;
+                        JewSaver.finalSavedStickies += savedStickies;
+
+                        if (this is Level3)
                         {
-                            if (this is Level3)
-                                finalText = "Finally you have reached the Promised Land!";
+                            finalTexts.Add("Finally you have reached the Promised Land!");
+                            if (JewSaver.finalSavedFemales > 1 && JewSaver.finalSavedStickies - JewSaver.finalSavedFemales > 1)
+                            {
+                                finalTexts.Add("You have saved your people, congratulations!");
+                                return;
+                            }
+
+                            if (JewSaver.finalSavedStickies == 0)
+                                finalTexts.Add("But you did not bring any followers!");
                             else
-                                finalText = "You can see the Promised Land in the distance!";
-                            //Console.WriteLine("You can see the Promised Land in the distance!");
-                            goToNextLevel = true;
-                            return;
+                            {
+                                if (JewSaver.finalSavedStickies - JewSaver.finalSavedFemales < 1)
+                                    finalTexts.Add("But you do not have any males to repopulate!");
+                                else if (JewSaver.finalSavedFemales < 1)
+                                    finalTexts.Add("But you do not have any females to repopulate!");
+                            }
+                            finalTexts.Add("You have single-handedly destroyed a nation.");
                         }
                         else
                         {
-                            finalText = "You have single-handedly destroyed a nation.";
-                            //Console.WriteLine("You have single-handedly destroyed a nation.");
-                            Initialize();
-                            return;
+                            finalTexts.Add("You can see the Promised Land in the distance!");
                         }
+                        goToNextLevel = true;
+                        return;
                     }
                 }
                 else
                 {
                     showText = true;
                     textTimer = 0;
-                    finalText = "The nation is leaderless! Another 40 years in the desert...";
-                    //Console.WriteLine("The nation is leaderless! Another 40 years in the desert...");
-                    Initialize();
+                    finalTexts.Add("The nation is leaderless! Another 40 years in the desert...");
+                    finalTexts.Add("You have single-handedly destroyed a nation.");
                     return;
                 }
             }
@@ -313,6 +354,8 @@ public class LevelBase:DrawableGameComponent
                         scrollX -= change;
                         foreach (Stickfigure s in stickies)
                             s.position.X += change;
+                        foreach (Locust l in locusts)
+                            l.pos.X += change;
                         if (scrollX < 0)
                             scrollX = 0;
                     }
@@ -325,6 +368,8 @@ public class LevelBase:DrawableGameComponent
                         scrollX += change;
                         foreach (Stickfigure s in stickies)
                             s.position.X -= change;
+                        foreach (Locust l in locusts)
+                            l.pos.X -= change;
                         if (scrollX > heightMap.Length - JewSaver.width - 1)
                             scrollX = heightMap.Length - JewSaver.width - 1;
                     }
@@ -344,10 +389,13 @@ public class LevelBase:DrawableGameComponent
                             moses.position.X -= changeX;
                             foreach (Stickfigure s in stickies)
                                 s.position.X -= changeX;
+                            foreach (Locust l in locusts)
+                                l.pos.X -= changeX;
                         }
                         else
                         {
-                            scrollX = levelLength - JewSaver.width - 1;
+                            // Possible segfault over here then uncomment the -1
+                            scrollX = levelLength - JewSaver.width;// -1;
                         }
                     }
                     else
@@ -357,6 +405,8 @@ public class LevelBase:DrawableGameComponent
                         moses.position.X -= changeX;
                         foreach (Stickfigure s in stickies)
                             s.position.X -= changeX;
+                        foreach (Locust l in locusts)
+                            l.pos.X -= changeX;
                     }
                 }
             }
@@ -364,15 +414,43 @@ public class LevelBase:DrawableGameComponent
             locustTimeout -= gameTime.ElapsedGameTime;
             if (locustTimeout.TotalMilliseconds <= 0)
             {
-                int plagueLength = random.Next(8, 15);
+                plagueLength = random.Next(8, 15);
                 Console.WriteLine("Adding locusts for " + plagueLength + " seconds");
-                locusts.Add(new LocustSwarm(plagueLength));
+
                 locustTimeout += locustTime;
             }
+            else
+            {
+                if (plagueLength > 0)
+                {
+                    locustSpawner -= gameTime.ElapsedGameTime;
+                    if (locustSpawner.TotalMilliseconds <= 0)
+                    {
+                        locustSpawner = new TimeSpan(0, 0, 0, 0, random.Next(500));
 
-            foreach (LocustSwarm swarm in locusts)
-                swarm.update(dt);
-            moses.update(dt);
+                        int spawnZone = (JewSaver.height / 2) / 3;
+                        double rand = random.NextDouble();
+                        if (rand > 0.6)
+                            locusts.Add(new Locust(new Vector2(levelLength, random.Next(0, spawnZone))));
+                        else if (rand > 0.25)
+                            locusts.Add(new Locust(new Vector2(levelLength, random.Next(0, spawnZone * 2))));
+                        else
+                            locusts.Add(new Locust(new Vector2(levelLength, random.Next(0, spawnZone * 3))));
+                    }
+                }
+            }
+            for (int i = 0; i < locusts.Count;)
+            {
+                if (locusts[i].dead)
+                {
+                    locusts.Remove(locusts[i]);
+                }
+                else
+                {
+                    locusts[i].update(dt);
+                    i++;
+                }
+            }
 
         }
 
@@ -382,21 +460,6 @@ public class LevelBase:DrawableGameComponent
             foreach (Tree tree in trees)
             {
                 tree.update(heightMap);
-            }
-        }
-        if (showText)
-        {
-            textTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (textTimer >= 5)
-            {
-                showText = false;
-                if (goToNextLevel)
-                {
-                    JewSaver.finalSavedFatties += savedFatties;
-                    JewSaver.finalSavedFemales += savedFemales;
-                    JewSaver.finalSavedStickies += savedStickies;
-                    NextLevel();
-                }
             }
         }
     }
@@ -432,7 +495,8 @@ public class LevelBase:DrawableGameComponent
             str.scrollXValue = 0.125f * scrollX;
             str.Draw(JewSaver.spriteBatch);
         }
-        (exit as MenuInputElement).Draw(JewSaver.spriteBatch);
+        if (!showText)
+            (exit as MenuInputElement).Draw(JewSaver.spriteBatch);
         if (showFrameRate)
             JewSaver.spriteBatch.DrawString(font, 1 / gameTime.ElapsedGameTime.TotalSeconds + "", new Vector2(512, 8), Color.White);
         JewSaver.spriteBatch.End();
@@ -472,17 +536,10 @@ public class LevelBase:DrawableGameComponent
             }
         }
 
-        if (levelMode == LevelMode.EDIT)
+        if (!showText && levelMode == LevelMode.EDIT)
         {
             JewSaver.spriteBatch.Begin();
             (play as MenuInputElement).Draw(JewSaver.spriteBatch);
-            // final text if applicable
-            if (showText)
-            {
-                Vector2 measure = MenuJewSaver.font.MeasureString(finalText);
-                Vector2 centre = new Vector2((JewSaver.width - measure.X) / 2.0f, (JewSaver.height - measure.Y) / 2.0f);
-                JewSaver.spriteBatch.DrawString(MenuJewSaver.font, finalText, centre, new Color(1, 1, 1, (float)Math.Sin(textTimer / 10.0f * 2 * Math.PI)));
-            }
             JewSaver.spriteBatch.End();
         }
 
@@ -509,34 +566,52 @@ public class LevelBase:DrawableGameComponent
             }
             moses.draw();
 
-            foreach (LocustSwarm swarm in locusts)
-                swarm.draw();
+            JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);
+            foreach (Locust l in locusts)
+                l.draw();
+            JewSaver.primitiveBatch.End();
 
             JewSaver.spriteBatch.Begin();
-            (restart as MenuInputElement).Draw(JewSaver.spriteBatch);
-
-            // Show number of jews still alive
-            String text = "Jews Still Alive: " + (numberOfStickies - deadStickies).ToString();
-            Vector2 centre = new Vector2((JewSaver.width - font.MeasureString(text).X) / 2.0f, 10.0f);
-            JewSaver.spriteBatch.DrawString(font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
-            JewSaver.spriteBatch.DrawString(font, text, centre, Color.White);
-
-            // Show number of jews that have been saved
-            text = "Jews Saved: " + savedStickies.ToString() + " (M: " + (savedStickies - savedFemales).ToString() + "| F: " + savedFemales.ToString() + ")";
-            centre = new Vector2((JewSaver.width - font.MeasureString(text).X) / 2.0f, 10.0f + font.LineSpacing);
-            JewSaver.spriteBatch.DrawString(font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
-            JewSaver.spriteBatch.DrawString(font, text, centre, Color.White);
-            
-            // final text if applicable
-            if (showText)
+            if (!showText)
             {
-                Vector2 measure = MenuJewSaver.font.MeasureString(finalText);
-                centre = new Vector2((JewSaver.width - measure.X) / 2.0f, (JewSaver.height - measure.Y) / 2.0f);
-                JewSaver.spriteBatch.DrawString(MenuJewSaver.font, finalText, centre, new Color(1, 1, 1, (float)Math.Sin(textTimer / 10.0f * 2 * Math.PI)));
-            }
+                (restart as MenuInputElement).Draw(JewSaver.spriteBatch);
 
+                // Show number of jews still alive
+                String text = "Jews Still Alive: " + (numberOfStickies - deadStickies).ToString();
+                Vector2 centre = new Vector2((JewSaver.width - font.MeasureString(text).X) / 2.0f, 10.0f);
+                JewSaver.spriteBatch.DrawString(font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
+                JewSaver.spriteBatch.DrawString(font, text, centre, Color.White);
+
+                // Show number of jews that have been saved
+                text = "Jews Saved: " + savedStickies.ToString() + " (M: " + (savedStickies - savedFemales).ToString() + "| F: " + savedFemales.ToString() + ")";
+                centre = new Vector2((JewSaver.width - font.MeasureString(text).X) / 2.0f, 10.0f + font.LineSpacing);
+                JewSaver.spriteBatch.DrawString(font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
+                JewSaver.spriteBatch.DrawString(font, text, centre, Color.White);
+            }
+            else
+            {
+                // Show text saying Game Over
+                String text = "Game Over";
+                Vector2 centre = new Vector2((JewSaver.width - MenuJewSaver.font.MeasureString(text).X) / 2.0f, 30.0f);
+                JewSaver.spriteBatch.DrawString(MenuJewSaver.font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
+                JewSaver.spriteBatch.DrawString(MenuJewSaver.font, text, centre, Color.White);
+            }
             JewSaver.spriteBatch.End();
         }
+        // Final text if applicable
+        JewSaver.spriteBatch.Begin();
+        if (showText)
+        {
+            if (finalTexts.Count <= 0)
+            {
+                showText = false;
+                return;
+            }
+            Vector2 measure = MenuJewSaver.font.MeasureString(finalTexts[0]);
+            Vector2 centre = new Vector2((JewSaver.width - measure.X) / 2.0f, (JewSaver.height - measure.Y) / 2.0f);
+            JewSaver.spriteBatch.DrawString(MenuJewSaver.font, finalTexts[0], centre, new Color(1, 1, 1, (float)Math.Sin(textTimer / 10.0f * 2 * Math.PI)));
+        }
+        JewSaver.spriteBatch.End();
     }
 
     /// <summary>
@@ -573,26 +648,28 @@ public class LevelBase:DrawableGameComponent
 
     private void OnQuitPressed()
     {
-        jewSaver.SwitchState(GameState.MAIN_MENU);
+        if (!showText)
+            jewSaver.SwitchState(GameState.MAIN_MENU);
     }
 
     private void OnRestartPressed()
     {
-        this.Initialize();
+        if (!showText)
+            this.Initialize();
     }
 
     protected void AddCanyon(int start, int end)
     {
-        float mid = (end-start)/2.0f;
+        float mid = (end - start) / 2.0f;
         for (int i = start; i < (end - start) / 2 + start; i++)
         {
             heightMap[i] = CosineInterpolate(heightMap[start], -256, (i - start) / mid);
-            canSculpt[i] = heightMap[i] >= 16?TerrainType.SAND:TerrainType.CANYON;
+            canSculpt[i] = heightMap[i] >= 16 ? TerrainType.SAND : TerrainType.CANYON;
         }
         for (int i = (end - start) / 2 + start; i <= end; i++)
         {
             heightMap[i] = CosineInterpolate(-256, heightMap[end], (i - ((int)mid + start)) / mid);
-            canSculpt[i] = heightMap[i] >= 16?TerrainType.SAND:TerrainType.CANYON;
+            canSculpt[i] = heightMap[i] >= 16 ? TerrainType.SAND : TerrainType.CANYON;
         }
     }
 
@@ -620,7 +697,7 @@ public class LevelBase:DrawableGameComponent
         int length = end - start;
         for (int i = start; i < end; i++)
         {
-            heightMap[i] = 16 + 4*(float)Math.Sin(i / 64.0f * Math.PI * 2);
+            heightMap[i] = 16 + 4 * (float)Math.Sin(i / 64.0f * Math.PI * 2);
             canSculpt[i] = TerrainType.WATER;
         }
         float sandHeight = heightMap[start - 64];
@@ -631,7 +708,7 @@ public class LevelBase:DrawableGameComponent
         sandHeight = heightMap[end + 64];
         for (int i = end; i < end + 64; i++)
         {
-            heightMap[i] = CosineInterpolate(20, sandHeight, (i - end)/ 64.0f);
+            heightMap[i] = CosineInterpolate(20, sandHeight, (i - end) / 64.0f);
         }
     }
 
