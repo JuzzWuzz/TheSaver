@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 class Stickfigure
 {
-    const float gravity = 100.0f;
+    const float gravity = 500.0f;
 
 
     private bool isPlayer = false;
@@ -23,6 +23,7 @@ class Stickfigure
     protected Vector2 velocity;
     protected float moveForce;
     protected float mass;
+    protected float timer;
 
     public Stickfigure(Vector2 position)
     {
@@ -30,58 +31,104 @@ class Stickfigure
         lHand = rHand = new Vector2(5, 0);
         lFoot = rFoot = new Vector2(2, 7);
 
-        this.scale = 4;
+        this.scale = 2;
         headSize = 3;
 
-        setLimbs(0f);
+        setLimbs(0.0f);
 
         this.position = position;
         this.velocity = Vector2.Zero;
         this.moveForce = 50.0f;
         this.mass = 1.0f;
-        moving = true;
+        this.timer = 0.0f;
+        this.moving = true;
     }
 
     public void SetIsPlayer()
     {
         isPlayer = true;
     }
-
+    
     // Update Method
-    public void update(float dt)
+    public void update(float dt, float[] heightmap, float scrollX)
     {
-        if (!moving /*|| dead*/)
+        if (!moving || dead)
             return;
 
         // Set the initial force value
         Vector2 force = new Vector2(0.0f, gravity);
 
-        // Basic collision response thingy
-        if (lowestPoint().Y > JewSaver.height / 2.0f)
-        {
-            force = -velocity * mass / dt;
-            if (force.Y != 0.0f)
-                Console.WriteLine((force / gravity).ToString());
+        // Get the ground value at stickies x
+        float ground;
+        float drag = 0.99f;
 
-            // If the impact force is higher than 75 then kill stickie
-            if (Math.Abs((force / gravity).Y) >= 75.0f)
-                dead = true;
+        float gp = JewSaver.height - heightmap[(int)scrollX + (int)position.X - scale];
+        float gn = JewSaver.height - heightmap[(int)scrollX + (int)position.X + scale];
+        double angle = Math.Atan((double)Math.Abs(gn - gp) / (double)(scale * 2));
+
+        setLimbs(dt);
+        if (gn > gp)
+        {
+            // Gradient = \
+            ground = JewSaver.height - heightmap[(int)scrollX + (int)rFoot.X];
+            angle -= Math.PI / 36;
         }
-        // Factor in walking
+        else
+        {
+            // Gradient = /
+            ground = JewSaver.height - heightmap[(int)scrollX + (int)lFoot.X];
+            if (angle > Math.PI / 8.0f * 3.0f)
+            {
+                drag = 0.0f;
+                // Add dt to the timer value and if they are stuck for 4 seconds then kill them
+                timer += dt;
+                if (timer >= 4.0f)
+                    dead = true;
+            }
+            else
+            {
+                // Check to see if they climbing more than 22.5 degrees then start to apply
+                // the drag value based on that up to 67.5 degrees
+                float newAngle = Math.Abs((float)angle - (float)Math.PI / 8.0f);
+                drag -= 0.03f * newAngle / ((float)Math.PI / 4.0f);
+                // Minus dt from timer to reduce death chance
+                timer -= dt;
+            }
+        }
+
+        // Basic collision response thingy
+        if (lowestPoint().Y > ground)
+        {
+            
+            force = -velocity * mass / dt;
+            // If the impact force is higher than this value then kill stickie
+            if (Math.Abs((force / gravity).Y) >= 40.0f)
+                dead = true;
+            
+            force = Vector2.Zero;
+        }
+        // Make sure the player can't die
+        if (isPlayer && dead)
+            dead = false;
+        // Factor in walking if not dead
         if (!dead)
-            force.X = moveForce;
+            force += new Vector2(moveForce * (float)Math.Cos(angle), moveForce * (float)Math.Sin(angle));
         // Calculate the acceleration value
         Vector2 accel = force / mass;
         // Add the acceleration to velocity and factor in dt
         velocity += accel * dt;
-        // Apply drag 
-        velocity *= 0.99f;
+          // Apply drag 
+        velocity *= drag;
         // Update the position
         position += velocity * dt;
 
-        float diff = JewSaver.height / 2.0f - lowestPoint().Y;
+        // Keep stickie above ground
+        float diff = ground - lowestPoint().Y;
         if (diff < 0)
             position.Y += diff;
+
+        if (dead)
+            position.Y = ground;
 
         setLimbs(dt);
     }
@@ -93,22 +140,19 @@ class Stickfigure
         change += dt;
 
         crotch = position;
-        rFoot = crotch + new Vector2(-2.5f * scale, 6 * scale) + Vector2.Multiply(new Vector2(2.5f * scale, 0), (float)Math.Cos(change));
-        lFoot = crotch + new Vector2(2.5f * scale, 6 * scale) + Vector2.Multiply(new Vector2(-2.5f * scale, 0), (float)Math.Cos(change));
+        rFoot = crotch + new Vector2(-2.5f * scale, 7 * scale) + Vector2.Multiply(new Vector2(2.5f * scale, 0), (float)Math.Cos(change));
+        lFoot = crotch + new Vector2(2.5f * scale, 7 * scale) + Vector2.Multiply(new Vector2(-2.5f * scale, 0), (float)Math.Cos(change));
     
         crotch -= Vector2.Multiply(new Vector2(0, 1.5f * scale), (float)Math.Cos(change) + 1);
 
-        //crotch = position + Vector2.Multiply(new Vector2(0, crotchUpAsLegsExtend * scale), (float)Math.Sin(change));
-
-        shoulder = crotch + new Vector2(0, -8 * scale) + Vector2.Multiply(new Vector2(4,0), (float)Math.Cos(change));
+        shoulder = crotch + new Vector2(0, -8 * scale) + Vector2.Multiply(new Vector2(4,0), (float)Math.Cos(change * 2));
         neck = shoulder + new Vector2(0, -2 * scale);
         head = neck + new Vector2(0, -headSize * scale);
 
         lHand = shoulder + new Vector2(5 * scale, 0);
         rHand= shoulder + new Vector2(-5 * scale, 0);
-        rFoot = crotch + new Vector2(-2.5f * scale, 5 * scale);// + Vector2.Multiply(new Vector2(2.5f * scale, - crotchUpAsLegsExtend * scale), (float)Math.Cos(change));
-        lFoot = crotch + new Vector2(2.5f * scale, 5 * scale); //+ Vector2.Multiply(new Vector2(-2.5f * scale, - crotchUpAsLegsExtend * scale), (float)Math.Cos(change));
 
+        // If dead move all body parts to ground
         if (dead)
         {
             crotch.Y = position.Y;
@@ -144,13 +188,13 @@ class Stickfigure
     public void draw()
     {
         // Draw the head
-        JewSaver.primitiveBatch.DrawCircle(head, Color.Blue, headSize * scale);
+        JewSaver.primitiveBatch.DrawCircle(head, Color.Orange, headSize * scale);
         
         // Begin primitive batch
         JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);
 
         // Draw the main body
-        JewSaver.primitiveBatch.AddLine(crotch, neck, Color.Red, Color.Yellow, scale);
+        JewSaver.primitiveBatch.AddLine(crotch, neck, Color.Yellow, Color.Yellow, scale);
 
         // Draw the arms
         JewSaver.primitiveBatch.AddLine(shoulder, lHand, Color.Yellow, Color.Yellow, scale);
@@ -159,9 +203,6 @@ class Stickfigure
         // Draw the feet
         JewSaver.primitiveBatch.AddLine(crotch, lFoot, Color.Yellow, Color.Yellow, scale);
         JewSaver.primitiveBatch.AddLine(crotch, rFoot, Color.Yellow, Color.Yellow, scale);
-
-        // Draw floor
-        JewSaver.primitiveBatch.AddLine(new Vector2(0.0f, JewSaver.height / 2.0f), new Vector2(JewSaver.width, JewSaver.height / 2.0f), Color.Purple, 5);
 
         // End primitive batch
         JewSaver.primitiveBatch.End();

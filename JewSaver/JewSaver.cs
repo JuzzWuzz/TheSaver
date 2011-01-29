@@ -177,10 +177,15 @@ public class JewSaver : Microsoft.Xna.Framework.Game
     }
 }
 
+
+
 static class Program
 {
+    static volatile bool stop = false;
+
     public static void PlayMp3FromUrl()
     {
+        /*royalty free african music. because we are africa.*/
         string url = "http://music.incompetech.com/royalty-free/Blue%20Scorpion.mp3";
         using (Stream ms = new MemoryStream())
         {
@@ -207,6 +212,15 @@ static class Program
                     waveOut.Play();
                     while (waveOut.PlaybackState == PlaybackState.Playing)
                     {
+                        if (stop)
+                        {
+                            waveOut.Stop();
+                            while (waveOut.PlaybackState != PlaybackState.Stopped)
+                                Console.Write("Exiting");
+                            Environment.Exit(0);
+                            return;
+                        }
+
                         System.Threading.Thread.Sleep(100);
                     }
                 }
@@ -226,6 +240,11 @@ static class Program
         {
             game.Run();
         }
-        oThread.Abort();
+        stop = true;
+        Console.WriteLine("Chilling");
+        Thread.Sleep(100);
+        oThread.Join(100);
+        Console.WriteLine("Still here!");
+        Environment.Exit(0);
     }
 }
