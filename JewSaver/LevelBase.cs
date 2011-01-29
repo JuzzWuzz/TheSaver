@@ -127,7 +127,7 @@ public class LevelBase:DrawableGameComponent
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             foreach (Stickfigure s in stickies)
             {
-                s.update(dt, heightMap);
+                s.update(dt, heightMap, scrollX);
             }
         }
     }

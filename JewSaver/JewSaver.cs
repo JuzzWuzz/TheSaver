@@ -174,7 +174,6 @@ static class Program
                                 Console.Write("Exiting");
                             Environment.Exit(0);
                             return;
-                            System.Threading.Thread.CurrentThread.Abort();
                         }
 
                         System.Threading.Thread.Sleep(100);
