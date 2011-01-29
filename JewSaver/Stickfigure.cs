@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 class Stickfigure
 {
     const float gravity = 500.0f;
-
+    private bool jumping = false;
 
     private bool isPlayer = false;
     private bool moving = false;
@@ -123,6 +123,13 @@ class Stickfigure
         // Factor in walking if not dead
         if (!dead)
             force += new Vector2(moveForce * (float)Math.Cos(angle), moveForce * (float)Math.Sin(angle));
+
+        if (isPlayer && !jumping && Input.spaceBarDown)
+        {
+            force += new Vector2(1, -1) * moveForce * 50;
+            jumping = true;
+        }
+
         // Calculate the acceleration value
         Vector2 accel = force / mass;
         // Add the acceleration to velocity and factor in dt
@@ -135,7 +142,10 @@ class Stickfigure
         // Keep stickie above ground
         float diff = ground - lowestPoint().Y;
         if (diff < 0)
+        {
+            jumping = false;
             position.Y += diff;
+        }
 
         if (dead)
             position.Y = ground;
