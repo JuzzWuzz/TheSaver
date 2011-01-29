@@ -5,8 +5,8 @@ using Microsoft.Xna.Framework.Graphics;
 
 public class LevelBase : DrawableGameComponent
 {
-    protected enum LevelMode { EDIT, PLAY };
-    public enum TerrainType { SAND, WATER, CANYON, OTHER };
+    protected enum LevelMode {EDIT, PLAY};
+    protected enum TerrainType { SAND, WATER, CANYON, OTHER, ROCK , PARCHED_LAND};
     public static float[] heightMap;
     public static TerrainType[] canSculpt;
     protected LevelMode levelMode;
@@ -203,14 +203,14 @@ public class LevelBase : DrawableGameComponent
                 {
                     if (lookingForStart)
                     {
-                        if (canSculpt[i] == TerrainType.SAND)
+                        if (canSculpt[i] == TerrainType.SAND || canSculpt[i] == TerrainType.PARCHED_LAND)
                         {
                             lookingForStart = false;
                             lastStart = i;
                             intervals.Add(i);
                         }
                     }
-                    else if (canSculpt[i] != TerrainType.SAND || (i == endIndex - 1 && !lookingForStart))
+                    else if ((canSculpt[i] != TerrainType.SAND && canSculpt[i] != TerrainType.PARCHED_LAND) || (i == endIndex - 1 && !lookingForStart))
                     {
                         intervals.Add((int)((lastStart + i - 1) / 2.0f));
                         intervals.Add(i);
@@ -470,19 +470,33 @@ public class LevelBase : DrawableGameComponent
         float start = heightMap[startIndex];
         float end = heightMap[endIndex - 1];
         float target = JewSaver.height - top;
-        if (target > 256)
-            target = 256;
-        else if (target < 16)
-            target = 16;
+        float timerMultiplier = 4;
+        if (canSculpt[startIndex] == TerrainType.SAND)
+        {
+            if (target > 256)
+                target = 256;
+            else if (target < 16)
+                target = 16;
+            timerMultiplier = 4;
+        }
+        else if (canSculpt[startIndex] == TerrainType.PARCHED_LAND)
+        {
+            if (target > 128)
+                target = 128;
+            else if (target < 16)
+                target = 16;
+            timerMultiplier = 2;
+        }
         for (int i = startIndex; i < midIndex; i++)
         {
             float cubicValue = CosineInterpolate(start, target, (i - startIndex) / (float)(midIndex - startIndex));
-            heightMap[i] += (float)((cubicValue - heightMap[i]) * gameTime.ElapsedGameTime.TotalSeconds) * 4;
+            heightMap[i] += (float)((cubicValue - heightMap[i]) * gameTime.ElapsedGameTime.TotalSeconds) * timerMultiplier;
         }
         for (int i = midIndex; i < endIndex; i++)
         {
             float cubicValue = CosineInterpolate(target, end, (i - midIndex) / (float)(endIndex - midIndex));
-            heightMap[i] += (float)((cubicValue - heightMap[i]) * gameTime.ElapsedGameTime.TotalSeconds) * 4;
+            heightMap[i] += (float)((cubicValue - heightMap[i]) * gameTime.ElapsedGameTime.TotalSeconds) * timerMultiplier;
+;
         }
     }
 
@@ -510,6 +524,16 @@ public class LevelBase : DrawableGameComponent
                 heightMap[i] = 16 + 4 * (float)Math.Sin(i / 64.0f * Math.PI * 2 + 3 * levelTime);
                 JewSaver.primitiveBatch.AddVertex(new Vector2(i - (int)scrollX, JewSaver.height - heightMap[i]), Color.CadetBlue);
                 JewSaver.primitiveBatch.AddVertex(new Vector2(i - (int)scrollX, JewSaver.height), Color.DarkBlue);
+            }
+            else if (canSculpt[i] == TerrainType.ROCK)
+            {
+                JewSaver.primitiveBatch.AddVertex(new Vector2(i - (int)scrollX, JewSaver.height - heightMap[i]), Color.DarkGray);
+                JewSaver.primitiveBatch.AddVertex(new Vector2(i - (int)scrollX, JewSaver.height), Color.Black);
+            }
+            else if (canSculpt[i] == TerrainType.PARCHED_LAND)
+            {
+                JewSaver.primitiveBatch.AddVertex(new Vector2(i - (int)scrollX, JewSaver.height - heightMap[i]), Color.Khaki);
+                JewSaver.primitiveBatch.AddVertex(new Vector2(i - (int)scrollX, JewSaver.height), Color.Peru);
             }
             else
             {
