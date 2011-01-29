@@ -81,7 +81,7 @@ public class Stickfigure
         this.inactive = false;
         this.dead = false;
         this.saved = false;
-        this.jumping = false;
+        this.jumping = true;
         this.sprinting = false;
         this.newStickie = true;
         this.color = (isFemale) ? Color.Pink : Color.Yellow;

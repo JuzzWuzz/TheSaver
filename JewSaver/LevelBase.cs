@@ -491,7 +491,8 @@ public class LevelBase : DrawableGameComponent
             str.scrollXValue = 0.125f * scrollX;
             str.Draw(JewSaver.spriteBatch);
         }
-        (exit as MenuInputElement).Draw(JewSaver.spriteBatch);
+        if (!showText)
+            (exit as MenuInputElement).Draw(JewSaver.spriteBatch);
         if (showFrameRate)
             JewSaver.spriteBatch.DrawString(font, 1 / gameTime.ElapsedGameTime.TotalSeconds + "", new Vector2(512, 8), Color.White);
         JewSaver.spriteBatch.End();
@@ -531,7 +532,7 @@ public class LevelBase : DrawableGameComponent
             }
         }
 
-        if (levelMode == LevelMode.EDIT)
+        if (!showText && levelMode == LevelMode.EDIT)
         {
             JewSaver.spriteBatch.Begin();
             (play as MenuInputElement).Draw(JewSaver.spriteBatch);
@@ -567,20 +568,30 @@ public class LevelBase : DrawableGameComponent
             JewSaver.primitiveBatch.End();
 
             JewSaver.spriteBatch.Begin();
-            (restart as MenuInputElement).Draw(JewSaver.spriteBatch);
+            if (!showText)
+            {
+                (restart as MenuInputElement).Draw(JewSaver.spriteBatch);
 
-            // Show number of jews still alive
-            String text = "Jews Still Alive: " + (numberOfStickies - deadStickies).ToString();
-            Vector2 centre = new Vector2((JewSaver.width - font.MeasureString(text).X) / 2.0f, 10.0f);
-            JewSaver.spriteBatch.DrawString(font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
-            JewSaver.spriteBatch.DrawString(font, text, centre, Color.White);
+                // Show number of jews still alive
+                String text = "Jews Still Alive: " + (numberOfStickies - deadStickies).ToString();
+                Vector2 centre = new Vector2((JewSaver.width - font.MeasureString(text).X) / 2.0f, 10.0f);
+                JewSaver.spriteBatch.DrawString(font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
+                JewSaver.spriteBatch.DrawString(font, text, centre, Color.White);
 
-            // Show number of jews that have been saved
-            text = "Jews Saved: " + savedStickies.ToString() + " (M: " + (savedStickies - savedFemales).ToString() + "| F: " + savedFemales.ToString() + ")";
-            centre = new Vector2((JewSaver.width - font.MeasureString(text).X) / 2.0f, 10.0f + font.LineSpacing);
-            JewSaver.spriteBatch.DrawString(font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
-            JewSaver.spriteBatch.DrawString(font, text, centre, Color.White);
-
+                // Show number of jews that have been saved
+                text = "Jews Saved: " + savedStickies.ToString() + " (M: " + (savedStickies - savedFemales).ToString() + "| F: " + savedFemales.ToString() + ")";
+                centre = new Vector2((JewSaver.width - font.MeasureString(text).X) / 2.0f, 10.0f + font.LineSpacing);
+                JewSaver.spriteBatch.DrawString(font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
+                JewSaver.spriteBatch.DrawString(font, text, centre, Color.White);
+            }
+            else
+            {
+                // Show text saying Game Over
+                String text = "Game Over";
+                Vector2 centre = new Vector2((JewSaver.width - MenuJewSaver.font.MeasureString(text).X) / 2.0f, 30.0f);
+                JewSaver.spriteBatch.DrawString(MenuJewSaver.font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
+                JewSaver.spriteBatch.DrawString(MenuJewSaver.font, text, centre, Color.White);
+            }
             JewSaver.spriteBatch.End();
         }
         // Final text if applicable
@@ -633,12 +644,14 @@ public class LevelBase : DrawableGameComponent
 
     private void OnQuitPressed()
     {
-        jewSaver.SwitchState(GameState.MAIN_MENU);
+        if (!showText)
+            jewSaver.SwitchState(GameState.MAIN_MENU);
     }
 
     private void OnRestartPressed()
     {
-        this.Initialize();
+        if (!showText)
+            this.Initialize();
     }
 
     protected void AddCanyon(int start, int end)
