@@ -240,9 +240,6 @@ public class LevelBase : DrawableGameComponent
                         showText = false;
                         if (goToNextLevel)
                         {
-                            JewSaver.finalSavedFatties += savedFatties;
-                            JewSaver.finalSavedFemales += savedFemales;
-                            JewSaver.finalSavedStickies += savedStickies;
                             NextLevel();
                         }
                         else
@@ -299,6 +296,12 @@ public class LevelBase : DrawableGameComponent
                         showText = true;
                         textTimer = 0;
                         // Game is over
+
+                        // Update the totals
+                        JewSaver.finalSavedFatties += savedFatties;
+                        JewSaver.finalSavedFemales += savedFemales;
+                        JewSaver.finalSavedStickies += savedStickies;
+
                         if (this is Level3)
                         {
                             finalTexts.Add("Finally you have reached the Promised Land!");
@@ -313,9 +316,9 @@ public class LevelBase : DrawableGameComponent
                             else
                             {
                                 if (JewSaver.finalSavedStickies - JewSaver.finalSavedFemales < 1)
-                                    finalTexts.Add("You do not have any males to repopulate!");
+                                    finalTexts.Add("But you do not have any males to repopulate!");
                                 else if (JewSaver.finalSavedFemales < 1)
-                                    finalTexts.Add("You do not have any females to repopulate!");
+                                    finalTexts.Add("But you do not have any females to repopulate!");
                             }
                             finalTexts.Add("You have single-handedly destroyed a nation.");
                         }
