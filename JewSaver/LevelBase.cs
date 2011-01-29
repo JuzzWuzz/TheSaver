@@ -48,6 +48,7 @@ public class LevelBase:DrawableGameComponent
     float brushSize;
     int deadStickies;
     int savedStickies;
+    int savedFemales;
 
     Stickfigure[] stickies;
     Stickfigure moses;
@@ -225,6 +226,7 @@ public class LevelBase:DrawableGameComponent
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             deadStickies = 0;
             savedStickies = 0;
+            savedFemales = 0;
 
             if (!moses.jumping && Input.spaceBarPressed)
             {
@@ -250,6 +252,8 @@ public class LevelBase:DrawableGameComponent
                 if (s.saved)
                 {
                     savedStickies++;
+                    if (s.isFemale)
+                        savedFemales++;
                 }
              }
             if (!goToNextLevel)
@@ -508,7 +512,7 @@ public class LevelBase:DrawableGameComponent
             JewSaver.spriteBatch.DrawString(font, text, centre, Color.White);
 
             // Show number of jews that have been saved
-            text = "Jews Saved: " + savedStickies.ToString();
+            text = "Jews Saved: " + savedStickies.ToString() + " (M: " + (savedStickies - savedFemales).ToString() + "| F: " + savedFemales.ToString() + ")";
             centre = new Vector2((JewSaver.width - font.MeasureString(text).X) / 2.0f, 10.0f + font.LineSpacing);
             JewSaver.spriteBatch.DrawString(font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
             JewSaver.spriteBatch.DrawString(font, text, centre, Color.White);

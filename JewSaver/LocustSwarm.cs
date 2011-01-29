@@ -40,8 +40,8 @@ public class LocustSwarm
             }
             else
             {
-                JewSaver.primitiveBatch.AddLine(new Vector2(pos.X - LevelBase.scrollX, pos.Y),
-                    new Vector2(pos.X - LevelBase.scrollX, pos.Y) + new Vector2(0, 2), Color.Red, 4);
+                JewSaver.primitiveBatch.AddLine(new Vector2(pos.X, pos.Y),
+                    new Vector2(pos.X, pos.Y) + new Vector2(0, 2), Color.Red, 4);
             }
         }
         
