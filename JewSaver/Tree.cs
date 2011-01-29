@@ -11,6 +11,7 @@ class Tree
     Vector2[] leaves;
     static Random r = new Random();
     int height;
+    public float scrollXValue;
 
     public Tree(Vector2 pos)
     {
@@ -25,15 +26,24 @@ class Tree
     public void draw()
     {
         JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);
-
-        JewSaver.primitiveBatch.AddLine(position, position + new Vector2(0, -height), Color.Brown, 3);
+        Vector2 currentPos = position;
+        currentPos.X -= scrollXValue;
+        JewSaver.primitiveBatch.AddLine(currentPos, currentPos + new Vector2(0, -height), Color.Brown, 3);
         
         JewSaver.primitiveBatch.End();
         JewSaver.primitiveBatch.Begin(PrimitiveType.PointList);
-        for (int i = 0; i < leaves.Length/2; i++)
-            JewSaver.primitiveBatch.AddVertex(leaves[i], Color.Brown);
+        for (int i = 0; i < leaves.Length / 2; i++)
+        {
+            Vector2 scrolled = leaves[i];
+            scrolled.X -= scrollXValue;
+            JewSaver.primitiveBatch.AddVertex(scrolled, Color.Brown);
+        }
         for (int i = leaves.Length / 2; i < leaves.Length; i++)
-            JewSaver.primitiveBatch.AddVertex(leaves[i], Color.Green);
+        {
+            Vector2 scrolled = leaves[i];
+            scrolled.X -= scrollXValue;
+            JewSaver.primitiveBatch.AddVertex(scrolled, Color.Green);
+        }
 
         JewSaver.primitiveBatch.End();
     }

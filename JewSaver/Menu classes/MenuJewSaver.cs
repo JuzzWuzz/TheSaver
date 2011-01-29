@@ -7,7 +7,6 @@ public class MenuJewSaver:Menu
 {
     Texture2D buttonTexture;
     MenuButton newGame;
-    MenuButton options;
     MenuButton exit;
     SpriteFont font;
     JewSaver jewSaver;
@@ -22,16 +21,12 @@ public class MenuJewSaver:Menu
     {
         base.Initialize();
         exit = new MenuButton(buttonTexture, new Point(256, 64), new Point(0, 0), new Point(256, 64), new Point(384, 240), "EXIT");
-        newGame = new MenuButton(buttonTexture, new Point(256, 64), new Point(0, 0), new Point(256, 64), new Point(384, 80), "NEW GAME");
-        options = new MenuButton(buttonTexture, new Point(256, 64), new Point(0, 0), new Point(256, 64), new Point(384, 160), "OPTIONS");
+        newGame = new MenuButton(buttonTexture, new Point(256, 64), new Point(0, 0), new Point(256, 64), new Point(384, 160), "NEW GAME");
         exit.buttonPressed += OnExitClicked;
         newGame.buttonPressed += OnNewGameClicked;
-        options.buttonPressed += OnOptionsClicked;
         menuInputElements.Add(newGame);
-        menuInputElements.Add(options);
         menuInputElements.Add(exit);
         newGame.font = font;
-        options.font = font;
         exit.font = font;
     }
 

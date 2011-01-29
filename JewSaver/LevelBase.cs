@@ -21,6 +21,9 @@ public class LevelBase:DrawableGameComponent
 
     int shekalim;
 
+    // for testing
+    public bool showFrameRate;
+
     // landscape sculpting brush
     Rectangle landscapeBrush;
     float brushSize;
@@ -53,7 +56,7 @@ public class LevelBase:DrawableGameComponent
         play = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(8, 8), "PLAY");
         play.font = font;
         play.buttonPressed += OnPlayPressed;
-        restart = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(8, 8), "CLEAR");
+        restart = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(8, 8), "RESET");
         restart.font = font;
         restart.buttonPressed += OnRestartPressed;
         exit = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(1024 - 8 - 96, 8), "QUIT");
@@ -198,6 +201,8 @@ public class LevelBase:DrawableGameComponent
             str.Draw(JewSaver.spriteBatch);
         }
         (exit as MenuInputElement).Draw(JewSaver.spriteBatch);
+        if (showFrameRate)
+            JewSaver.spriteBatch.DrawString(font, 1 / gameTime.ElapsedGameTime.TotalSeconds + "", new Vector2(512, 8), Color.White);
         JewSaver.spriteBatch.End();
 
         JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);
@@ -222,6 +227,7 @@ public class LevelBase:DrawableGameComponent
 
         for (int i = 0; i < trees.Length; i++)
         {
+            trees[i].scrollXValue = scrollX;
             trees[i].draw();
         }
 
@@ -275,6 +281,7 @@ public class LevelBase:DrawableGameComponent
     {
         (play as MenuInputElement).Enabled = false;
         levelMode = LevelMode.PLAY;
+        scrollX = 0;
     }
 
     private void OnQuitPressed()

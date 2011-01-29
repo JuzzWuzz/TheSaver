@@ -63,6 +63,7 @@ public class JewSaver : Microsoft.Xna.Framework.Game
         baseLevel = new LevelBase(this, 4096);
         baseLevel.Visible = false;
         baseLevel.Enabled = false;
+        baseLevel.showFrameRate = false;
         this.Components.Add(baseLevel);
 
         base.Initialize();
