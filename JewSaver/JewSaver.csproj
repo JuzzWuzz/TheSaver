@@ -92,7 +92,6 @@
     <Compile Include="Menu classes\MenuButton.cs" />
     <Compile Include="Menu classes\MenuInputElement.cs" />
     <Compile Include="Menu classes\MenuJewSaver.cs" />
-    <Compile Include="Menu classes\MenuTest.cs" />
     <Compile Include="Menu classes\Sprite.cs" />
     <Compile Include="PrimitiveBatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
