@@ -32,8 +32,9 @@ public class JewSaver : Microsoft.Xna.Framework.Game
     public static int height;
     public static int width;
     MenuJewSaver mainMenu;
-    LevelBase baseLevel;
+    //LevelBase baseLevel;
     LevelBase currentLevel;
+    Level1 level1;
 
     public JewSaver()
     {
@@ -60,11 +61,14 @@ public class JewSaver : Microsoft.Xna.Framework.Game
         this.Components.Add(new Input(this));
         mainMenu = new MenuJewSaver(this);
         this.Components.Add(mainMenu);
-        baseLevel = new LevelBase(this, 4096);
+        /*baseLevel = new LevelBase(this, 4096);
         baseLevel.Visible = false;
         baseLevel.Enabled = false;
-        baseLevel.showFrameRate = false;
-        this.Components.Add(baseLevel);
+        baseLevel.showFrameRate = false;*/
+        level1 = new Level1(this);
+        level1.Visible = false;
+        level1.Enabled = false;
+        this.Components.Add(level1);
 
         base.Initialize();
     }
@@ -161,8 +165,8 @@ public class JewSaver : Microsoft.Xna.Framework.Game
             case GameState.LEVEL_1:
                 mainMenu.Visible = false;
                 mainMenu.Enabled = false;
-                baseLevel.Initialize();
-                currentLevel = baseLevel;
+                level1.Initialize();
+                currentLevel = level1;
                 currentLevel.Visible = true;
                 currentLevel.Enabled = true;
                 break;

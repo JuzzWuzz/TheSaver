@@ -91,6 +91,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Input.cs" />
+    <Compile Include="Level1.cs" />
     <Compile Include="LevelBase.cs" />
     <Compile Include="Menu classes\Menu.cs" />
     <Compile Include="Menu classes\MenuButton.cs" />

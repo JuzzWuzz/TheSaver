@@ -20,8 +20,8 @@ public class MenuJewSaver:Menu
     public override void Initialize()
     {
         base.Initialize();
-        exit = new MenuButton(buttonTexture, new Point(256, 64), new Point(0, 0), new Point(256, 64), new Point(384, 240), "EXIT");
-        newGame = new MenuButton(buttonTexture, new Point(256, 64), new Point(0, 0), new Point(256, 64), new Point(384, 160), "NEW GAME");
+        exit = new MenuButton(buttonTexture, new Point(256, 64), new Point(0, 0), new Point(256, 64), new Point(384, 280), "EXIT");
+        newGame = new MenuButton(buttonTexture, new Point(256, 64), new Point(0, 0), new Point(256, 64), new Point(384, 200), "NEW GAME");
         exit.buttonPressed += OnExitClicked;
         newGame.buttonPressed += OnNewGameClicked;
         menuInputElements.Add(newGame);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -18,6 +19,7 @@ public class LevelBase:DrawableGameComponent
     Sprite[] stars;
     protected JewSaver jewSaver;
     Tree[] trees;
+    Random random;
 
     int shekalim;
 
@@ -41,13 +43,14 @@ public class LevelBase:DrawableGameComponent
     {
         heightMap = new float [levelLength];
         jewSaver = game;
+        random = new Random();
     }
 
     public override void Initialize()
     {
         base.Initialize();
         for (int i = 0; i < heightMap.Length; i++)
-            heightMap[i] = (float)(64 + 16 * Math.Sin(i / (float)heightMap.Length * Math.PI * 32));
+            heightMap[i] = (float)(64 + 16 * Math.Sin(i / 4096.0f * Math.PI * 32));
         levelMode = LevelMode.EDIT;
         scrollX = 0;
         scrollSpeed = 300;
@@ -66,19 +69,18 @@ public class LevelBase:DrawableGameComponent
             stickies[i] = new Stickfigure(new Vector2(50 + i * 30, i * 30));
         moses = new Stickfigure(new Vector2(350, 200));
         moses.SetIsPlayer();
-        Random random = new Random();
         stars = new Sprite[384];
         for (int i = 0; i < stars.Length; i++)
         {
-            stars[i] = new Sprite(star, 8, 8, 0, 0, 8, 8, random.Next(heightMap.Length/2), random.Next(64));
+            stars[i] = new Sprite(star, 8, 8, 0, 0, 8, 8, random.Next(2048), random.Next(64));
             stars[i].Alpha = (64 - stars[i].screenRectangle.Top) / 96.0f;
         }
 
 
-        int treeNum = random.Next(30, 60);
+        /*int treeNum = (int)random.Next((int)(30 * heightMap.Length/4096.0f),(int) (60 *heightMap.Length/4096.0f));
         trees = new Tree[treeNum];
         for (int i = 0; i < treeNum; i++)
-            trees[i] = new Tree(new Vector2(random.Next(0, heightMap.Length), JewSaver.height - 20));
+            trees[i] = new Tree(new Vector2(random.Next(0, heightMap.Length), JewSaver.height - 20));*/
 
 
         shekalim = 0;
@@ -150,22 +152,36 @@ public class LevelBase:DrawableGameComponent
                 int startIndex = (int)(scrollX + landscapeBrush.Left < 0 ? 0 : scrollX + landscapeBrush.Left);
                 int endIndex = (int)(scrollX + landscapeBrush.Right > heightMap.Length ? heightMap.Length : scrollX + landscapeBrush.Right);
                 int midIndex = (startIndex + endIndex) / 2;
-                float start = heightMap[startIndex];
-                float end = heightMap[endIndex - 1];
-                float target = 384 - landscapeBrush.Top;
-                if (target > 256)
-                    target = 256;
-                else if (target < 16)
-                    target = 16;
-                for (int i = startIndex; i < midIndex; i++)
+
+                List<int> intervals = new List<int>();
+                bool lookingForStart = true;
+                int lastStart = 0;
+                for (int i = startIndex; i < endIndex; i++)
                 {
-                    float cubicValue = CosineInterpolate( start, target,(i - startIndex) / (float)(midIndex - startIndex));
-                    heightMap[i] += (float)((cubicValue - heightMap[i]) * gameTime.ElapsedGameTime.TotalSeconds) * 4;
+                    if (lookingForStart)
+                    {
+                        if (heightMap[i] >= 16)
+                        {
+                            lookingForStart = false;
+                            lastStart = i;
+                            intervals.Add(i);
+                        }
+                    }
+                    else if (heightMap[i] < 16 || (i == endIndex-1 && !lookingForStart))
+                    {
+                        intervals.Add((int)((lastStart + i - 1) / 2.0f));
+                        intervals.Add(i);
+                        lookingForStart = true;
+                    }
                 }
-                for (int i = midIndex; i < endIndex; i++)
+                if (intervals.Count % 3 == 0)
                 {
-                    float cubicValue = CosineInterpolate(target, end,(i - midIndex) / (float)(endIndex - midIndex));
-                    heightMap[i] += (float)((cubicValue - heightMap[i]) * gameTime.ElapsedGameTime.TotalSeconds) * 4;
+                    for (int i = 0; i < intervals.Count; i += 3)
+                    {
+                        int width = intervals[i + 2] - intervals[i];
+                        if (width > 32)
+                            Sculpt(intervals[i], intervals[i + 1], intervals[i + 2], gameTime, landscapeBrush.Center.Y - (int)(width / 3.0f));
+                    }
                 }
             }
         }
@@ -187,6 +203,27 @@ public class LevelBase:DrawableGameComponent
                 foreach (Stickfigure s in stickies)
                     s.position.X -= changeX;
             }
+        }
+    }
+
+    private void Sculpt(int startIndex, int midIndex, int endIndex, GameTime gameTime, int top)
+    {
+        float start = heightMap[startIndex];
+        float end = heightMap[endIndex - 1];
+        float target = 384 - top;
+        if (target > 256)
+            target = 256;
+        else if (target < 16)
+            target = 16;
+        for (int i = startIndex; i < midIndex; i++)
+        {
+            float cubicValue = CosineInterpolate(start, target, (i - startIndex) / (float)(midIndex - startIndex));
+            heightMap[i] += (float)((cubicValue - heightMap[i]) * gameTime.ElapsedGameTime.TotalSeconds) * 4;
+        }
+        for (int i = midIndex; i < endIndex; i++)
+        {
+            float cubicValue = CosineInterpolate(target, end, (i - midIndex) / (float)(endIndex - midIndex));
+            heightMap[i] += (float)((cubicValue - heightMap[i]) * gameTime.ElapsedGameTime.TotalSeconds) * 4;
         }
     }
 
@@ -214,14 +251,10 @@ public class LevelBase:DrawableGameComponent
         }
         if (levelMode == LevelMode.EDIT)
         {
-            JewSaver.primitiveBatch.AddVertex(new Vector2(landscapeBrush.Left, landscapeBrush.Top), Color.YellowGreen);
-            JewSaver.primitiveBatch.AddVertex(new Vector2(landscapeBrush.Right, landscapeBrush.Top), Color.DarkGreen);
-            JewSaver.primitiveBatch.AddVertex(new Vector2(landscapeBrush.Right, landscapeBrush.Top), Color.DarkGreen);
-            JewSaver.primitiveBatch.AddVertex(new Vector2(landscapeBrush.Right, landscapeBrush.Bottom), Color.YellowGreen);
-            JewSaver.primitiveBatch.AddVertex(new Vector2(landscapeBrush.Right, landscapeBrush.Bottom), Color.YellowGreen);
-            JewSaver.primitiveBatch.AddVertex(new Vector2(landscapeBrush.Left, landscapeBrush.Bottom), Color.DarkGreen);
-            JewSaver.primitiveBatch.AddVertex(new Vector2(landscapeBrush.Left, landscapeBrush.Bottom), Color.DarkGreen);
-            JewSaver.primitiveBatch.AddVertex(new Vector2(landscapeBrush.Left, landscapeBrush.Top), Color.YellowGreen);
+            JewSaver.primitiveBatch.AddLine(new Vector2(landscapeBrush.Left, landscapeBrush.Top), new Vector2(landscapeBrush.Right, landscapeBrush.Top), Color.YellowGreen, Color.DarkGreen, 3);
+            JewSaver.primitiveBatch.AddLine(new Vector2(landscapeBrush.Right, landscapeBrush.Top), new Vector2(landscapeBrush.Right, landscapeBrush.Bottom), Color.DarkGreen, Color.YellowGreen, 3);
+            JewSaver.primitiveBatch.AddLine(new Vector2(landscapeBrush.Right, landscapeBrush.Bottom), new Vector2(landscapeBrush.Left, landscapeBrush.Bottom), Color.YellowGreen, Color.DarkGreen, 3);
+            JewSaver.primitiveBatch.AddLine(new Vector2(landscapeBrush.Left, landscapeBrush.Bottom), new Vector2(landscapeBrush.Left, landscapeBrush.Top), Color.DarkGreen, Color.YellowGreen, 3);
         }
         JewSaver.primitiveBatch.End();
 
@@ -292,5 +325,33 @@ public class LevelBase:DrawableGameComponent
     private void OnRestartPressed()
     {
         this.Initialize();
+    }
+
+    protected void AddCanyon(int start, int end)
+    {
+        float mid = (end-start)/2.0f;
+        for (int i = start; i < (end - start) / 2 + start; i++)
+            heightMap[i] = CosineInterpolate(heightMap[start], -256, (i - start) / mid);
+        for (int i = (end - start) / 2 + start; i <= end; i++)
+            heightMap[i] = CosineInterpolate(-256, heightMap[end], (i - ((int)mid + start)) / mid); 
+    }
+
+    /// <summary>
+    /// Only after adding canyons!!!
+    /// </summary>
+    protected void AddTrees()
+    {
+        int treeNum = (int)random.Next((int)(30 * heightMap.Length / 4096.0f), (int)(60 * heightMap.Length / 4096.0f));
+        trees = new Tree[treeNum];
+        int i = 0;
+        while (i < treeNum)
+        {
+            int xVal = random.Next(0, heightMap.Length);
+            if (heightMap[xVal] > 16)
+            {
+                trees[i] = new Tree(new Vector2(xVal, JewSaver.height - 20));
+                i++;
+            }
+        }
     }
 }
