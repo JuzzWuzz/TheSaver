@@ -217,13 +217,16 @@ public class LevelBase:DrawableGameComponent
             {
                 jumpMarkers.Add(moses.position.X + scrollX);
             }
-            if (!moses.sprinting && Input.shiftDown)
+            if (!(this is Level1))
             {
-                sprintMarkers.Add(moses.position.X + scrollX);
-            }
-            if (moses.sprinting && Input.shiftUp)
-            {
-                sprintMarkers.Add(moses.position.X + scrollX);
+                if (!moses.sprinting && Input.shiftDown)
+                {
+                    sprintMarkers.Add(moses.position.X + scrollX);
+                }
+                if (moses.sprinting && Input.shiftUp)
+                {
+                    sprintMarkers.Add(moses.position.X + scrollX);
+                }
             }
 
             foreach (Stickfigure s in stickies)
