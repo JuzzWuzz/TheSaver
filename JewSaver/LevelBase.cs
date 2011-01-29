@@ -707,7 +707,7 @@ public class LevelBase : DrawableGameComponent
         while (i < treeNum)
         {
             int xVal = random.Next(0, heightMap.Length);
-            if (canSculpt[xVal] == TerrainType.SAND)
+            if (canSculpt[xVal] == TerrainType.SAND || canSculpt[xVal] == TerrainType.PARCHED_LAND)
             {
                 trees[i] = new Tree(new Vector2(xVal, JewSaver.height - 20));
                 i++;
