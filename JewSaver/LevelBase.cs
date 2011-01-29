@@ -15,7 +15,7 @@ public class LevelBase:DrawableGameComponent
     MenuButton exit;
     MenuButton restart;
     Texture2D buttonTex;
-    SpriteFont font;
+    protected SpriteFont font;
     Texture2D star;
     Sprite[] stars;
     protected JewSaver jewSaver;
@@ -33,9 +33,9 @@ public class LevelBase:DrawableGameComponent
     protected TimeSpan locustTime;
 
     // end screen text
-    string finalText;
+    protected string finalText;
     float textTimer;
-    bool showText;
+    protected bool showText;
     bool goToNextLevel;
 
     // for testing
@@ -258,7 +258,10 @@ public class LevelBase:DrawableGameComponent
                         // Game is over
                         if (savedStickies > 0)
                         {
-                            finalText = "You can see the Promised Land in the distance!";
+                            if (this is Level3)
+                                finalText = "Finally you have reached the Promised Land!";
+                            else
+                                finalText = "You can see the Promised Land in the distance!";
                             //Console.WriteLine("You can see the Promised Land in the distance!");
                             goToNextLevel = true;
                             return;

@@ -32,7 +32,7 @@ public class LocustSwarm
         }
 
         double change = 0;
-        public void update(float dt) { 
+        public void update(float dt) {
             pos += new Vector2((float)Math.Sin(change) * -2f, height + (float)Math.Sin(change) * 5f);
             if (pos.X < 0)
                 swarm.locusts.Remove(this);
