@@ -7,8 +7,12 @@ using Microsoft.Xna.Framework.Graphics;
 
 class Stickfigure
 {
+    const float gravity = 100.0f;
+
+
     private Vector2 position;
     private bool moving = false;
+    private bool dead = false;
 
     private Vector2 crotch, shoulder, lHand, rHand, lFoot, rFoot, neck, head;
     private float roShoulder, roLHand, roRHand, roLFoot, roRFoot;
@@ -16,9 +20,8 @@ class Stickfigure
     private int headSize;
     private int scale;
 
-    Vector2[] points;
-
     protected Vector2 velocity;
+    protected float moveForce;
     protected float mass;
 
     public Stickfigure(Vector2 position)
@@ -36,6 +39,7 @@ class Stickfigure
         setLimbs();
 
         this.velocity = Vector2.Zero;
+        this.moveForce = 50.0f;
         this.mass = 1.0f;
         moving = true;
     }
@@ -43,16 +47,33 @@ class Stickfigure
     // Update Method
     public void update(float dt)
     {
-        if (!moving)
+        if (!moving || dead)
             return;
 
-        Vector2 accel = new Vector2(0.0f, -100.0f) / mass;
-        if (position.Y < JewSaver.height / 2.0f)
-            accel *= -1f;
+        // Set the initial force value
+        Vector2 force = new Vector2(0.0f, gravity);
+
+        // Basic collision response thingy
+        if (lowestPoint().Y > JewSaver.height / 2.0f)
+        {
+            force = -velocity * mass / dt;
+            if (force.Y != 0.0f)
+                Console.WriteLine((force / gravity).ToString());
+
+            // If the impact force is higher than 75 then kill stickie
+            if (Math.Abs((force / gravity).Y) >= 75.0f)
+                dead = true;
+        }
+        // Factor in walking
+        if (!dead)
+            force.X = moveForce;
+        // Calculate the acceleration value
+        Vector2 accel = force / mass;
+        // Add the acceleration to velocity and factor in dt
         velocity += accel * dt;
-
+        // Apply drag 
         velocity *= 0.99f;
-
+        // Update the position
         position += velocity * dt;
 
         setLimbs();
@@ -68,20 +89,23 @@ class Stickfigure
         rHand= shoulder + new Vector2(-4 * scale, 0);
         rFoot = crotch + new Vector2(-3 * scale, 6 * scale);
         lFoot = crotch + new Vector2(3 * scale, 6 * scale);
-
     }
 
     private int vecComp(Vector2 x, Vector2 y)
     {
-        return x.Y.CompareTo(y.Y);
+        return (-x.Y.CompareTo(y.Y));
     }
 
     public Vector2 lowestPoint()
     {
-        List<Vector2> l = new List<Vector2>(6);
-        l.Add(crotch); l.Add(shoulder);
-        l.Add(lHand); l.Add(rHand);
-        l.Add(lFoot); l.Add(rFoot);
+        List<Vector2> l = new List<Vector2>();
+        l.Add(neck);
+        l.Add(crotch);
+        l.Add(shoulder);
+        l.Add(lHand);
+        l.Add(rHand);
+        l.Add(lFoot);
+        l.Add(rFoot);
         l.Sort(vecComp);
         return (l[0]);
     }
@@ -104,6 +128,9 @@ class Stickfigure
         // Draw the feet
         JewSaver.primitiveBatch.AddLine(crotch, lFoot, Color.Yellow, Color.Yellow, scale);
         JewSaver.primitiveBatch.AddLine(crotch, rFoot, Color.Yellow, Color.Yellow, scale);
+
+        // Draw floor
+        JewSaver.primitiveBatch.AddLine(new Vector2(0.0f, JewSaver.height / 2.0f), new Vector2(JewSaver.width, JewSaver.height / 2.0f), Color.Purple, 5);
 
         // End primitive batch
         JewSaver.primitiveBatch.End();
