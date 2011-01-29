@@ -97,6 +97,7 @@
     <Compile Include="Level2.cs" />
     <Compile Include="Level3.cs" />
     <Compile Include="LevelBase.cs" />
+    <Compile Include="LocustSwarm.cs" />
     <Compile Include="Menu classes\Menu.cs" />
     <Compile Include="Menu classes\MenuButton.cs" />
     <Compile Include="Menu classes\MenuInputElement.cs" />
