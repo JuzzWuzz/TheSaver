@@ -10,6 +10,11 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Net;
 using Microsoft.Xna.Framework.Storage;
+using NAudio;
+using NAudio.Wave;
+using System.IO;
+using System.Net;
+using System.Threading;
 
 // use to specify game state
 public enum GameState {MAIN_MENU, PAUSED, LEVEL_1, LEVEL_2, LEVEL_3};
@@ -129,14 +134,53 @@ public class JewSaver : Microsoft.Xna.Framework.Game
 
 static class Program
 {
+    public static void PlayMp3FromUrl()
+    {
+        string url = "http://music.incompetech.com/royalty-free/Blue%20Scorpion.mp3";
+        using (Stream ms = new MemoryStream())
+        {
+            using (Stream stream = WebRequest.Create(url)
+                .GetResponse().GetResponseStream())
+            {
+                byte[] buffer = new byte[32768];
+                int read;
+                while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    ms.Write(buffer, 0, read);
+                }
+            }
+
+            ms.Position = 0;
+            using (WaveStream blockAlignedStream =
+                new BlockAlignReductionStream(
+                    WaveFormatConversionStream.CreatePcmStream(
+                        new Mp3FileReader(ms))))
+            {
+                using (WaveOut waveOut = new WaveOut(WaveCallbackInfo.FunctionCallback()))
+                {
+                    waveOut.Init(blockAlignedStream);
+                    waveOut.Play();
+                    while (waveOut.PlaybackState == PlaybackState.Playing)
+                    {
+                        System.Threading.Thread.Sleep(100);
+                    }
+                }
+            }
+        }
+    }
+
     /// <summary>
     /// The main entry point for the application.
     /// </summary>
     static void Main(string[] args)
     {
+        Thread oThread = new Thread(new ThreadStart(Program.PlayMp3FromUrl));
+        oThread.Start();
+
         using (JewSaver game = new JewSaver())
         {
             game.Run();
         }
+        oThread.Abort();
     }
 }
