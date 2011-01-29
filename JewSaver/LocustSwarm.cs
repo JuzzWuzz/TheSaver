@@ -40,8 +40,8 @@ public class LocustSwarm
             }
             else
             {
-                JewSaver.primitiveBatch.AddLine(new Vector2(pos.X - LevelBase.scrollX, pos.Y),
-                    new Vector2(pos.X - LevelBase.scrollX, pos.Y) + new Vector2(0, 2), Color.Red, 4);
+                JewSaver.primitiveBatch.AddLine(new Vector2(pos.X, pos.Y),
+                    new Vector2(pos.X, pos.Y) + new Vector2(0, 2), Color.Red, 4);
             }
         }
         
@@ -58,7 +58,7 @@ public class LocustSwarm
                     return;
                 }
 
-                if (pos.Y > JewSaver.height - LevelBase.heightMap[(int)(pos.X - LevelBase.scrollX)])
+                if (pos.Y > JewSaver.height - LevelBase.heightMap[Math.Min(Math.Max(0, (int)(pos.X + LevelBase.scrollX)), LevelBase.levelLength - 1)])
                 {
                     Console.WriteLine("Locust Y: " + pos.Y + " HMap: " + LevelBase.heightMap[(int)pos.X]);
                     Console.WriteLine("h: " + (JewSaver.height -
