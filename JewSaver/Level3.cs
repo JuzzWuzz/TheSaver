@@ -49,7 +49,7 @@ public class Level3 : LevelBase
         sign = new Sprite(signBack, 128, 64, 0,0,128,64 ,-64 + 3064 + 384 + 512+1, 16 + 192+1);
         hasPlayed = true;
         for (int i = heightMap.Length - 1; i > heightMap.Length - 256; i--)
-            canSculpt[i] = false;
+            canSculpt[i] = TerrainType.OTHER;
     }
 
     protected override void LoadContent()
