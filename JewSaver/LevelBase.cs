@@ -67,7 +67,7 @@ public class LevelBase:DrawableGameComponent
         canSculpt = new TerrainType[levelLength];
         jewSaver = game;
         hasPlayed = false;
-        numberOfStickies = 50;
+        numberOfStickies = 1;
         stickies = new Stickfigure[numberOfStickies];
     }
 
