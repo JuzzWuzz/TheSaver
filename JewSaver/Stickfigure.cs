@@ -9,12 +9,12 @@ using System.Collections;
 public class Stickfigure
 {
     const float gravity = 500.0f;
-    const float jumpForce = gravity * 35.0f;
+    const float jumpForce = gravity * 30.0f;
     const double jumpAngle = Math.PI / 180.0f * 45.0f;
     
     private bool isPlayer = false;
     private bool newStickie;
-    private bool inactive;
+    public bool inactive;
 
     public bool dead;
     public bool saved;

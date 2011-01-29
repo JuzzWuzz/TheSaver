@@ -226,17 +226,17 @@ public class LevelBase:DrawableGameComponent
             savedFemales = 0;
             savedFatties = 0;
 
-            if (!moses.jumping && Input.spaceBarPressed)
+            if (!moses.inactive && !moses.jumping && Input.spaceBarPressed)
             {
                 jumpMarkers.Add(moses.position.X + scrollX);
             }
             if (!(this is Level1))
             {
-                if (!moses.sprinting && Input.shiftDown)
+                if (!moses.inactive && !moses.sprinting && Input.shiftDown)
                 {
                     sprintMarkers.Add(moses.position.X + scrollX);
                 }
-                if (moses.sprinting && Input.shiftUp)
+                if (!moses.inactive && moses.sprinting && Input.shiftUp)
                 {
                     sprintMarkers.Add(moses.position.X + scrollX);
                 }
