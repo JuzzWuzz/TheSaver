@@ -19,13 +19,28 @@ class Stickfigure
     private int headSize;
     private int scale;
 
-    private Vector2 position;
+    public Vector2 position;
+    private Vector2 origPosition;
     protected Vector2 velocity;
     protected float moveForce;
     protected float mass;
     protected float timer;
+    protected Color color;
 
     public Stickfigure(Vector2 position)
+    {
+        origPosition = position;
+        color = Color.Yellow;
+        Initialize();
+    }
+
+    public void SetIsPlayer()
+    {
+        isPlayer = true;
+        color = Color.Brown;
+    }
+
+    public void Initialize()
     {
         shoulder = new Vector2(0, -10);
         lHand = rHand = new Vector2(5, 0);
@@ -36,17 +51,12 @@ class Stickfigure
 
         setLimbs(0.0f);
 
-        this.position = position;
+        this.position = this.origPosition;
         this.velocity = Vector2.Zero;
         this.moveForce = 50.0f;
         this.mass = 1.0f;
         this.timer = 0.0f;
         this.moving = true;
-    }
-
-    public void SetIsPlayer()
-    {
-        isPlayer = true;
     }
     
     // Update Method
@@ -194,15 +204,15 @@ class Stickfigure
         JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);
 
         // Draw the main body
-        JewSaver.primitiveBatch.AddLine(crotch, neck, Color.Yellow, Color.Yellow, scale);
+        JewSaver.primitiveBatch.AddLine(crotch, neck, color, color, scale);
 
         // Draw the arms
-        JewSaver.primitiveBatch.AddLine(shoulder, lHand, Color.Yellow, Color.Yellow, scale);
-        JewSaver.primitiveBatch.AddLine(shoulder, rHand, Color.Yellow, Color.Yellow, scale);
+        JewSaver.primitiveBatch.AddLine(shoulder, lHand, color, color, scale);
+        JewSaver.primitiveBatch.AddLine(shoulder, rHand, color, color, scale);
         
         // Draw the feet
-        JewSaver.primitiveBatch.AddLine(crotch, lFoot, Color.Yellow, Color.Yellow, scale);
-        JewSaver.primitiveBatch.AddLine(crotch, rFoot, Color.Yellow, Color.Yellow, scale);
+        JewSaver.primitiveBatch.AddLine(crotch, lFoot, color, color, scale);
+        JewSaver.primitiveBatch.AddLine(crotch, rFoot, color, color, scale);
 
         // End primitive batch
         JewSaver.primitiveBatch.End();

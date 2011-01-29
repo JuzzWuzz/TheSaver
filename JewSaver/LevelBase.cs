@@ -26,6 +26,7 @@ public class LevelBase:DrawableGameComponent
     float brushSize;
 
     Stickfigure[] stickies = new Stickfigure[10];
+    Stickfigure moses;
 
     /// <summary>
     /// Base constructor for a level
@@ -60,6 +61,8 @@ public class LevelBase:DrawableGameComponent
         exit.buttonPressed += OnQuitPressed;
         for (int i = 0; i < 10; i++)
             stickies[i] = new Stickfigure(new Vector2(50 + i * 30, i * 30));
+        moses = new Stickfigure(new Vector2(350, 200));
+        moses.SetIsPlayer();
         Random random = new Random();
         stars = new Sprite[384];
         for (int i = 0; i < stars.Length; i++)
@@ -171,6 +174,16 @@ public class LevelBase:DrawableGameComponent
             {
                 s.update(dt, heightMap, scrollX);
             }
+            moses.update(dt, heightMap, scrollX);
+
+            if (moses.position.X >= JewSaver.width / 2.0f)
+            {
+                float changeX = moses.position.X - JewSaver.width / 2.0f;
+                scrollX += changeX;
+                moses.position.X -= changeX;
+                foreach (Stickfigure s in stickies)
+                    s.position.X -= changeX;
+            }
         }
     }
 
@@ -226,6 +239,7 @@ public class LevelBase:DrawableGameComponent
             {
                 s.draw();
             }
+            moses.draw();
             JewSaver.spriteBatch.Begin();
             (restart as MenuInputElement).Draw(JewSaver.spriteBatch);
             JewSaver.spriteBatch.End();
