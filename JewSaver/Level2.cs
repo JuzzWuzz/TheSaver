@@ -14,7 +14,8 @@ public class Level2 : LevelBase
         base.Initialize();
         if (!hasPlayed)
         {
-            AddWater(256, 768);
+            AddWater(320, 448);
+            AddWater(640, 768);
             AddTrees();
         }
         hasPlayed = true;

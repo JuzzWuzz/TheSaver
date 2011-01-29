@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 public class LevelBase:DrawableGameComponent
 {
     protected enum LevelMode {EDIT, PLAY};
-    protected enum TerrainType { SAND, WATER, CANYON, OTHER };
+    protected enum TerrainType { SAND, WATER, CANYON, OTHER, ROCK };
     public static float[] heightMap;
     protected TerrainType[] canSculpt;
     protected LevelMode levelMode;
@@ -436,6 +436,11 @@ public class LevelBase:DrawableGameComponent
                 heightMap[i] = 16 + 4 * (float)Math.Sin(i / 64.0f * Math.PI * 2 + 3 * levelTime);
                 JewSaver.primitiveBatch.AddVertex(new Vector2(i - (int)scrollX, JewSaver.height - heightMap[i]), Color.CadetBlue);
                 JewSaver.primitiveBatch.AddVertex(new Vector2(i - (int)scrollX, JewSaver.height), Color.DarkBlue);
+            }
+            else if (canSculpt[i] == TerrainType.ROCK)
+            {
+                JewSaver.primitiveBatch.AddVertex(new Vector2(i - (int)scrollX, JewSaver.height - heightMap[i]), Color.DarkGray);
+                JewSaver.primitiveBatch.AddVertex(new Vector2(i - (int)scrollX, JewSaver.height), Color.Black);
             }
             else
             {
