@@ -47,6 +47,7 @@ public class LevelBase:DrawableGameComponent
     int deadStickies;
     int savedStickies;
     int savedFemales;
+    int savedFatties;
 
     Stickfigure[] stickies;
     Stickfigure moses;
@@ -223,6 +224,7 @@ public class LevelBase:DrawableGameComponent
             deadStickies = 0;
             savedStickies = 0;
             savedFemales = 0;
+            savedFatties = 0;
 
             if (!moses.jumping && Input.spaceBarPressed)
             {
@@ -242,7 +244,7 @@ public class LevelBase:DrawableGameComponent
 
             foreach (Stickfigure s in stickies)
             {
-                s.update(dt, heightMap);
+                s.update(dt);
                 if (s.dead)
                     deadStickies++;
                 if (s.saved)
@@ -250,8 +252,11 @@ public class LevelBase:DrawableGameComponent
                     savedStickies++;
                     if (s.isFemale)
                         savedFemales++;
+                    if (s.isFattie)
+                        savedFatties++;
                 }
              }
+
             if (!goToNextLevel)
             {
                 if (!moses.dead)
@@ -363,7 +368,7 @@ public class LevelBase:DrawableGameComponent
 
             foreach (LocustSwarm swarm in locusts)
                 swarm.update(dt);
-            moses.update(dt, heightMap);
+            moses.update(dt);
 
         }
 
@@ -382,7 +387,12 @@ public class LevelBase:DrawableGameComponent
             {
                 showText = false;
                 if (goToNextLevel)
+                {
+                    JewSaver.finalSavedFatties += savedFatties;
+                    JewSaver.finalSavedFemales += savedFemales;
+                    JewSaver.finalSavedStickies += savedStickies;
                     NextLevel();
+                }
             }
         }
     }
@@ -482,9 +492,9 @@ public class LevelBase:DrawableGameComponent
             // Draw stickies
             foreach (Stickfigure s in stickies)
             {
-                s.draw(heightMap);
+                s.draw();
             }
-            moses.draw(heightMap);
+            moses.draw();
 
             foreach (LocustSwarm swarm in locusts)
                 swarm.draw();

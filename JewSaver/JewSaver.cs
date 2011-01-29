@@ -37,6 +37,10 @@ public class JewSaver : Microsoft.Xna.Framework.Game
     Level2 level2;
     Level3 level3;
 
+    public static int finalSavedStickies = 0;
+    public static int finalSavedFemales = 0;
+    public static int finalSavedFatties = 0;
+
     public JewSaver()
     {
         graphics = new GraphicsDeviceManager(this);

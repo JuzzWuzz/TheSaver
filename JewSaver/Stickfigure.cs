@@ -39,6 +39,7 @@ class Stickfigure
     protected int curSprintIdx;
     protected int stickieIndex;
     public bool isFemale;
+    public bool isFattie;
 
     public Stickfigure(Vector2 position, int index)
     {
@@ -66,7 +67,7 @@ class Stickfigure
 
         setLimbs(0.0f);
 
-        this.isFemale = (LevelBase.random.NextDouble() > 0.80);
+        this.isFemale = (LevelBase.random.NextDouble() > 0.90);
 
         this.position = this.origPosition;
         this.velocity = Vector2.Zero;
@@ -91,10 +92,12 @@ class Stickfigure
             mass = 1.2f;
             thickness = (int)(scale * mass * mass * 0.75);
         }
+
+        this.isFattie = (mass > 1.5f);
     }
 
     // Update Method
-    public void update(float dt, float[] heightmap)
+    public void update(float dt)
     {
         if (inactive)
             return;
@@ -143,10 +146,10 @@ class Stickfigure
         float ground;
         float drag = 0.99f;
 
-        float gp = JewSaver.height - heightmap[Math.Min(Math.Max(0, (int)(LevelBase.scrollX + position.X - scale)), LevelBase.levelLength - 1)];
-        float gn = JewSaver.height - heightmap[Math.Min(Math.Max(0, (int)(LevelBase.scrollX + position.X + scale)), LevelBase.levelLength - 1)];
+        float gp = JewSaver.height - LevelBase.heightMap[Math.Min(Math.Max(0, (int)(LevelBase.scrollX + position.X - scale)), LevelBase.levelLength - 1)];
+        float gn = JewSaver.height - LevelBase.heightMap[Math.Min(Math.Max(0, (int)(LevelBase.scrollX + position.X + scale)), LevelBase.levelLength - 1)];
         double angle = Math.Atan((double)Math.Abs(gn - gp) / (double)(scale * 2));
-        ground = JewSaver.height - heightmap[Math.Min(Math.Max(0, (int)(LevelBase.scrollX + position.X)), LevelBase.levelLength - 1)];
+        ground = JewSaver.height - LevelBase.heightMap[Math.Min(Math.Max(0, (int)(LevelBase.scrollX + position.X)), LevelBase.levelLength - 1)];
 
         setLimbs(dt);
         if (!jumping)
@@ -313,7 +316,7 @@ class Stickfigure
         return (l[0]);
     }
 
-    public void draw(float[] heightmap)
+    public void draw()
     {
         if (inactive)
             return;
