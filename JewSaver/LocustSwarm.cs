@@ -18,7 +18,7 @@ public class LocustSwarm
         private float height;
         private float speed;
         LocustSwarm swarm;
-        public bool dead;
+        public bool dead, splat;
 
         public Locust(Vector2 pos, LocustSwarm swarm)
         {
@@ -26,22 +26,46 @@ public class LocustSwarm
             height = pos.Y;
             this.pos = pos;
             speed = (float)(r.NextDouble() - .5);
-            dead = false;
-        }
-
-        public void draw() {
-            JewSaver.primitiveBatch.AddLine(pos, pos + new Vector2(10, 0), Color.DarkOliveGreen, 3);
+            dead = splat = false;
         }
 
         double change = 0;
-        public void update(float dt) { 
-            pos += new Vector2(((float)Math.Sin(change) + 1)* -2f, (float)Math.Sin(change) * 15f);
-            Console.WriteLine("pos: " + pos.X + " pos: " + pos.Y);
-            if (pos.X < 0)
+
+        public void draw() {
+            if (!splat)
             {
-                Console.WriteLine("Locust destructing");
-                dead = true;
+                JewSaver.primitiveBatch.AddLine(pos, pos + new Vector2(10, 0), Color.DarkOliveGreen, 3);
+                JewSaver.primitiveBatch.AddLine(pos + new Vector2(3, 0),
+                    pos + new Vector2(8 + (float)Math.Sin(change * 2) * 4, -6), Color.DarkOliveGreen, 2);
             }
+            else
+            {
+                JewSaver.primitiveBatch.AddLine(new Vector2(pos.X - LevelBase.scrollX, pos.Y),
+                    new Vector2(pos.X - LevelBase.scrollX, pos.Y) + new Vector2(0, 2), Color.DarkOrange, 3);
+            }
+        }
+        
+        public void update(float dt) {
+            if (!splat)
+            {
+                pos += new Vector2(((float)Math.Sin(change) + 1) * -4f, (float)Math.Sin(change) * 15f);
+
+                //Console.WriteLine("pos: " + pos.X + " pos: " + pos.Y);
+                if (pos.X < 0)
+                {
+                    Console.WriteLine("Locust destructing");
+                    dead = true;
+                    return;
+                }
+
+                if (pos.Y > JewSaver.height - LevelBase.heightMap[(int)pos.X])
+                {
+                    Console.WriteLine("Locust Y: " + pos.Y + " HMap: " + LevelBase.heightMap[(int)pos.X]);
+                    Console.WriteLine("h: " + (JewSaver.height -
+                        LevelBase.heightMap[Math.Min(Math.Max(0, (int)(pos.X)), LevelBase.levelLength - 1)]));
+                    splat = true; Console.WriteLine("SplaT!");
+                }
+            } 
         }
 
     }
@@ -68,7 +92,7 @@ public class LocustSwarm
     {
         timeOut += dt;
         timeToLive -= dt;
-        while (timeToLive > 0 && timeOut > .25)
+        while (timeToLive > 0 && timeOut > .35)
             spawnLocust();
         foreach (Locust l in locusts)
             l.update(dt);
@@ -94,7 +118,8 @@ public class LocustSwarm
         else
             locusts.Add(new Locust(new Vector2(LevelBase.levelLength, r.Next(0, spawnZone * 3)), this));
 
-        Console.WriteLine("Spawned at: " + locusts.Last<Locust>().pos.Y+"timeToLive: "+timeToLive);
+        Console.WriteLine("Spawned at: " + locusts.Last<Locust>().pos.Y + "  - timeToLive: "
+            + timeToLive + " heightmap: " + LevelBase.heightMap[(int)locusts.Last<Locust>().pos.X-1]);
 
     }
 }

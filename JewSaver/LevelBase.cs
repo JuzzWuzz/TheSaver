@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 public class LevelBase:DrawableGameComponent
 {
     protected enum LevelMode {EDIT, PLAY};
-    protected float[] heightMap;
+    public static float[] heightMap;
     protected bool[] canSculpt;
     protected LevelMode levelMode;
     public static float scrollX;
