@@ -14,17 +14,17 @@ class ShekelRain : DrawableGameComponent
 
     private class Schekel {
         Vector2 one, two;
-        bool oneMoves, twoMoves;
+        bool oneMoves, twoMoves, moving;
         public Schekel(Vector2 pos) {
             one = new Vector2(-3 + pos.X, pos.Y);
             two = new Vector2(3 + pos.X, pos.Y);
-            oneMoves = twoMoves = true;
+            oneMoves = twoMoves = moving = true;
         }
 
         public void update(float dt)
         {
             float speed = 40f;
-            float offset = 2f;
+            float offset = 3f;
 
             if (Vector2.Distance(one, two) < 8)
             {
@@ -33,7 +33,6 @@ class ShekelRain : DrawableGameComponent
                         one += new Vector2(0, dt * speed);
                     else
                     {
-                        hm[(int)one.X] += 2;
                         oneMoves = false;
                     }
 
@@ -42,9 +41,14 @@ class ShekelRain : DrawableGameComponent
                         two += new Vector2(0, dt * speed);
                     else
                     {
-                        hm[(int)two.X] += 2;
                         twoMoves = false;
                     }
+                if (moving && !oneMoves && !twoMoves)
+                {
+                    for (int i = (int)one.X; i <= (int)two.X; i++)
+                        hm[i] += 2;
+                    moving = false;
+                }
             }
         }
 
@@ -120,9 +124,9 @@ class ShekelRain : DrawableGameComponent
         {
             timeout += .05f;
             int pos = 0;
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 3; i++)
                 pos += r.Next(0, 1024);
-            pos /= 4;
+            pos /= 3;
             treasure.Add(new Schekel(new Vector2(pos,0)));
         }
         foreach (Schekel s in treasure)
