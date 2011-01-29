@@ -47,7 +47,34 @@ public class MenuJewSaver:Menu
         {
             for (int j = 0; j < 256; j++)
             {
-                textureData[i * 256 + j] = Color.White;
+                float fin = 1;
+                if (j > 7 && j < 248)
+                {
+                    if (i < 8)
+                        fin = i / 8.0f;
+                    else if (i > 55)
+                        fin = (8 - (i - 55)) / 8.0f;
+                }
+                else if (i > 7 && i < 56)
+                {
+                    if (j < 8)
+                        fin = j / 8.0f;
+                    else if (j > 247)
+                        fin = (8 - (j - 247)) / 8.0f;
+                }
+                else
+                {
+                    float minI = i;
+                    if (i > 55 && i - 55 < minI)
+                        minI = 8 - (i - 55);
+                    float minJ = j;
+                    if (j > 247 && j - 247 < minJ)
+                        minJ = 8 - (j - 247);
+                    float min = (float)Math.Min(minI, minJ);
+                    if (min < 8)
+                        fin = min / 8.0f;
+                }
+                textureData[i * 256 + j] = new Color(1, 1, 1,fin);
             }
         }
         buttonTexture = new Texture2D(Game.GraphicsDevice, 256, 64);

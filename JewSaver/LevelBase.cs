@@ -5,8 +5,8 @@ using Microsoft.Xna.Framework.Graphics;
 public class LevelBase:DrawableGameComponent
 {
     protected enum LevelMode {EDIT, PLAY};
-    float[] heightMap;
-    LevelMode levelMode;
+    protected float[] heightMap;
+    protected LevelMode levelMode;
     float scrollX;
     float scrollSpeed;
     MenuButton play;
