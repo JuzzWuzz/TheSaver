@@ -12,6 +12,10 @@ public class LevelBase:DrawableGameComponent
     MenuButton play;
     Texture2D buttonTex;
     SpriteFont font;
+    Texture2D background;
+    Texture2D star;
+    Sprite BG;
+    Sprite[] stars;
 
     // landscape sculpting brush
     Rectangle landscapeBrush;
@@ -43,8 +47,16 @@ public class LevelBase:DrawableGameComponent
         play = new MenuButton(buttonTex, new Point(64, 64), new Point(0, 0), new Point(64, 64), new Point(8, 8), "PLAY");
         play.font = font;
         play.buttonPressed += OnPlayPressed;
+        BG = new Sprite(background, 1, 384, 0, 0, 1024, 384, 0, 0);
         for (int i = 0; i < 10; i++)
             stickies[i] = new Stickfigure(new Vector2(50 + i * 30, i * 30));
+        Random random = new Random();
+        stars = new Sprite[384];
+        for (int i = 0; i < stars.Length; i++)
+        {
+            stars[i] = new Sprite(star, 8, 8, 0, 0, 8, 8, random.Next(heightMap.Length/2), random.Next(64));
+            stars[i].Alpha = (64 - stars[i].screenRectangle.Top) / 96.0f;
+        }
     }
 
     protected override void LoadContent()
@@ -63,7 +75,47 @@ public class LevelBase:DrawableGameComponent
                     data[(i + 32) * 64 + j + 32] = new Color(1, 1, 1, (896 - dist2) / (896 - 576));
             }
         }
+        Color[] back = new Color[384];
+        Color mix;
+        background = new Texture2D(Game.GraphicsDevice, 1, 384);
+        for (int i = 0; i < 106; i++)
+        {
+            float frac = i/106.0f;
+            mix = new Color(frac * 36/255.0f, frac * 16/255.0f, frac * 63/255.0f);
+            back[i] = mix;
+        }
+        for (int i = 106; i < 106 + 95; i++)
+        {
+            float frac1 = (i - 106) / 95.0f;
+            float frac2 = 1 - frac1;
+            mix = new Color((frac2 * 36 / 255.0f + frac1 * 99 / 255.0f), (frac2 * 16 / 255.0f + frac1 * 6 / 255.0f), (frac2 * 63 / 255.0f + frac1 * 42 / 255.0f));
+            back[i] = mix;
+        }
+        for (int i = 106 + 95; i < 106 + 95+ 78; i++)
+        {
+            float frac1 = (i - 106 - 95) / 78.0f;
+            float frac2 = 1 - frac1;
+            mix = new Color((frac2 * 99 / 255.0f + frac1 * 186 / 255.0f), (frac2 * 6 / 255.0f), (frac2 * 42 / 255.0f));
+            back[i] = mix;
+        }
+        for (int i = 106 + 95 + 78; i < 106 + 95+ 78 + 105; i++)
+        {
+            float frac1 = (i - 106-95-78) / 105.0f;
+            float frac2 = 1 - frac1;
+            mix = new Color((frac2 * 186 / 255.0f + frac1 * 239 / 255.0f), (frac1 * 98 / 255.0f), (frac1 * 10 / 255.0f));
+            back[i] = mix;
+        }
+        star = new Texture2D(Game.GraphicsDevice, 8, 8);
+        Color[] starData = new Color[8*8];
+        for (int i = -4; i < 4; i++)
+        {
+            float frac = (float)((4 - Math.Abs(i)) / 4.0f);
+            starData[4 * 8 + i + 4] = new Color(1,1,1,frac);
+            starData[(i + 4) * 8 + 4] = new Color(1, 1, 1, frac);
+        }
+        star.SetData<Color>(starData);
         buttonTex.SetData<Color>(data);
+        background.SetData<Color>(back);
         font = Game.Content.Load<SpriteFont>("LevelText");
     }
 
@@ -135,7 +187,13 @@ public class LevelBase:DrawableGameComponent
     public override void Draw(GameTime gameTime)
     {
         base.Draw(gameTime);
-       
+
+        JewSaver.spriteBatch.Begin();
+        BG.Draw(JewSaver.spriteBatch);
+        foreach (Sprite str in stars)
+            str.Draw(JewSaver.spriteBatch);
+        JewSaver.spriteBatch.End();
+
         JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);
 
         for (int i = (int)scrollX; i < (int)scrollX + 1024; i++)

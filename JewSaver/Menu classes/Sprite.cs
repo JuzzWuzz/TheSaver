@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 public class Sprite
 {
     protected Texture2D texture; // sprite sheet
-    protected Rectangle screenRectangle; // rectangle defined in screen space
+    public Rectangle screenRectangle; // rectangle defined in screen space
     protected Point topLeftPixel; // top left pixel in texture coordinates
     protected Point pixelDimensions; // pixel dimensions in texture
     protected Vector2 scaleFactor; // pixel-to-texel ratio
