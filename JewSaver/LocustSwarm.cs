@@ -58,7 +58,7 @@ public class LocustSwarm
                     return;
                 }
 
-                if (pos.Y > JewSaver.height - LevelBase.heightMap[(int)(pos.X - LevelBase.scrollX)])
+                if (pos.Y > JewSaver.height - LevelBase.heightMap[Math.Min(Math.Max(0, (int)(pos.X + LevelBase.scrollX)), LevelBase.levelLength - 1)])
                 {
                     Console.WriteLine("Locust Y: " + pos.Y + " HMap: " + LevelBase.heightMap[(int)pos.X]);
                     Console.WriteLine("h: " + (JewSaver.height -
