@@ -4,11 +4,14 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections;
 
 class Stickfigure
 {
     const float gravity = 500.0f;
     private bool jumping = false;
+
+    static List<float> jumpMarkers = new List<float>();
 
     private bool isPlayer = false;
     private bool moving = false;
@@ -38,6 +41,7 @@ class Stickfigure
     {
         isPlayer = true;
         color = Color.Brown;
+        jumpMarkers.Clear();
     }
 
     public void Initialize()
@@ -128,7 +132,15 @@ class Stickfigure
         {
             force += new Vector2(1, -1) * moveForce * 50;
             jumping = true;
+            jumpMarkers.Add(position.X + LevelBase.scrollX);
         }
+        if (!isPlayer && !jumping)
+            foreach (float marker in jumpMarkers)
+                if (position.X + LevelBase.scrollX - marker > 1 && position.X + LevelBase.scrollX - marker < 3)
+                {
+                    force += new Vector2(1, -1) * moveForce * 50;
+                    jumping = true;
+                }
 
         // Calculate the acceleration value
         Vector2 accel = force / mass;
