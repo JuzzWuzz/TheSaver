@@ -248,8 +248,6 @@ public class LevelBase:DrawableGameComponent
                             scrollX = heightMap.Length - JewSaver.width - 1;
                     }
                 }
-
-
             }
             else
             {
@@ -290,6 +288,12 @@ public class LevelBase:DrawableGameComponent
                 return;
             }
             moses.update(dt, heightMap);
+        }
+
+        // Update the trees
+        foreach (Tree tree in trees)
+        {
+            tree.update(heightMap);
         }
     }
 

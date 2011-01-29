@@ -13,6 +13,12 @@ class Tree
     int height;
     public float scrollXValue;
 
+    public Vector2 Position
+    {
+        get { return(position); }
+        set { position = value; }
+    }
+
     public Tree(Vector2 pos)
     {
         position = pos;
@@ -28,6 +34,7 @@ class Tree
         JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);
         Vector2 currentPos = position;
         currentPos.X -= scrollXValue;
+        currentPos.Y = JewSaver.height - currentPos.Y;
         JewSaver.primitiveBatch.AddLine(currentPos, currentPos + new Vector2(0, -height), Color.Brown, 3);
         
         JewSaver.primitiveBatch.End();
@@ -36,19 +43,23 @@ class Tree
         {
             Vector2 scrolled = leaves[i];
             scrolled.X -= scrollXValue;
-            JewSaver.primitiveBatch.AddVertex(scrolled, Color.Brown);
+            scrolled.Y -= position.Y - height;
+            JewSaver.primitiveBatch.AddVertex(scrolled, Color.Green);
         }
         for (int i = leaves.Length / 2; i < leaves.Length; i++)
         {
             Vector2 scrolled = leaves[i];
             scrolled.X -= scrollXValue;
-            JewSaver.primitiveBatch.AddVertex(scrolled, Color.Green);
+            scrolled.Y -= position.Y - height;
+            JewSaver.primitiveBatch.AddVertex(scrolled, Color.DarkKhaki);
         }
 
         JewSaver.primitiveBatch.End();
     }
 
-    public void update() 
-    { ;}
+    public void update(float[] heightmap) 
+    {
+        position.Y = heightmap[Math.Min(Math.Max(0, (int)(position.X)), LevelBase.levelLength - 1)];
+    }
 
 }
