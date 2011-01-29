@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections;
 
-class Stickfigure
+public class Stickfigure
 {
     const float gravity = 500.0f;
     const float jumpForce = gravity * 35.0f;
@@ -213,7 +213,9 @@ class Stickfigure
         {
             for (int i = curJumpIdx; i < LevelBase.jumpMarkers.Count; i++)
             {
-                if (position.X + LevelBase.scrollX >= LevelBase.jumpMarkers[i])
+                if (position.X > LevelBase.moses.position.X)
+                    curJumpIdx++;
+                else if (position.X + LevelBase.scrollX >= LevelBase.jumpMarkers[i])
                 {
                     force = new Vector2(jumpForce * (float)Math.Cos(jumpAngle), -jumpForce * (float)Math.Sin(jumpAngle));
                     if (sprinting)
@@ -228,7 +230,9 @@ class Stickfigure
         // Do checks for sprint markers and activate sprinting
         for (int i = curSprintIdx; i < LevelBase.sprintMarkers.Count; i++)
         {
-            if (position.X + LevelBase.scrollX >= LevelBase.sprintMarkers[i])
+            if (position.X > LevelBase.moses.position.X)
+                curSprintIdx++;
+            else if (position.X + LevelBase.scrollX >= LevelBase.sprintMarkers[i])
             {
                 sprinting ^= true;
                 curSprintIdx++;

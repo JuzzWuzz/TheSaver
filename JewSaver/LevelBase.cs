@@ -50,7 +50,7 @@ public class LevelBase:DrawableGameComponent
     int savedFatties;
 
     Stickfigure[] stickies;
-    Stickfigure moses;
+    public static Stickfigure moses;
 
     /// <summary>
     /// Base constructor for a level
