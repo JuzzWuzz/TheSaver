@@ -9,12 +9,13 @@ public class MenuButton:Sprite, MenuInputElement
     // private variables
     bool enabled;
     bool visible;
-    bool selected;
-    bool held;
+    public bool selected;
+    public bool held;
     // top left pixel coordinates for different button states
     Point unselectedTLP;
     string buttonName;
     Color textColor;
+    public SpriteFont font;
 
     // button event when pressed
     public event ButtonPressed buttonPressed;
@@ -75,8 +76,8 @@ public class MenuButton:Sprite, MenuInputElement
                 textColor = Color.White;
             }
             base.Draw(spriteBatch);
-            Vector2 textDimensions = MenuJewSaver.font.MeasureString(buttonName);
-            spriteBatch.DrawString(MenuJewSaver.font, buttonName, new Vector2(screenRectangle.Center.X,screenRectangle.Center.Y), textColor, 0, 0.5f * textDimensions, 1, SpriteEffects.None, 0);
+            Vector2 textDimensions = font.MeasureString(buttonName);
+            spriteBatch.DrawString(font, buttonName, new Vector2(screenRectangle.Center.X,screenRectangle.Center.Y), textColor, 0, 0.5f * textDimensions, 1, SpriteEffects.None, 0);
         }
     }
 

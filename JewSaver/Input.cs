@@ -16,6 +16,8 @@ public class Input:GameComponent
     public static bool spaceBarDown;
     public static bool enterDown;
     public static bool escapeDown;
+    public static float mouseScrollValue;
+    public static float deltaScroll;
 
     public Input(Game game)
         : base(game)
@@ -33,6 +35,8 @@ public class Input:GameComponent
         deltaMousePos = new Point(mouseState.X - mousePosition.X, mouseState.Y - mousePosition.Y);
         mousePosition.X = mouseState.X;
         mousePosition.Y = mouseState.Y;
+        deltaScroll = mouseState.ScrollWheelValue - mouseScrollValue;
+        mouseScrollValue = mouseState.ScrollWheelValue;
         leftMouseDown = mouseState.LeftButton == ButtonState.Pressed;
         rightMouseDown = mouseState.RightButton == ButtonState.Pressed;
         KeyboardState keyState = Keyboard.GetState();

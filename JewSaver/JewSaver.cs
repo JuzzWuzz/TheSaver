@@ -36,7 +36,7 @@ public class JewSaver : Microsoft.Xna.Framework.Game
     {
         graphics = new GraphicsDeviceManager(this);
         width = 1024;
-        height = 768;
+        height = 384;
         graphics.PreferredBackBufferHeight = height;
         graphics.PreferredBackBufferWidth = width;
         Content.RootDirectory = "Content";
@@ -109,7 +109,7 @@ public class JewSaver : Microsoft.Xna.Framework.Game
     /// <param name="gameTime">Provides a snapshot of timing values.</param>
     protected override void Draw(GameTime gameTime)
     {
-        GraphicsDevice.Clear(Color.Black);
+        GraphicsDevice.Clear(Color.PowderBlue);
 
         // TODO: Add your drawing code here
 

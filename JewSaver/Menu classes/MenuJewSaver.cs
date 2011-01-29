@@ -11,7 +11,7 @@ public class MenuJewSaver:Menu
     MenuButton options;
     MenuButton exit;
     Sprite back;
-    public static SpriteFont font;
+    SpriteFont font;
     JewSaver jewSaver;
 
     public MenuJewSaver(JewSaver game)
@@ -23,16 +23,19 @@ public class MenuJewSaver:Menu
     public override void Initialize()
     {
         base.Initialize();
-        exit = new MenuButton(buttonTexture, new Point(256, 64), new Point(0, 0), new Point(256, 64), new Point(384, 432), "EXIT");
-        newGame = new MenuButton(buttonTexture, new Point(256, 64), new Point(0, 0), new Point(256, 64), new Point(384, 272), "NEW GAME");
-        options = new MenuButton(buttonTexture, new Point(256, 64), new Point(0, 0), new Point(256, 64), new Point(384, 352), "OPTIONS");
+        exit = new MenuButton(buttonTexture, new Point(256, 64), new Point(0, 0), new Point(256, 64), new Point(384, 240), "EXIT");
+        newGame = new MenuButton(buttonTexture, new Point(256, 64), new Point(0, 0), new Point(256, 64), new Point(384, 80), "NEW GAME");
+        options = new MenuButton(buttonTexture, new Point(256, 64), new Point(0, 0), new Point(256, 64), new Point(384, 160), "OPTIONS");
         exit.buttonPressed += OnExitClicked;
         newGame.buttonPressed += OnNewGameClicked;
         options.buttonPressed += OnOptionsClicked;
         menuInputElements.Add(newGame);
         menuInputElements.Add(options);
         menuInputElements.Add(exit);
-        back = new Sprite(background, 1024, 768, 0, 0, 1024, 768, 0, 0);
+        newGame.font = font;
+        options.font = font;
+        exit.font = font;
+        back = new Sprite(background, 1024, 384, 0, 0, 1024, 384, 0, 0);
         menuDecorElements.Add(back);
     }
 
@@ -49,9 +52,9 @@ public class MenuJewSaver:Menu
         }
         buttonTexture = new Texture2D(Game.GraphicsDevice, 256, 64);
         buttonTexture.SetData<Color>(textureData);
-        Color[] backgroundData = new Color[768 * 1024];
+        Color[] backgroundData = new Color[384 * 1024];
         Random random = new Random();
-        for (int i = 0; i < 768; i++)
+        for (int i = 0; i < 384; i++)
         {
             for (int j = 0; j < 1024; j++)
             {
@@ -60,7 +63,7 @@ public class MenuJewSaver:Menu
                 backgroundData[i * 1024 + j] = new Color(sin,0,0, 255);
             }
         }
-        background = new Texture2D(Game.GraphicsDevice, 1024, 768);
+        background = new Texture2D(Game.GraphicsDevice, 1024, 384);
         background.SetData<Color>(backgroundData);
         font = Game.Content.Load<SpriteFont>("ButtonText");
     }
