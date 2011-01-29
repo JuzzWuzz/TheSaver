@@ -10,7 +10,7 @@ class Stickfigure
     const float gravity = 100.0f;
 
 
-    private Vector2 position;
+    private bool isPlayer = false;
     private bool moving = false;
     private bool dead = false;
 
@@ -19,14 +19,13 @@ class Stickfigure
     private int headSize;
     private int scale;
 
+    private Vector2 position;
     protected Vector2 velocity;
     protected float moveForce;
     protected float mass;
 
     public Stickfigure(Vector2 position)
     {
-        this.position = position;
-
         shoulder = new Vector2(0, -10);
         lHand = rHand = new Vector2(5, 0);
         lFoot = rFoot = new Vector2(2, 7);
@@ -36,10 +35,16 @@ class Stickfigure
 
         setLimbs(0f);
 
+        this.position = position;
         this.velocity = Vector2.Zero;
         this.moveForce = 50.0f;
         this.mass = 1.0f;
         moving = true;
+    }
+
+    public void SetIsPlayer()
+    {
+        isPlayer = true;
     }
 
     // Update Method
@@ -99,6 +104,18 @@ class Stickfigure
         rHand= shoulder + new Vector2(-5 * scale, 0);
         rFoot = crotch + new Vector2(-2.5f * scale, 5 * scale);// + Vector2.Multiply(new Vector2(2.5f * scale, - crotchUpAsLegsExtend * scale), (float)Math.Cos(change));
         lFoot = crotch + new Vector2(2.5f * scale, 5 * scale); //+ Vector2.Multiply(new Vector2(-2.5f * scale, - crotchUpAsLegsExtend * scale), (float)Math.Cos(change));
+
+        if (dead)
+        {
+            crotch.Y = position.Y;
+            shoulder.Y = position.Y;
+            neck.Y = position.Y;
+            head.Y = position.Y;
+            lHand.Y = position.Y;
+            rHand.Y = position.Y;
+            lFoot.Y = position.Y;
+            rFoot.Y = position.Y;
+        }
     }
 
     private int vecComp(Vector2 x, Vector2 y)
