@@ -55,7 +55,7 @@ public class LevelBase:DrawableGameComponent
         play = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(8, 8), "PLAY");
         play.font = font;
         play.buttonPressed += OnPlayPressed;
-        restart = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(8, 8), "CLEAR");
+        restart = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(8, 8), "RESET");
         restart.font = font;
         restart.buttonPressed += OnRestartPressed;
         exit = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(1024 - 8 - 96, 8), "QUIT");
@@ -214,6 +214,7 @@ public class LevelBase:DrawableGameComponent
 
         for (int i = 0; i < trees.Length; i++)
         {
+            trees[i].scrollXValue = scrollX;
             trees[i].draw();
         }
 
@@ -266,6 +267,7 @@ public class LevelBase:DrawableGameComponent
     {
         (play as MenuInputElement).Enabled = false;
         levelMode = LevelMode.PLAY;
+        scrollX = 0;
     }
 
     private void OnQuitPressed()
