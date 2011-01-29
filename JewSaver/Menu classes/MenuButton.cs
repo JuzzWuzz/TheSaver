@@ -16,6 +16,7 @@ public class MenuButton:Sprite, MenuInputElement
     string buttonName;
     Color textColor;
     public SpriteFont font;
+    bool lastMouseDown;
 
     // button event when pressed
     public event ButtonPressed buttonPressed;
@@ -29,6 +30,7 @@ public class MenuButton:Sprite, MenuInputElement
         held = false;
         unselectedTLP = topLeftPixel;
         buttonName = text;
+        lastMouseDown = false;
     }
 
     bool MenuInputElement.Enabled
@@ -90,7 +92,7 @@ public class MenuButton:Sprite, MenuInputElement
                 selected = true;
                 if (!held)
                 {
-                    if (Input.leftMouseDown)
+                    if (Input.leftMouseDown && !lastMouseDown)
                         held = true;
                 }
                 else if (!Input.leftMouseDown)
@@ -107,5 +109,6 @@ public class MenuButton:Sprite, MenuInputElement
                 held = false;
             }
         }
+        lastMouseDown = Input.leftMouseDown;
     }
 }

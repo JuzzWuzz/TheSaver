@@ -80,7 +80,7 @@ public class MenuJewSaver:Menu
 
     void OnNewGameClicked()
     {
-        jewSaver.SwitchState(GameState.LEVEL_2);
+        jewSaver.SwitchState(GameState.LEVEL_1);
     }
 
     void OnOptionsClicked()

@@ -12,13 +12,11 @@ public class Level2 : LevelBase
     public override void Initialize()
     {
         base.Initialize();
-        //if (!hasPlayed)
-        //{
-            // good canyon size is 170
-            //AddCanyon(374, 374 + 170);
-            //AddCanyon(1040, 1210);
-            //AddTrees();
-        //}
+        if (!hasPlayed)
+        {
+            AddWater(256, 768);
+            AddTrees();
+        }
         hasPlayed = true;
     }
 

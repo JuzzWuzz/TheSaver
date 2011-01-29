@@ -6,8 +6,9 @@ using Microsoft.Xna.Framework.Graphics;
 public class LevelBase:DrawableGameComponent
 {
     protected enum LevelMode {EDIT, PLAY};
+    protected enum TerrainType { SAND, WATER, CANYON, OTHER };
     public static float[] heightMap;
-    protected bool[] canSculpt;
+    protected TerrainType[] canSculpt;
     protected LevelMode levelMode;
     public static float scrollX;
     float scrollSpeed;
@@ -26,6 +27,7 @@ public class LevelBase:DrawableGameComponent
     public static List<float> jumpMarkers = new List<float>();
     public static List<float> sprintMarkers = new List<float>();
     int numberOfStickies;
+    float levelTime;
 
     //Swarm stuff
     protected static List<LocustSwarm> locusts;
@@ -60,7 +62,7 @@ public class LevelBase:DrawableGameComponent
     {
         levelLength = newLevelLength;
         heightMap = new float [levelLength];
-        canSculpt = new bool[levelLength];
+        canSculpt = new TerrainType[levelLength];
         jewSaver = game;
         hasPlayed = false;
         numberOfStickies = 50;
@@ -70,12 +72,13 @@ public class LevelBase:DrawableGameComponent
     public override void Initialize()
     {
         base.Initialize();
+        levelTime = 0;
         if (!hasPlayed)
         {
             for (int i = 0; i < heightMap.Length; i++)
             {
                 heightMap[i] = (float)(64 + 16 * Math.Sin(i / 4096.0f * Math.PI * 32));
-                canSculpt[i] = true;
+                canSculpt[i] = TerrainType.SAND;
             }
         }
         levelMode = LevelMode.EDIT;
@@ -148,6 +151,7 @@ public class LevelBase:DrawableGameComponent
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
+        levelTime += (float)(gameTime.ElapsedGameTime.TotalSeconds);
         (exit as MenuInputElement).CheckInput();
         if (levelMode == LevelMode.EDIT)
         {
@@ -190,14 +194,14 @@ public class LevelBase:DrawableGameComponent
                 {
                     if (lookingForStart)
                     {
-                        if (canSculpt[i])
+                        if (canSculpt[i] == TerrainType.SAND)
                         {
                             lookingForStart = false;
                             lastStart = i;
                             intervals.Add(i);
                         }
                     }
-                    else if (!canSculpt[i] || (i == endIndex - 1 && !lookingForStart))
+                    else if (canSculpt[i] != TerrainType.SAND || (i == endIndex - 1 && !lookingForStart))
                     {
                         intervals.Add((int)((lastStart + i - 1) / 2.0f));
                         intervals.Add(i);
@@ -423,8 +427,17 @@ public class LevelBase:DrawableGameComponent
 
         for (int i = (int)scrollX; i < (int)scrollX + JewSaver.width; i++)
         {
-            JewSaver.primitiveBatch.AddVertex(new Vector2(i - (int)scrollX, JewSaver.height - heightMap[i]), Color.Gold);
-            JewSaver.primitiveBatch.AddVertex(new Vector2(i - (int)scrollX, JewSaver.height), Color.Sienna);
+            if (canSculpt[i] == TerrainType.WATER)
+            {
+                heightMap[i] = 16 + 4 * (float)Math.Sin(i / 64.0f * Math.PI * 2 + 3 * levelTime);
+                JewSaver.primitiveBatch.AddVertex(new Vector2(i - (int)scrollX, JewSaver.height - heightMap[i]), Color.CadetBlue);
+                JewSaver.primitiveBatch.AddVertex(new Vector2(i - (int)scrollX, JewSaver.height), Color.DarkBlue);
+            }
+            else
+            {
+                JewSaver.primitiveBatch.AddVertex(new Vector2(i - (int)scrollX, JewSaver.height - heightMap[i]), Color.Gold);
+                JewSaver.primitiveBatch.AddVertex(new Vector2(i - (int)scrollX, JewSaver.height), Color.Sienna);
+            }
         }
         if (levelMode == LevelMode.EDIT)
         {
@@ -560,12 +573,12 @@ public class LevelBase:DrawableGameComponent
         for (int i = start; i < (end - start) / 2 + start; i++)
         {
             heightMap[i] = CosineInterpolate(heightMap[start], -256, (i - start) / mid);
-            canSculpt[i] = heightMap[i] >= 16;
+            canSculpt[i] = heightMap[i] >= 16?TerrainType.SAND:TerrainType.CANYON;
         }
         for (int i = (end - start) / 2 + start; i <= end; i++)
         {
             heightMap[i] = CosineInterpolate(-256, heightMap[end], (i - ((int)mid + start)) / mid);
-            canSculpt[i] = heightMap[i] >= 16;
+            canSculpt[i] = heightMap[i] >= 16?TerrainType.SAND:TerrainType.CANYON;
         }
     }
 
@@ -580,11 +593,31 @@ public class LevelBase:DrawableGameComponent
         while (i < treeNum)
         {
             int xVal = random.Next(0, heightMap.Length);
-            if (heightMap[xVal] > 16)
+            if (canSculpt[xVal] == TerrainType.SAND)
             {
                 trees[i] = new Tree(new Vector2(xVal, JewSaver.height - 20));
                 i++;
             }
+        }
+    }
+
+    protected void AddWater(int start, int end)
+    {
+        int length = end - start;
+        for (int i = start; i < end; i++)
+        {
+            heightMap[i] = 16 + 4*(float)Math.Sin(i / 64.0f * Math.PI * 2);
+            canSculpt[i] = TerrainType.WATER;
+        }
+        float sandHeight = heightMap[start - 64];
+        for (int i = start - 64; i < start; i++)
+        {
+            heightMap[i] = CosineInterpolate(sandHeight, 20, (i - start + 64) / 64.0f);
+        }
+        sandHeight = heightMap[end + 64];
+        for (int i = end; i < end + 64; i++)
+        {
+            heightMap[i] = CosineInterpolate(20, sandHeight, (i - end)/ 64.0f);
         }
     }
 
