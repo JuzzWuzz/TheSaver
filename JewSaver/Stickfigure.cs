@@ -35,6 +35,7 @@ public class Stickfigure
     protected float timer;
     protected float spawnTimer;
     protected Color color;
+    protected Color colorHead;
     protected int curJumpIdx;
     protected int curSprintIdx;
     protected int stickieIndex;
@@ -67,7 +68,7 @@ public class Stickfigure
 
         setLimbs(0.0f);
 
-        this.isFemale = (LevelBase.random.NextDouble() > 0.90);
+        this.isFemale = (LevelBase.random.NextDouble() > 0.98);
 
         this.position = this.origPosition;
         this.velocity = Vector2.Zero;
@@ -84,6 +85,7 @@ public class Stickfigure
         this.sprinting = false;
         this.newStickie = true;
         this.color = (isFemale) ? Color.Pink : Color.Yellow;
+        this.colorHead = Color.Orange;
 
         this.thickness = (int)(scale * mass * mass * 0.75);
 
@@ -154,6 +156,10 @@ public class Stickfigure
         setLimbs(dt);
         if (!jumping)
         {
+            if (isPlayer)
+            {
+                ;
+            }
             if (gn > gp)
             {
                 // Gradient = \
@@ -164,7 +170,7 @@ public class Stickfigure
             {
                 // Gradient = /
                 //ground = JewSaver.height - heightmap[(int)LevelBase.scrollX + (int)lFoot.X];
-                if (angle > Math.PI / 180.0f * 80.0f)
+                if (!isPlayer && angle > Math.PI / 180.0f * 80.0f)
                 {
                     drag = 0.0f;
                     // Add dt to the timer value and if they are stuck for 4 seconds then kill them
@@ -279,12 +285,19 @@ public class Stickfigure
         change += dt;
 
         crotch = position;
-        rFoot = crotch + new Vector2(-2.5f * scale, 7 * scale) + Vector2.Multiply(new Vector2(2.5f * scale, 0), (float)Math.Cos(change));
-        lFoot = crotch + new Vector2(2.5f * scale, 7 * scale) + Vector2.Multiply(new Vector2(-2.5f * scale, 0), (float)Math.Cos(change));
+        rFoot = crotch + new Vector2(-2.5f * scale, 7 * scale);
+        lFoot = crotch + new Vector2(2.5f * scale, 7 * scale);
 
-        crotch -= Vector2.Multiply(new Vector2(0, 1.5f * scale), (float)Math.Cos(change) + 1);
+        if (!dead)
+        {
+            rFoot += Vector2.Multiply(new Vector2(2.5f * scale, 0), (float)Math.Cos(change));
+            lFoot += Vector2.Multiply(new Vector2(-2.5f * scale, 0), (float)Math.Cos(change));
+            crotch -= Vector2.Multiply(new Vector2(0, 1.5f * scale), (float)Math.Cos(change) + 1);
+        }
 
-        shoulder = crotch + new Vector2(0, -8 * scale) + Vector2.Multiply(new Vector2(4, 0), (float)Math.Cos(change * 2));
+        shoulder = crotch + new Vector2(0, -8 * scale);
+        if (!dead)
+            shoulder += Vector2.Multiply(new Vector2(4, 0), (float)Math.Cos(change * 2));
         neck = shoulder + new Vector2(0, -2 * scale);
         head = neck + new Vector2(0, -headSize * scale);
 
@@ -302,6 +315,10 @@ public class Stickfigure
             rHand.Y = position.Y;
             lFoot.Y = position.Y;
             rFoot.Y = position.Y;
+
+            // Make them a pile of blood
+            color = Color.Red;
+            colorHead = Color.Yellow;
         }
     }
 
@@ -326,7 +343,7 @@ public class Stickfigure
             return;
 
         // Draw the head
-        JewSaver.primitiveBatch.DrawCircle(head, Color.Orange, headSize * scale);
+        JewSaver.primitiveBatch.DrawCircle(head, colorHead, headSize * scale);
 
         // Begin primitive batch
         JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);
