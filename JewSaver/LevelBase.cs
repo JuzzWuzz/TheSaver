@@ -211,7 +211,7 @@ public class LevelBase:DrawableGameComponent
             foreach (Stickfigure s in stickies)
             {
                 s.update(dt, heightMap);
-                if (!s.Dead)
+                if (!s.dead)
                     livingStickies++;
             }
             if (livingStickies == 0)
@@ -225,10 +225,28 @@ public class LevelBase:DrawableGameComponent
             if (moses.position.X >= JewSaver.width / 2.0f)
             {
                 float changeX = moses.position.X - JewSaver.width / 2.0f;
-                scrollX += changeX;
-                moses.position.X -= changeX;
-                foreach (Stickfigure s in stickies)
-                    s.position.X -= changeX;
+                if (scrollX + changeX + JewSaver.width >= levelLength)
+                {
+                    changeX = levelLength - JewSaver.width - 1 - scrollX;
+                    if (changeX > 0)
+                    {
+                        scrollX += changeX;
+                        moses.position.X -= changeX;
+                        foreach (Stickfigure s in stickies)
+                            s.position.X -= changeX;
+                    }
+                    else
+                    {
+                        scrollX = levelLength - JewSaver.width - 1;
+                    }
+                }
+                else
+                {
+                    scrollX += changeX;
+                    moses.position.X -= changeX;
+                    foreach (Stickfigure s in stickies)
+                        s.position.X -= changeX;
+                }
             }
         }
     }
