@@ -17,7 +17,7 @@ public class LevelBase:DrawableGameComponent
     SpriteFont font;
     Texture2D star;
     Sprite[] stars;
-    private JewSaver jewSaver;
+    protected JewSaver jewSaver;
     Tree[] trees;
     public static Random random = new Random();
     protected bool hasPlayed;
@@ -219,7 +219,6 @@ public class LevelBase:DrawableGameComponent
             {
                 jumpMarkers.Add(moses.position.X + scrollX);
             }
-
             foreach (Stickfigure s in stickies)
             {
                 s.update(dt, heightMap);
@@ -230,10 +229,28 @@ public class LevelBase:DrawableGameComponent
                     savedStickies++;
                 }
              }
-            if (numberOfStickies - deadStickies - savedStickies == 0)
+            if (!moses.dead)
             {
-                // Game is over
-                Console.WriteLine("saved: " + savedStickies.ToString());
+                if (numberOfStickies - deadStickies - savedStickies == 0)
+                {
+                    // Game is over
+                    if (savedStickies > 0)
+                    {
+                        Console.WriteLine("You can see the Promised Land in the distance!");
+                        NextLevel();
+                        return;
+                    }
+                    else
+                    {
+                        Console.WriteLine("You have single-handedly destroyed a nation.");
+                        Initialize();
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("The nation is leaderless! Another 40 years in the desert...");
                 Initialize();
                 return;
             }
@@ -428,4 +445,6 @@ public class LevelBase:DrawableGameComponent
             }
         }
     }
+
+    protected virtual void NextLevel(){}
 }

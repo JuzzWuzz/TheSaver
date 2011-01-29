@@ -14,10 +14,16 @@ public class Level1:LevelBase
         base.Initialize();
         if (!hasPlayed)
         {
-            AddCanyon(374, 374 + 128);
-            AddCanyon(1040, 1160);
+            // good canyon size is 170
+            AddCanyon(374, 374 + 170);
+            AddCanyon(1040, 1210);
             AddTrees();
         }
         hasPlayed = true;
+    }
+
+    protected override void NextLevel()
+    {
+        jewSaver.SwitchState(GameState.LEVEL_2);
     }
 }

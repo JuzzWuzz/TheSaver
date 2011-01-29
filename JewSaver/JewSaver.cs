@@ -176,6 +176,10 @@ public class JewSaver : Microsoft.Xna.Framework.Game
                 currentLevel.Visible = false;
                 currentLevel.Enabled = false;
                 break;
+            case GameState.LEVEL_2:
+                currentLevel.Visible = false;
+                currentLevel.Enabled = false;
+                break;
             default:
                 break;
         }
