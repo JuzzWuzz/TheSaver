@@ -161,9 +161,9 @@ public class JewSaver : Microsoft.Xna.Framework.Game
         {
             case GameState.LEVEL_1:
                 this.Components.Remove(mainMenu);
-                level3 = new Level3(this);
-                Components.Add(level3);
-                currentLevel = level3;
+                level1 = new Level1(this);
+                Components.Add(level1);
+                currentLevel = level1;
                 break;
             case GameState.MAIN_MENU:
                 this.Components.Remove(currentLevel);
