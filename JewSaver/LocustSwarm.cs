@@ -18,6 +18,7 @@ public class LocustSwarm
         private float height;
         private float speed;
         LocustSwarm swarm;
+        public bool dead;
 
         public Locust(Vector2 pos, LocustSwarm swarm)
         {
@@ -25,6 +26,7 @@ public class LocustSwarm
             height = pos.Y;
             this.pos = pos;
             speed = (float)(r.NextDouble() - .5);
+            dead = false;
         }
 
         public void draw() {
@@ -33,9 +35,13 @@ public class LocustSwarm
 
         double change = 0;
         public void update(float dt) { 
-            pos += new Vector2((float)Math.Sin(change) * -2f, height + (float)Math.Sin(change) * 5f);
+            pos += new Vector2(((float)Math.Sin(change) + 1)* -2f, (float)Math.Sin(change) * 15f);
+            Console.WriteLine("pos: " + pos.X + " pos: " + pos.Y);
             if (pos.X < 0)
-                swarm.locusts.Remove(this);
+            {
+                Console.WriteLine("Locust destructing");
+                dead = true;
+            }
         }
 
     }
@@ -66,24 +72,28 @@ public class LocustSwarm
             spawnLocust();
         foreach (Locust l in locusts)
             l.update(dt);
+        for (int i = 0; i < locusts.Count; )
+        {
+            if (locusts[i].dead)
+            {
+                locusts.Remove(locusts[i]);
+            }
+            else i++;
+        }
     }
 
     private void spawnLocust()
     {
         timeOut = 0;
         int spawnZone = 192 / 3;
-        switch (r.Next(100))
-        {
-            case 45:
-                locusts.Add(new Locust(new Vector2(LevelBase.levelLength, r.Next(0, spawnZone)), this));
-                break;
-            case 15:
-                locusts.Add(new Locust(new Vector2(LevelBase.levelLength, r.Next(spawnZone, spawnZone* 2)), this));
-                break;
-            default:
-                locusts.Add(new Locust(new Vector2(LevelBase.levelLength, r.Next(spawnZone * 2, spawnZone * 3)), this));
-                break;
-        }
+        int rand = r.Next(100);
+        if (rand > 40)
+            locusts.Add(new Locust(new Vector2(LevelBase.levelLength, r.Next(0, spawnZone)), this));
+        else if (rand > 10)
+            locusts.Add(new Locust(new Vector2(LevelBase.levelLength, r.Next(0, spawnZone * 2)), this));
+        else
+            locusts.Add(new Locust(new Vector2(LevelBase.levelLength, r.Next(0, spawnZone * 3)), this));
+
         Console.WriteLine("Spawned at: " + locusts.Last<Locust>().pos.Y+"timeToLive: "+timeToLive);
 
     }

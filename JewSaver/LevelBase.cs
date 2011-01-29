@@ -344,6 +344,18 @@ public class LevelBase:DrawableGameComponent
                 }
             }
 
+            locustTimeout -= gameTime.ElapsedGameTime;
+            if (locustTimeout.TotalMilliseconds <= 0)
+            {
+                int plagueLength = random.Next(8, 15);
+                Console.WriteLine("Adding locusts for " + plagueLength + " seconds");
+                locusts.Add(new LocustSwarm(plagueLength));
+                locustTimeout += locustTime;
+            }
+
+            foreach (LocustSwarm swarm in locusts)
+                swarm.update(dt);
+
             if (numberOfStickies - deadStickies - savedStickies == 0)
             {
                 // Game is over
@@ -353,17 +365,6 @@ public class LevelBase:DrawableGameComponent
             }
             moses.update(dt, heightMap);
 
-            locustTimeout -= gameTime.ElapsedGameTime;
-            if (locustTimeout.TotalMilliseconds <= 0)
-            {
-                int plagueLength = random.Next(8, 15);
-                Console.WriteLine("Adding locusts for "+plagueLength+" seconds");
-                locusts.Add(new LocustSwarm(plagueLength));
-                locustTimeout += locustTime;
-            }
-
-            foreach (LocustSwarm swarm in locusts)
-                swarm.update(dt);
         }
 
         // Update the trees
