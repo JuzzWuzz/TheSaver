@@ -44,7 +44,7 @@ public class LevelBase:DrawableGameComponent
         play.font = font;
         play.buttonPressed += OnPlayPressed;
         for (int i = 0; i < 10; i++)
-            stickies[i] = new Stickfigure(new Vector2(i * 10, i * 10));
+            stickies[i] = new Stickfigure(new Vector2(50 + i * 30, i * 30));
     }
 
     protected override void LoadContent()
@@ -135,6 +135,7 @@ public class LevelBase:DrawableGameComponent
     public override void Draw(GameTime gameTime)
     {
         base.Draw(gameTime);
+       
         JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);
 
         for (int i = (int)scrollX; i < (int)scrollX + 1024; i++)

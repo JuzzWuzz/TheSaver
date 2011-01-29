@@ -148,6 +148,56 @@ public class PrimitiveBatch : IDisposable
         hasBegun = true;
     }
 
+    // To draw a circle
+    public void DrawCircle(Vector2 position, Color color, int sizeInPx)
+    {
+        Begin(PrimitiveType.PointList);
+
+        for (int i = 0; i < sizeInPx; i++)
+        {
+            int numOfPoints = Math.Max(i * i, 2);
+            for (int j = 0; j < numOfPoints; j++)
+            {
+                double theta = j * Math.PI / numOfPoints;
+                int x = (int)(i * Math.Cos(theta));
+                int y = (int)(i * Math.Sin(theta));
+                AddVertex(position + new Vector2(x, y), color);
+                AddVertex(position + new Vector2(-x, -y), color);
+            }
+        }
+
+        End();
+    }
+
+    // Overridden for convineice
+    public void AddLine(Vector2 vertex1, Vector2 vertex2, Color color)
+    {
+        AddLine(vertex1, vertex2, color, color, 1);
+    }
+    public void AddLine(Vector2 vertex1, Vector2 vertex2, Color color, int width)
+    {
+        AddLine(vertex1, vertex2, color, color, width);
+    }
+
+    // Method to draw thicker lines
+    public void AddLine(Vector2 vertex1, Vector2 vertex2, Color color1, Color color2, int width)
+    {
+        if (primitiveType != PrimitiveType.LineList)
+            throw new InvalidOperationException("Can only use AddLine method in LineList primitive type mode");
+
+        int decrement = (int)(width / 2);
+        vertex1 -= new Vector2(decrement);
+        vertex2 -= new Vector2(decrement);
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < width; j++)
+            {
+                AddVertex(vertex1 + new Vector2(j, i), color1);
+                AddVertex(vertex2 + new Vector2(j, i), color2);
+            }
+        }
+    }
+
     // AddVertex is called to add another vertex to be rendered. To draw a point,
     // AddVertex must be called once. for lines, twice, and for triangles 3 times.
     // this function can only be called once begin has been called.
