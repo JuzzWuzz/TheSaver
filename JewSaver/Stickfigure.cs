@@ -78,7 +78,7 @@ public class Stickfigure
         this.spawnTimer = 0.0f;
         this.curJumpIdx = 0;
         this.curSprintIdx = 0;
-        this.inactive = false;
+        this.inactive = true;
         this.dead = false;
         this.saved = false;
         this.jumping = true;
@@ -101,7 +101,7 @@ public class Stickfigure
     // Update Method
     public void update(float dt)
     {
-        if (inactive)
+        if (dead && inactive)
             return;
 
         // If a new stickie make invulnarable when starting and spawn one after the other
@@ -109,7 +109,8 @@ public class Stickfigure
         {
             spawnTimer += dt;
             dead = false;
-            if (spawnTimer > 0.75f * stickieIndex)
+            // If stickie is active then allow spawning
+            if (!inactive && spawnTimer > 0.75f * stickieIndex)
             {
                 spawnTimer = 0.0f;
                 newStickie = false;
@@ -187,6 +188,10 @@ public class Stickfigure
                 dead = true;
 
             force = Vector2.Zero;
+
+            // First inpact if new stickie so make them active now
+            if (newStickie)
+                inactive = false;
 
             LevelBase.TerrainType terrType = LevelBase.canSculpt[Math.Min(Math.Max(0, (int)(LevelBase.scrollX + position.X)), LevelBase.levelLength - 1)];
             if (terrType == LevelBase.TerrainType.CANYON)

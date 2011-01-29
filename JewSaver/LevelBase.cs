@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 public class LevelBase : DrawableGameComponent
 {
     protected enum LevelMode {EDIT, PLAY};
-    protected enum TerrainType { SAND, WATER, CANYON, OTHER, ROCK , PARCHED_LAND};
+    public enum TerrainType { SAND, WATER, CANYON, OTHER, ROCK , PARCHED_LAND};
     public static float[] heightMap;
     public static TerrainType[] canSculpt;
     protected LevelMode levelMode;
