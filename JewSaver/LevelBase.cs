@@ -17,6 +17,9 @@ public class LevelBase:DrawableGameComponent
     Texture2D star;
     Sprite[] stars;
     protected JewSaver jewSaver;
+    Tree[] trees;
+
+    int shekalim;
 
     // for testing
     public bool showFrameRate;
@@ -67,6 +70,15 @@ public class LevelBase:DrawableGameComponent
             stars[i] = new Sprite(star, 8, 8, 0, 0, 8, 8, random.Next(heightMap.Length/2), random.Next(64));
             stars[i].Alpha = (64 - stars[i].screenRectangle.Top) / 96.0f;
         }
+
+
+        int treeNum = random.Next(30, 60);
+        trees = new Tree[treeNum];
+        for (int i = 0; i < treeNum; i++)
+            trees[i] = new Tree(new Vector2(random.Next(0, heightMap.Length), JewSaver.height - 20));
+
+
+        shekalim = 0;
     }
 
     protected override void LoadContent()
@@ -160,7 +172,7 @@ public class LevelBase:DrawableGameComponent
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             foreach (Stickfigure s in stickies)
             {
-                s.update(dt);
+                s.update(dt, heightMap, scrollX);
             }
         }
     }
@@ -199,6 +211,12 @@ public class LevelBase:DrawableGameComponent
             JewSaver.primitiveBatch.AddVertex(new Vector2(landscapeBrush.Left, landscapeBrush.Top), Color.YellowGreen);
         }
         JewSaver.primitiveBatch.End();
+
+        for (int i = 0; i < trees.Length; i++)
+        {
+            trees[i].draw();
+        }
+
         if (levelMode == LevelMode.EDIT)
         {
             JewSaver.spriteBatch.Begin();
