@@ -12,8 +12,12 @@ public class Level1:LevelBase
     public override void Initialize()
     {
         base.Initialize();
-        AddCanyon(294, 294 + 256);
-        AddCanyon(960, 1280);
-        AddTrees();
+        if (!hasPlayed)
+        {
+            AddCanyon(374, 374 + 128);
+            AddCanyon(1040, 1160);
+            AddTrees();
+        }
+        hasPlayed = true;
     }
 }

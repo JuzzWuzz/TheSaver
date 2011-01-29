@@ -20,6 +20,9 @@ public class LevelBase:DrawableGameComponent
     protected JewSaver jewSaver;
     Tree[] trees;
     Random random;
+    protected bool hasPlayed;
+    Texture2D lifeBarTex;
+    Sprite lifeBar;
 
     int shekalim;
 
@@ -29,6 +32,7 @@ public class LevelBase:DrawableGameComponent
     // landscape sculpting brush
     Rectangle landscapeBrush;
     float brushSize;
+    int livingStickies;
 
     Stickfigure[] stickies = new Stickfigure[10];
     Stickfigure moses;
@@ -44,13 +48,17 @@ public class LevelBase:DrawableGameComponent
         heightMap = new float [levelLength];
         jewSaver = game;
         random = new Random();
+        hasPlayed = false;
     }
 
     public override void Initialize()
     {
         base.Initialize();
-        for (int i = 0; i < heightMap.Length; i++)
-            heightMap[i] = (float)(64 + 16 * Math.Sin(i / 4096.0f * Math.PI * 32));
+        if (!hasPlayed)
+        {
+            for (int i = 0; i < heightMap.Length; i++)
+                heightMap[i] = (float)(64 + 16 * Math.Sin(i / 4096.0f * Math.PI * 32));
+        }
         levelMode = LevelMode.EDIT;
         scrollX = 0;
         scrollSpeed = 300;
@@ -66,23 +74,19 @@ public class LevelBase:DrawableGameComponent
         exit.font = font;
         exit.buttonPressed += OnQuitPressed;
         for (int i = 0; i < 10; i++)
-            stickies[i] = new Stickfigure(new Vector2(50 + i * 30, i * 30));
-        moses = new Stickfigure(new Vector2(350, 200));
+            stickies[i] = new Stickfigure(new Vector2(50 + i * 10, i * 30));
+        moses = new Stickfigure(new Vector2(150, 200));
         moses.SetIsPlayer();
-        stars = new Sprite[384];
-        for (int i = 0; i < stars.Length; i++)
+        if (!hasPlayed)
         {
-            stars[i] = new Sprite(star, 8, 8, 0, 0, 8, 8, random.Next(2048), random.Next(64));
-            stars[i].Alpha = (64 - stars[i].screenRectangle.Top) / 96.0f;
+            stars = new Sprite[384];
+            for (int i = 0; i < stars.Length; i++)
+            {
+                stars[i] = new Sprite(star, 8, 8, 0, 0, 8, 8, random.Next(2048), random.Next(64));
+                stars[i].Alpha = (64 - stars[i].screenRectangle.Top) / 96.0f;
+            }
         }
-
-
-        /*int treeNum = (int)random.Next((int)(30 * heightMap.Length/4096.0f),(int) (60 *heightMap.Length/4096.0f));
-        trees = new Tree[treeNum];
-        for (int i = 0; i < treeNum; i++)
-            trees[i] = new Tree(new Vector2(random.Next(0, heightMap.Length), JewSaver.height - 20));*/
-
-
+        lifeBar = new Sprite(lifeBarTex, 1, 256, 0, 0, 32, 256, 8, 120);
         shekalim = 0;
     }
 
@@ -113,6 +117,15 @@ public class LevelBase:DrawableGameComponent
         star.SetData<Color>(starData);
         buttonTex.SetData<Color>(data);
         font = Game.Content.Load<SpriteFont>("LevelText");
+        lifeBarTex = new Texture2D(Game.GraphicsDevice, 1, 256);
+        Color[] lifeData = new Color[256];
+        for (int i = 0; i < 256; i++)
+        {
+            float frac1 = i / 256.0f;
+            float frac2 = 1 - frac1;
+            lifeData[i] = new Color(frac2, frac2,frac2, 1);
+        }
+        lifeBarTex.SetData<Color>(lifeData);
     }
 
     public override void Update(GameTime gameTime)
@@ -189,10 +202,19 @@ public class LevelBase:DrawableGameComponent
         {
             (restart as MenuInputElement).CheckInput();
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            livingStickies = 0;
             foreach (Stickfigure s in stickies)
             {
                 s.update(dt, heightMap, scrollX);
+                if (!s.Dead)
+                    livingStickies++;
             }
+            if (livingStickies == 0)
+            {
+                Initialize();
+                return;
+            }
+            lifeBar = new Sprite(lifeBarTex, 1, (int)((float)livingStickies / stickies.Length * 256.0f), 0, 256 - (int)((float)livingStickies / stickies.Length * 256.0f), 32, (int)((float)livingStickies / stickies.Length * 256.0f), 8, 120 + 256 - (int)((float)livingStickies / stickies.Length * 256.0f));
             moses.update(dt, heightMap, scrollX);
 
             if (moses.position.X >= JewSaver.width / 2.0f)
@@ -281,7 +303,14 @@ public class LevelBase:DrawableGameComponent
             moses.draw();
             JewSaver.spriteBatch.Begin();
             (restart as MenuInputElement).Draw(JewSaver.spriteBatch);
+            lifeBar.Draw(JewSaver.spriteBatch);
             JewSaver.spriteBatch.End();
+            JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);
+            JewSaver.primitiveBatch.AddLine(new Vector2(7, 119), new Vector2(7 + 33, 119), Color.Black, 2);
+            JewSaver.primitiveBatch.AddLine(new Vector2(7 + 33, 119), new Vector2(7 + 33, 376), Color.Black, 2);
+            JewSaver.primitiveBatch.AddLine(new Vector2(7 + 33, 376), new Vector2(7, 376), Color.Black, 2);
+            JewSaver.primitiveBatch.AddLine(new Vector2(7, 376), new Vector2(7, 119), Color.Black, 2);
+            JewSaver.primitiveBatch.End();
         }
     }
 

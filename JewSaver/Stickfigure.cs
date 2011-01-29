@@ -16,6 +16,7 @@ class Stickfigure
     private bool isPlayer = false;
     private bool moving = false;
     private bool dead = false;
+    public bool Dead {get { return dead; }}
 
     private Vector2 crotch, shoulder, lHand, rHand, lFoot, rFoot, neck, head;
 
