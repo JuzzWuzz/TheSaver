@@ -82,9 +82,9 @@ public class JewSaver : Microsoft.Xna.Framework.Game
         // Create a new SpriteBatch, which can be used to draw textures.
         spriteBatch = new SpriteBatch(GraphicsDevice);
         primitiveBatch = new PrimitiveBatch(GraphicsDevice);
-        Color[] back = new Color[384];
+        Color[] back = new Color[height];
         Color mix;
-        background = new Texture2D(GraphicsDevice, 1, 384);
+        background = new Texture2D(GraphicsDevice, 1, height);
         for (int i = 0; i < 106; i++)
         {
             float frac = i / 106.0f;
@@ -113,7 +113,7 @@ public class JewSaver : Microsoft.Xna.Framework.Game
             back[i] = mix;
         }
         background.SetData<Color>(back);
-        BG = new Sprite(background, 1, 384, 0, 0, 1024, 384, 0, 0);
+        BG = new Sprite(background, 1, height, 0, 0, width, height, 0, 0);
 
         // TODO: use this.Content to load your game content here
     }

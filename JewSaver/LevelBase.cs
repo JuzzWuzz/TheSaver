@@ -72,7 +72,7 @@ public class LevelBase:DrawableGameComponent
         restart = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(8, 8), "RESET");
         restart.font = font;
         restart.buttonPressed += OnRestartPressed;
-        exit = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(1024 - 8 - 96, 8), "QUIT");
+        exit = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(JewSaver.width - 8 - 96, 8), "QUIT");
         exit.font = font;
         exit.buttonPressed += OnQuitPressed;
         for (int i = 0; i < numberOfStickies; i++)
@@ -82,7 +82,7 @@ public class LevelBase:DrawableGameComponent
         jumpMarkers.Clear();
         if (!hasPlayed)
         {
-            stars = new Sprite[384];
+            stars = new Sprite[JewSaver.height];
             for (int i = 0; i < stars.Length; i++)
             {
                 stars[i] = new Sprite(star, 8, 8, 0, 0, 8, 8, random.Next(2048), random.Next(64));
@@ -107,10 +107,10 @@ public class LevelBase:DrawableGameComponent
             for (int j = -48; j < 48; j++)
             {
                 float dist2 = i * i + j * j;
-                if (dist2 <= 1024)
+                if (dist2 <= JewSaver.width)
                     data[(i + 48) * 96 + j + 48] = Color.White;
                 else if (dist2 < 1764)
-                    data[(i + 48) * 96 + j + 48] = new Color(1, 1, 1, (1764 - dist2) / (1764 - 1024));
+                    data[(i + 48) * 96 + j + 48] = new Color(1, 1, 1, (1764 - dist2) / (1764 - JewSaver.width));
             }
         }
         star = new Texture2D(Game.GraphicsDevice, 8, 8);
@@ -149,13 +149,13 @@ public class LevelBase:DrawableGameComponent
                         scrollX = 0;
                 }
             }
-            else if (mouseX > 1023)
+            else if (mouseX > JewSaver.width - 1)
             {
-                if (scrollX < heightMap.Length - 1025)
+                if (scrollX < heightMap.Length - JewSaver.width - 1)
                 {
                     scrollX += (float)gameTime.ElapsedGameTime.TotalSeconds * scrollSpeed;
-                    if (scrollX > heightMap.Length - 1025)
-                        scrollX = heightMap.Length - 1025;
+                    if (scrollX > heightMap.Length - JewSaver.width - 1)
+                        scrollX = heightMap.Length - JewSaver.width - 1;
                 }
             }
             else if (Input.leftMouseDown && !play.selected && !play.held && !exit.selected && !exit.held)
@@ -217,7 +217,71 @@ public class LevelBase:DrawableGameComponent
                 {
                     savedStickies++;
                 }
-             }
+            }
+
+            int mouseX = Input.mousePosition.X;
+            // If Moses is saved allow mouse scrolling
+            if (moses.saved)
+            {
+                Console.WriteLine("Moses Saved!!!");
+                if (mouseX < 0)
+                {
+                    if (scrollX > 0)
+                    {
+                        float change = (float)gameTime.ElapsedGameTime.TotalSeconds * scrollSpeed;
+                        scrollX -= change;
+                        foreach (Stickfigure s in stickies)
+                            s.position.X += change;
+                        if (scrollX < 0)
+                            scrollX = 0;
+                    }
+                }
+                else if (mouseX > JewSaver.width - 1)
+                {
+                    if (scrollX < heightMap.Length - JewSaver.width - 1)
+                    {
+                        float change = (float)gameTime.ElapsedGameTime.TotalSeconds * scrollSpeed;
+                        scrollX += change;
+                        foreach (Stickfigure s in stickies)
+                            s.position.X -= change;
+                        if (scrollX > heightMap.Length - JewSaver.width - 1)
+                            scrollX = heightMap.Length - JewSaver.width - 1;
+                    }
+                }
+
+
+            }
+            else
+            {
+                if (moses.position.X >= JewSaver.width / 2.0f)
+                {
+                    float changeX = moses.position.X - JewSaver.width / 2.0f;
+                    if (scrollX + changeX + JewSaver.width >= levelLength)
+                    {
+                        changeX = levelLength - JewSaver.width - 1 - scrollX;
+                        if (changeX > 0)
+                        {
+                            scrollX += changeX;
+                            moses.position.X -= changeX;
+                            foreach (Stickfigure s in stickies)
+                                s.position.X -= changeX;
+                        }
+                        else
+                        {
+                            scrollX = levelLength - JewSaver.width - 1;
+                        }
+                    }
+                    else
+                    {
+
+                        scrollX += changeX;
+                        moses.position.X -= changeX;
+                        foreach (Stickfigure s in stickies)
+                            s.position.X -= changeX;
+                    }
+                }
+            }
+
             if (numberOfStickies - deadStickies - savedStickies == 0)
             {
                 // Game is over
@@ -226,33 +290,6 @@ public class LevelBase:DrawableGameComponent
                 return;
             }
             moses.update(dt, heightMap);
-
-            if (moses.position.X >= JewSaver.width / 2.0f)
-            {
-                float changeX = moses.position.X - JewSaver.width / 2.0f;
-                if (scrollX + changeX + JewSaver.width >= levelLength)
-                {
-                    changeX = levelLength - JewSaver.width - 1 - scrollX;
-                    if (changeX > 0)
-                    {
-                        scrollX += changeX;
-                        moses.position.X -= changeX;
-                        foreach (Stickfigure s in stickies)
-                            s.position.X -= changeX;
-                    }
-                    else
-                    {
-                        scrollX = levelLength - JewSaver.width - 1;
-                    }
-                }
-                else
-                {
-                    scrollX += changeX;
-                    moses.position.X -= changeX;
-                    foreach (Stickfigure s in stickies)
-                        s.position.X -= changeX;
-                }
-            }
         }
     }
 
@@ -260,7 +297,7 @@ public class LevelBase:DrawableGameComponent
     {
         float start = heightMap[startIndex];
         float end = heightMap[endIndex - 1];
-        float target = 384 - top;
+        float target = JewSaver.height - top;
         if (target > 256)
             target = 256;
         else if (target < 16)
@@ -294,10 +331,10 @@ public class LevelBase:DrawableGameComponent
 
         JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);
 
-        for (int i = (int)scrollX; i < (int)scrollX + 1024; i++)
+        for (int i = (int)scrollX; i < (int)scrollX + JewSaver.width; i++)
         {
-            JewSaver.primitiveBatch.AddVertex(new Vector2(i - (int)scrollX, 384 - heightMap[i]), Color.Gold);
-            JewSaver.primitiveBatch.AddVertex(new Vector2(i - (int)scrollX, 384), Color.Sienna);
+            JewSaver.primitiveBatch.AddVertex(new Vector2(i - (int)scrollX, JewSaver.height - heightMap[i]), Color.Gold);
+            JewSaver.primitiveBatch.AddVertex(new Vector2(i - (int)scrollX, JewSaver.height), Color.Sienna);
         }
         if (levelMode == LevelMode.EDIT)
         {
