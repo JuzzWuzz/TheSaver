@@ -77,7 +77,7 @@ public class MenuButton:Sprite, MenuInputElement
             }
             base.Draw(spriteBatch);
             Vector2 textDimensions = font.MeasureString(buttonName);
-            spriteBatch.DrawString(font, buttonName, new Vector2(screenRectangle.Center.X,screenRectangle.Center.Y), textColor, 0, 0.5f * textDimensions, 1, SpriteEffects.None, 0);
+            spriteBatch.DrawString(font, buttonName, new Vector2(screenRectangle.Center.X,screenRectangle.Center.Y), textColor, 0, 0.5f * textDimensions, 1, SpriteEffects.None, 1);
         }
     }
 

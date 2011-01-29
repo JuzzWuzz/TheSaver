@@ -15,7 +15,7 @@ public class LevelBase:DrawableGameComponent
     MenuButton exit;
     MenuButton restart;
     Texture2D buttonTex;
-    SpriteFont font;
+    protected SpriteFont font;
     Texture2D star;
     Sprite[] stars;
     protected JewSaver jewSaver;
@@ -33,9 +33,9 @@ public class LevelBase:DrawableGameComponent
     protected TimeSpan locustTime;
 
     // end screen text
-    string finalText;
+    protected string finalText;
     float textTimer;
-    bool showText;
+    protected bool showText;
     bool goToNextLevel;
 
     // for testing
@@ -259,7 +259,10 @@ public class LevelBase:DrawableGameComponent
                         // Game is over
                         if (savedStickies > 0)
                         {
-                            finalText = "You can see the Promised Land in the distance!";
+                            if (this is Level3)
+                                finalText = "Finally you have reached the Promised Land!";
+                            else
+                                finalText = "You can see the Promised Land in the distance!";
                             //Console.WriteLine("You can see the Promised Land in the distance!");
                             goToNextLevel = true;
                             return;
@@ -288,7 +291,7 @@ public class LevelBase:DrawableGameComponent
             // If Moses is saved allow mouse scrolling
             if (moses.saved)
             {
-                Console.WriteLine("Moses Saved!!!");
+                //Console.WriteLine("Moses Saved!!!");
                 if (mouseX < 0)
                 {
                     if (scrollX > 0)
@@ -356,22 +359,17 @@ public class LevelBase:DrawableGameComponent
 
             foreach (LocustSwarm swarm in locusts)
                 swarm.update(dt);
-
-            if (numberOfStickies - deadStickies - savedStickies == 0)
-            {
-                // Game is over
-                Console.WriteLine("Saved: " + savedStickies.ToString());
-                Initialize();
-                return;
-            }
             moses.update(dt, heightMap);
 
         }
 
         // Update the trees
-        foreach (Tree tree in trees)
+        if (trees != null)
         {
-            tree.update(heightMap);
+            foreach (Tree tree in trees)
+            {
+                tree.update(heightMap);
+            }
         }
         if (showText)
         {
