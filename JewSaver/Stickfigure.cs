@@ -38,11 +38,11 @@ class Stickfigure
     protected int curJumpIdx;
     protected int curSprintIdx;
     protected int stickieIndex;
+    public bool isFemale;
 
     public Stickfigure(Vector2 position, int index)
     {
         origPosition = position;
-        color = Color.Yellow;
         stickieIndex = index;
         Initialize();
     }
@@ -66,10 +66,12 @@ class Stickfigure
 
         setLimbs(0.0f);
 
+        this.isFemale = (LevelBase.random.NextDouble() > 0.80);
+
         this.position = this.origPosition;
         this.velocity = Vector2.Zero;
         this.moveForce = 50.0f;
-        this.mass = 1.0f + 1.0f * (float)LevelBase.random.NextDouble();
+        this.mass = 1.0f + (1.0f - ((isFemale) ? 0.5f : 0.0f)) * (float)LevelBase.random.NextDouble();
         this.timer = 0.0f;
         this.spawnTimer = 0.0f;
         this.curJumpIdx = 0;
@@ -80,6 +82,7 @@ class Stickfigure
         this.jumping = false;
         this.sprinting = false;
         this.newStickie = true;
+        this.color = (isFemale) ? Color.Pink : Color.Yellow;
 
         this.thickness = (int)(scale * mass * mass * 0.75);
 
