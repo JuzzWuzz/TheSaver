@@ -93,6 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnimatedSprite.cs" />
+    <Compile Include="ShekelRain.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="Level1.cs" />
     <Compile Include="Level2.cs" />

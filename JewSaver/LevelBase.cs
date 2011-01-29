@@ -16,7 +16,7 @@ public class LevelBase:DrawableGameComponent
     MenuButton exit;
     MenuButton restart;
     Texture2D buttonTex;
-    protected SpriteFont font;
+    public static SpriteFont font;
     Texture2D star;
     Sprite[] stars;
     protected JewSaver jewSaver;
