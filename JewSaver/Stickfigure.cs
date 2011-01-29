@@ -33,10 +33,10 @@ class Stickfigure
         lHand = rHand = new Vector2(5, 0);
         lFoot = rFoot = new Vector2(2, 7);
 
-        this.scale = 5;
+        this.scale = 4;
         headSize = 3;
 
-        setLimbs();
+        setLimbs(0f);
 
         this.velocity = Vector2.Zero;
         this.moveForce = 50.0f;
@@ -76,19 +76,27 @@ class Stickfigure
         // Update the position
         position += velocity * dt;
 
-        setLimbs();
+        float diff = JewSaver.height / 2.0f - lowestPoint().Y;
+        if (diff < 0)
+            position.Y += diff;
+
+        setLimbs(dt);
     }
 
-    private void setLimbs()
+
+    private double change = 0;
+    private void setLimbs(float dt)
     {
-        crotch = position;
-        shoulder = crotch + new Vector2(0, -10 * scale);
-        neck = crotch + new Vector2(0, -12 * scale);
+        change += dt;
+        crotch = position + Vector2.Multiply(new Vector2(0, -3 * scale), (float)Math.Sin(change)); ;
+        shoulder = crotch + new Vector2(0, -8 * scale) + Vector2.Multiply(new Vector2(4,0), (float)Math.Cos(change));
+        neck = shoulder + new Vector2(0, -2 * scale);
         head = neck + new Vector2(0, -headSize * scale);
-        lHand = shoulder + new Vector2(4 * scale, 0);
-        rHand= shoulder + new Vector2(-4 * scale, 0);
-        rFoot = crotch + new Vector2(-3 * scale, 6 * scale);
-        lFoot = crotch + new Vector2(3 * scale, 6 * scale);
+
+        lHand = shoulder + new Vector2(5 * scale, 0);
+        rHand= shoulder + new Vector2(-5 * scale, 0);
+        rFoot = crotch + new Vector2(-2.5f * scale, 5 * scale) + Vector2.Multiply(new Vector2(2.5f * scale, 3 * scale), (float)Math.Cos(change));
+        lFoot = crotch + new Vector2(2.5f * scale, 5 * scale) + Vector2.Multiply(new Vector2(-2.5f * scale, 3 * scale), (float)Math.Cos(change));
     }
 
     private int vecComp(Vector2 x, Vector2 y)
