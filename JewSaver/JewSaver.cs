@@ -197,7 +197,10 @@ static class Program
             game.Run();
         }
         stop = true;
-        //Thread.Sleep(100);
-        //oThread.Join(100);
+        Console.WriteLine("Chilling");
+        Thread.Sleep(100);
+        oThread.Join(100);
+        Console.WriteLine("Still here!");
+        Environment.Exit(0);
     }
 }
