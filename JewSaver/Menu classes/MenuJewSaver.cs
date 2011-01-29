@@ -6,11 +6,9 @@ using Microsoft.Xna.Framework.Graphics;
 public class MenuJewSaver:Menu
 {
     Texture2D buttonTexture;
-    Texture2D background;
     MenuButton newGame;
     MenuButton options;
     MenuButton exit;
-    Sprite back;
     SpriteFont font;
     JewSaver jewSaver;
 
@@ -35,8 +33,6 @@ public class MenuJewSaver:Menu
         newGame.font = font;
         options.font = font;
         exit.font = font;
-        back = new Sprite(background, 1024, 384, 0, 0, 1024, 384, 0, 0);
-        menuDecorElements.Add(back);
     }
 
     protected override void LoadContent()
@@ -79,19 +75,6 @@ public class MenuJewSaver:Menu
         }
         buttonTexture = new Texture2D(Game.GraphicsDevice, 256, 64);
         buttonTexture.SetData<Color>(textureData);
-        Color[] backgroundData = new Color[384 * 1024];
-        Random random = new Random();
-        for (int i = 0; i < 384; i++)
-        {
-            for (int j = 0; j < 1024; j++)
-            {
-                float sin =(float)Math.Abs(Math.Sin(j/1024.0f * 2 * Math.PI));
-                float cos =(float)Math.Abs(Math.Cos(j/1024.0f * 2 * Math.PI));
-                backgroundData[i * 1024 + j] = new Color(sin,0,0, 255);
-            }
-        }
-        background = new Texture2D(Game.GraphicsDevice, 1024, 384);
-        background.SetData<Color>(backgroundData);
         font = Game.Content.Load<SpriteFont>("ButtonText");
     }
 

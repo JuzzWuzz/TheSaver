@@ -7,15 +7,16 @@ public class LevelBase:DrawableGameComponent
     protected enum LevelMode {EDIT, PLAY};
     protected float[] heightMap;
     protected LevelMode levelMode;
-    float scrollX;
+    protected float scrollX;
     float scrollSpeed;
     MenuButton play;
+    MenuButton exit;
+    MenuButton restart;
     Texture2D buttonTex;
     SpriteFont font;
-    Texture2D background;
     Texture2D star;
-    Sprite BG;
     Sprite[] stars;
+    protected JewSaver jewSaver;
 
     // landscape sculpting brush
     Rectangle landscapeBrush;
@@ -32,6 +33,7 @@ public class LevelBase:DrawableGameComponent
         : base(game)
     {
         heightMap = new float [levelLength];
+        jewSaver = game;
     }
 
     public override void Initialize()
@@ -44,10 +46,15 @@ public class LevelBase:DrawableGameComponent
         scrollSpeed = 300;
         brushSize = 224;
         landscapeBrush = new Rectangle(0, 0, (int)(brushSize*1.5f), (int)brushSize);
-        play = new MenuButton(buttonTex, new Point(64, 64), new Point(0, 0), new Point(64, 64), new Point(8, 8), "PLAY");
+        play = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(8, 8), "PLAY");
         play.font = font;
         play.buttonPressed += OnPlayPressed;
-        BG = new Sprite(background, 1, 384, 0, 0, 1024, 384, 0, 0);
+        restart = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(8, 8), "CLEAR");
+        restart.font = font;
+        restart.buttonPressed += OnRestartPressed;
+        exit = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(1024 - 8 - 96, 8), "QUIT");
+        exit.font = font;
+        exit.buttonPressed += OnQuitPressed;
         for (int i = 0; i < 10; i++)
             stickies[i] = new Stickfigure(new Vector2(50 + i * 30, i * 30));
         Random random = new Random();
@@ -62,48 +69,18 @@ public class LevelBase:DrawableGameComponent
     protected override void LoadContent()
     {
         base.LoadContent();
-        buttonTex = new Texture2D(Game.GraphicsDevice, 64, 64);
-        Color[] data = new Color[64 * 64];
-        for (int i = -32; i < 32; i++)
+        buttonTex = new Texture2D(Game.GraphicsDevice, 96, 96);
+        Color[] data = new Color[96 * 96];
+        for (int i = -48; i < 48; i++)
         {
-            for (int j = -32; j < 32; j++)
+            for (int j = -48; j < 48; j++)
             {
                 float dist2 = i * i + j * j;
-                if (dist2 <= 576)
-                    data[(i + 32) * 64 + j + 32] = Color.White;
-                else if (dist2 < 896)
-                    data[(i + 32) * 64 + j + 32] = new Color(1, 1, 1, (896 - dist2) / (896 - 576));
+                if (dist2 <= 1024)
+                    data[(i + 48) * 96 + j + 48] = Color.White;
+                else if (dist2 < 1764)
+                    data[(i + 48) * 96 + j + 48] = new Color(1, 1, 1, (1764 - dist2) / (1764 - 1024));
             }
-        }
-        Color[] back = new Color[384];
-        Color mix;
-        background = new Texture2D(Game.GraphicsDevice, 1, 384);
-        for (int i = 0; i < 106; i++)
-        {
-            float frac = i/106.0f;
-            mix = new Color(frac * 36/255.0f, frac * 16/255.0f, frac * 63/255.0f);
-            back[i] = mix;
-        }
-        for (int i = 106; i < 106 + 95; i++)
-        {
-            float frac1 = (i - 106) / 95.0f;
-            float frac2 = 1 - frac1;
-            mix = new Color((frac2 * 36 / 255.0f + frac1 * 99 / 255.0f), (frac2 * 16 / 255.0f + frac1 * 6 / 255.0f), (frac2 * 63 / 255.0f + frac1 * 42 / 255.0f));
-            back[i] = mix;
-        }
-        for (int i = 106 + 95; i < 106 + 95+ 78; i++)
-        {
-            float frac1 = (i - 106 - 95) / 78.0f;
-            float frac2 = 1 - frac1;
-            mix = new Color((frac2 * 99 / 255.0f + frac1 * 186 / 255.0f), (frac2 * 6 / 255.0f), (frac2 * 42 / 255.0f));
-            back[i] = mix;
-        }
-        for (int i = 106 + 95 + 78; i < 106 + 95+ 78 + 105; i++)
-        {
-            float frac1 = (i - 106-95-78) / 105.0f;
-            float frac2 = 1 - frac1;
-            mix = new Color((frac2 * 186 / 255.0f + frac1 * 239 / 255.0f), (frac1 * 98 / 255.0f), (frac1 * 10 / 255.0f));
-            back[i] = mix;
         }
         star = new Texture2D(Game.GraphicsDevice, 8, 8);
         Color[] starData = new Color[8*8];
@@ -115,13 +92,13 @@ public class LevelBase:DrawableGameComponent
         }
         star.SetData<Color>(starData);
         buttonTex.SetData<Color>(data);
-        background.SetData<Color>(back);
         font = Game.Content.Load<SpriteFont>("LevelText");
     }
 
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
+        (exit as MenuInputElement).CheckInput();
         if (levelMode == LevelMode.EDIT)
         {
             (play as MenuInputElement).CheckInput();
@@ -150,7 +127,7 @@ public class LevelBase:DrawableGameComponent
                         scrollX = heightMap.Length - 1025;
                 }
             }
-            else if (Input.leftMouseDown && !play.selected && !play.held)
+            else if (Input.leftMouseDown && !play.selected && !play.held && !exit.selected && !exit.held)
             {
                 int startIndex = (int)(scrollX + landscapeBrush.Left < 0 ? 0 : scrollX + landscapeBrush.Left);
                 int endIndex = (int)(scrollX + landscapeBrush.Right > heightMap.Length ? heightMap.Length : scrollX + landscapeBrush.Right);
@@ -176,6 +153,7 @@ public class LevelBase:DrawableGameComponent
         }
         else if (levelMode == LevelMode.PLAY)
         {
+            (restart as MenuInputElement).CheckInput();
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             foreach (Stickfigure s in stickies)
             {
@@ -189,9 +167,12 @@ public class LevelBase:DrawableGameComponent
         base.Draw(gameTime);
 
         JewSaver.spriteBatch.Begin();
-        BG.Draw(JewSaver.spriteBatch);
         foreach (Sprite str in stars)
+        {
+            str.scrollXValue = 0.125f * scrollX;
             str.Draw(JewSaver.spriteBatch);
+        }
+        (exit as MenuInputElement).Draw(JewSaver.spriteBatch);
         JewSaver.spriteBatch.End();
 
         JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);
@@ -227,6 +208,9 @@ public class LevelBase:DrawableGameComponent
             {
                 s.draw();
             }
+            JewSaver.spriteBatch.Begin();
+            (restart as MenuInputElement).Draw(JewSaver.spriteBatch);
+            JewSaver.spriteBatch.End();
         }
     }
 
@@ -259,5 +243,15 @@ public class LevelBase:DrawableGameComponent
     {
         (play as MenuInputElement).Enabled = false;
         levelMode = LevelMode.PLAY;
+    }
+
+    private void OnQuitPressed()
+    {
+        jewSaver.SwitchState(GameState.MAIN_MENU);
+    }
+
+    private void OnRestartPressed()
+    {
+        this.Initialize();
     }
 }

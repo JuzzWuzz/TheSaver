@@ -9,6 +9,7 @@ public class Sprite
 {
     protected Texture2D texture; // sprite sheet
     public Rectangle screenRectangle; // rectangle defined in screen space
+    public float scrollXValue;
     protected Point topLeftPixel; // top left pixel in texture coordinates
     protected Point pixelDimensions; // pixel dimensions in texture
     protected Vector2 scaleFactor; // pixel-to-texel ratio
@@ -52,7 +53,9 @@ public class Sprite
 
     public virtual void Draw(SpriteBatch spriteBatch)
     {
-        spriteBatch.Draw(texture, screenRectangle, new Rectangle(topLeftPixel.X, topLeftPixel.Y, pixelDimensions.X, pixelDimensions.Y), colour);
+        Rectangle currentRect = screenRectangle;
+        currentRect.Location = new Point(currentRect.Location.X - (int)scrollXValue, currentRect.Location.Y);
+        spriteBatch.Draw(texture, currentRect, new Rectangle(topLeftPixel.X, topLeftPixel.Y, pixelDimensions.X, pixelDimensions.Y), colour);
     }
 
     protected byte GetAlpha(int pixelOffsetX, int pixelOffsetY)
