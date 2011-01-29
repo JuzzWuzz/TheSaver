@@ -444,9 +444,15 @@ public class LevelBase:DrawableGameComponent
             for (int i = 0; i < jumpMarkers.Count; i++)
                 JewSaver.primitiveBatch.DrawCircle(new Vector2(jumpMarkers[i] - scrollX, JewSaver.height - heightMap[Math.Min(Math.Max(0, (int)(jumpMarkers[i])), levelLength - 1)]), Color.Blue, 5);
 
-            // Draw the jump markers
+            // Draw the sprint markers
             for (int i = 0; i < sprintMarkers.Count; i++)
-                JewSaver.primitiveBatch.DrawCircle(new Vector2(sprintMarkers[i] - scrollX, JewSaver.height - heightMap[Math.Min(Math.Max(0, (int)(sprintMarkers[i])), levelLength - 1)]), Color.Pink, 5);
+            {
+                Color col = Color.Green;
+                if (i % 2 != 0)
+                    col = Color.Red;
+
+                JewSaver.primitiveBatch.DrawCircle(new Vector2(sprintMarkers[i] - scrollX, JewSaver.height - heightMap[Math.Min(Math.Max(0, (int)(sprintMarkers[i])), levelLength - 1)]), col, 5);
+            }
 
             // Draw stickies
             foreach (Stickfigure s in stickies)
