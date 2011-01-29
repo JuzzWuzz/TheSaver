@@ -27,10 +27,13 @@ public class JewSaver : Microsoft.Xna.Framework.Game
     GraphicsDeviceManager graphics;
     public static SpriteBatch spriteBatch;
     public static PrimitiveBatch primitiveBatch;
+    public static Sprite BG;
+    Texture2D background;
     public static int height;
     public static int width;
     MenuJewSaver mainMenu;
     LevelBase baseLevel;
+    LevelBase currentLevel;
 
     public JewSaver()
     {
@@ -74,6 +77,38 @@ public class JewSaver : Microsoft.Xna.Framework.Game
         // Create a new SpriteBatch, which can be used to draw textures.
         spriteBatch = new SpriteBatch(GraphicsDevice);
         primitiveBatch = new PrimitiveBatch(GraphicsDevice);
+        Color[] back = new Color[384];
+        Color mix;
+        background = new Texture2D(GraphicsDevice, 1, 384);
+        for (int i = 0; i < 106; i++)
+        {
+            float frac = i / 106.0f;
+            mix = new Color(frac * 36 / 255.0f, frac * 16 / 255.0f, frac * 63 / 255.0f);
+            back[i] = mix;
+        }
+        for (int i = 106; i < 106 + 95; i++)
+        {
+            float frac1 = (i - 106) / 95.0f;
+            float frac2 = 1 - frac1;
+            mix = new Color((frac2 * 36 / 255.0f + frac1 * 99 / 255.0f), (frac2 * 16 / 255.0f + frac1 * 6 / 255.0f), (frac2 * 63 / 255.0f + frac1 * 42 / 255.0f));
+            back[i] = mix;
+        }
+        for (int i = 106 + 95; i < 106 + 95 + 78; i++)
+        {
+            float frac1 = (i - 106 - 95) / 78.0f;
+            float frac2 = 1 - frac1;
+            mix = new Color((frac2 * 99 / 255.0f + frac1 * 186 / 255.0f), (frac2 * 6 / 255.0f), (frac2 * 42 / 255.0f));
+            back[i] = mix;
+        }
+        for (int i = 106 + 95 + 78; i < 106 + 95 + 78 + 105; i++)
+        {
+            float frac1 = (i - 106 - 95 - 78) / 105.0f;
+            float frac2 = 1 - frac1;
+            mix = new Color((frac2 * 186 / 255.0f + frac1 * 239 / 255.0f), (frac1 * 98 / 255.0f), (frac1 * 10 / 255.0f));
+            back[i] = mix;
+        }
+        background.SetData<Color>(back);
+        BG = new Sprite(background, 1, 384, 0, 0, 1024, 384, 0, 0);
 
         // TODO: use this.Content to load your game content here
     }
@@ -110,7 +145,9 @@ public class JewSaver : Microsoft.Xna.Framework.Game
     protected override void Draw(GameTime gameTime)
     {
         GraphicsDevice.Clear(Color.PowderBlue);
-
+        spriteBatch.Begin();
+        BG.Draw(spriteBatch);
+        spriteBatch.End();
         // TODO: Add your drawing code here
 
         base.Draw(gameTime);
@@ -123,8 +160,16 @@ public class JewSaver : Microsoft.Xna.Framework.Game
             case GameState.LEVEL_1:
                 mainMenu.Visible = false;
                 mainMenu.Enabled = false;
-                baseLevel.Visible = true;
-                baseLevel.Enabled = true;
+                baseLevel.Initialize();
+                currentLevel = baseLevel;
+                currentLevel.Visible = true;
+                currentLevel.Enabled = true;
+                break;
+            case GameState.MAIN_MENU:
+                mainMenu.Visible = true;
+                mainMenu.Enabled = true;
+                currentLevel.Visible = false;
+                currentLevel.Enabled = false;
                 break;
             default:
                 break;

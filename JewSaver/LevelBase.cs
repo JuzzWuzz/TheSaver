@@ -5,13 +5,18 @@ using Microsoft.Xna.Framework.Graphics;
 public class LevelBase:DrawableGameComponent
 {
     protected enum LevelMode {EDIT, PLAY};
-    float[] heightMap;
-    LevelMode levelMode;
-    float scrollX;
+    protected float[] heightMap;
+    protected LevelMode levelMode;
+    protected float scrollX;
     float scrollSpeed;
     MenuButton play;
+    MenuButton exit;
+    MenuButton restart;
     Texture2D buttonTex;
     SpriteFont font;
+    Texture2D star;
+    Sprite[] stars;
+    protected JewSaver jewSaver;
 
     // landscape sculpting brush
     Rectangle landscapeBrush;
@@ -28,6 +33,7 @@ public class LevelBase:DrawableGameComponent
         : base(game)
     {
         heightMap = new float [levelLength];
+        jewSaver = game;
     }
 
     public override void Initialize()
@@ -40,29 +46,51 @@ public class LevelBase:DrawableGameComponent
         scrollSpeed = 300;
         brushSize = 224;
         landscapeBrush = new Rectangle(0, 0, (int)(brushSize*1.5f), (int)brushSize);
-        play = new MenuButton(buttonTex, new Point(64, 64), new Point(0, 0), new Point(64, 64), new Point(8, 8), "PLAY");
+        play = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(8, 8), "PLAY");
         play.font = font;
         play.buttonPressed += OnPlayPressed;
+        restart = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(8, 8), "CLEAR");
+        restart.font = font;
+        restart.buttonPressed += OnRestartPressed;
+        exit = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(1024 - 8 - 96, 8), "QUIT");
+        exit.font = font;
+        exit.buttonPressed += OnQuitPressed;
         for (int i = 0; i < 10; i++)
             stickies[i] = new Stickfigure(new Vector2(50 + i * 30, i * 30));
+        Random random = new Random();
+        stars = new Sprite[384];
+        for (int i = 0; i < stars.Length; i++)
+        {
+            stars[i] = new Sprite(star, 8, 8, 0, 0, 8, 8, random.Next(heightMap.Length/2), random.Next(64));
+            stars[i].Alpha = (64 - stars[i].screenRectangle.Top) / 96.0f;
+        }
     }
 
     protected override void LoadContent()
     {
         base.LoadContent();
-        buttonTex = new Texture2D(Game.GraphicsDevice, 64, 64);
-        Color[] data = new Color[64 * 64];
-        for (int i = -32; i < 32; i++)
+        buttonTex = new Texture2D(Game.GraphicsDevice, 96, 96);
+        Color[] data = new Color[96 * 96];
+        for (int i = -48; i < 48; i++)
         {
-            for (int j = -32; j < 32; j++)
+            for (int j = -48; j < 48; j++)
             {
                 float dist2 = i * i + j * j;
-                if (dist2 <= 576)
-                    data[(i + 32) * 64 + j + 32] = Color.White;
-                else if (dist2 < 896)
-                    data[(i + 32) * 64 + j + 32] = new Color(1, 1, 1, (896 - dist2) / (896 - 576));
+                if (dist2 <= 1024)
+                    data[(i + 48) * 96 + j + 48] = Color.White;
+                else if (dist2 < 1764)
+                    data[(i + 48) * 96 + j + 48] = new Color(1, 1, 1, (1764 - dist2) / (1764 - 1024));
             }
         }
+        star = new Texture2D(Game.GraphicsDevice, 8, 8);
+        Color[] starData = new Color[8*8];
+        for (int i = -4; i < 4; i++)
+        {
+            float frac = (float)((4 - Math.Abs(i)) / 4.0f);
+            starData[4 * 8 + i + 4] = new Color(1,1,1,frac);
+            starData[(i + 4) * 8 + 4] = new Color(1, 1, 1, frac);
+        }
+        star.SetData<Color>(starData);
         buttonTex.SetData<Color>(data);
         font = Game.Content.Load<SpriteFont>("LevelText");
     }
@@ -70,6 +98,7 @@ public class LevelBase:DrawableGameComponent
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
+        (exit as MenuInputElement).CheckInput();
         if (levelMode == LevelMode.EDIT)
         {
             (play as MenuInputElement).CheckInput();
@@ -98,7 +127,7 @@ public class LevelBase:DrawableGameComponent
                         scrollX = heightMap.Length - 1025;
                 }
             }
-            else if (Input.leftMouseDown && !play.selected && !play.held)
+            else if (Input.leftMouseDown && !play.selected && !play.held && !exit.selected && !exit.held)
             {
                 int startIndex = (int)(scrollX + landscapeBrush.Left < 0 ? 0 : scrollX + landscapeBrush.Left);
                 int endIndex = (int)(scrollX + landscapeBrush.Right > heightMap.Length ? heightMap.Length : scrollX + landscapeBrush.Right);
@@ -124,6 +153,7 @@ public class LevelBase:DrawableGameComponent
         }
         else if (levelMode == LevelMode.PLAY)
         {
+            (restart as MenuInputElement).CheckInput();
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             foreach (Stickfigure s in stickies)
             {
@@ -135,7 +165,16 @@ public class LevelBase:DrawableGameComponent
     public override void Draw(GameTime gameTime)
     {
         base.Draw(gameTime);
-       
+
+        JewSaver.spriteBatch.Begin();
+        foreach (Sprite str in stars)
+        {
+            str.scrollXValue = 0.125f * scrollX;
+            str.Draw(JewSaver.spriteBatch);
+        }
+        (exit as MenuInputElement).Draw(JewSaver.spriteBatch);
+        JewSaver.spriteBatch.End();
+
         JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);
 
         for (int i = (int)scrollX; i < (int)scrollX + 1024; i++)
@@ -169,6 +208,9 @@ public class LevelBase:DrawableGameComponent
             {
                 s.draw();
             }
+            JewSaver.spriteBatch.Begin();
+            (restart as MenuInputElement).Draw(JewSaver.spriteBatch);
+            JewSaver.spriteBatch.End();
         }
     }
 
@@ -201,5 +243,15 @@ public class LevelBase:DrawableGameComponent
     {
         (play as MenuInputElement).Enabled = false;
         levelMode = LevelMode.PLAY;
+    }
+
+    private void OnQuitPressed()
+    {
+        jewSaver.SwitchState(GameState.MAIN_MENU);
+    }
+
+    private void OnRestartPressed()
+    {
+        this.Initialize();
     }
 }
