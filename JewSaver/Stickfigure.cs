@@ -213,7 +213,7 @@ class Stickfigure
         {
             timer += dt;
         }
-        if (!jumping || (jumping && timer > 0.2f))
+        if (!jumping || (jumping && timer > 0.1f))
         {
             float diff = lowestPoint().Y - ground;
             if (diff > 0)

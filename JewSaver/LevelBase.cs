@@ -21,8 +21,6 @@ public class LevelBase:DrawableGameComponent
     Tree[] trees;
     public static Random random = new Random();
     protected bool hasPlayed;
-    Texture2D lifeBarTex;
-    Sprite lifeBar;
     public static int levelLength;
     public static List<float> jumpMarkers = new List<float>();
     int numberOfStickies;
@@ -51,7 +49,7 @@ public class LevelBase:DrawableGameComponent
         heightMap = new float [levelLength];
         jewSaver = game;
         hasPlayed = false;
-        numberOfStickies = 10;
+        numberOfStickies = 50;
         stickies = new Stickfigure[numberOfStickies];
     }
 
@@ -97,7 +95,6 @@ public class LevelBase:DrawableGameComponent
         for (int i = 0; i < treeNum; i++)
             trees[i] = new Tree(new Vector2(random.Next(0, heightMap.Length), JewSaver.height - 20));*/
 
-        lifeBar = new Sprite(lifeBarTex, 1, 256, 0, 0, 32, 256, 8, 120);
     }
 
     protected override void LoadContent()
@@ -127,15 +124,6 @@ public class LevelBase:DrawableGameComponent
         star.SetData<Color>(starData);
         buttonTex.SetData<Color>(data);
         font = Game.Content.Load<SpriteFont>("LevelText");
-        lifeBarTex = new Texture2D(Game.GraphicsDevice, 1, 256);
-        Color[] lifeData = new Color[256];
-        for (int i = 0; i < 256; i++)
-        {
-            float frac1 = i / 256.0f;
-            float frac2 = 1 - frac1;
-            lifeData[i] = new Color(frac2, frac2,frac2, 1);
-        }
-        lifeBarTex.SetData<Color>(lifeData);
     }
 
     public override void Update(GameTime gameTime)
@@ -233,11 +221,10 @@ public class LevelBase:DrawableGameComponent
             if (numberOfStickies - deadStickies - savedStickies == 0)
             {
                 // Game is over
-                Console.WriteLine("saved: " + savedStickies.ToString());
+                Console.WriteLine("Saved: " + savedStickies.ToString());
                 Initialize();
                 return;
             }
-            lifeBar = new Sprite(lifeBarTex, 1, (int)((float)(numberOfStickies - deadStickies) / stickies.Length * 256.0f), 0, 256 - (int)((float)(numberOfStickies - deadStickies) / stickies.Length * 256.0f), 32, (int)((float)(numberOfStickies - deadStickies) / stickies.Length * 256.0f), 8, 120 + 256 - (int)((float)(numberOfStickies - deadStickies) / stickies.Length * 256.0f));
             moses.update(dt, heightMap);
 
             if (moses.position.X >= JewSaver.width / 2.0f)
@@ -348,14 +335,20 @@ public class LevelBase:DrawableGameComponent
             moses.draw(heightMap);
             JewSaver.spriteBatch.Begin();
             (restart as MenuInputElement).Draw(JewSaver.spriteBatch);
-            lifeBar.Draw(JewSaver.spriteBatch);
+
+            // Show number of jews still alive
+            String text = "Jews Still Alive: " + (numberOfStickies - deadStickies).ToString();
+            Vector2 centre = new Vector2((JewSaver.width - font.MeasureString(text).X) / 2.0f, 10.0f);
+            JewSaver.spriteBatch.DrawString(font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
+            JewSaver.spriteBatch.DrawString(font, text, centre, Color.White);
+
+            // Show number of jews that have been saved
+            text = "Jews Saved: " + savedStickies.ToString();
+            centre = new Vector2((JewSaver.width - font.MeasureString(text).X) / 2.0f, 10.0f + font.LineSpacing);
+            JewSaver.spriteBatch.DrawString(font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
+            JewSaver.spriteBatch.DrawString(font, text, centre, Color.White);
+
             JewSaver.spriteBatch.End();
-            JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);
-            JewSaver.primitiveBatch.AddLine(new Vector2(7, 119), new Vector2(7 + 33, 119), Color.Black, 2);
-            JewSaver.primitiveBatch.AddLine(new Vector2(7 + 33, 119), new Vector2(7 + 33, 376), Color.Black, 2);
-            JewSaver.primitiveBatch.AddLine(new Vector2(7 + 33, 376), new Vector2(7, 376), Color.Black, 2);
-            JewSaver.primitiveBatch.AddLine(new Vector2(7, 376), new Vector2(7, 119), Color.Black, 2);
-            JewSaver.primitiveBatch.End();
         }
     }
 
