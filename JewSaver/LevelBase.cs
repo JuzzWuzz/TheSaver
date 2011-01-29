@@ -226,15 +226,16 @@ public class LevelBase:DrawableGameComponent
             {
                 jumpMarkers.Add(moses.position.X + scrollX);
             }
-            if (!moses.sprinting && Input.shiftDown)
+            if (!(this is Level1))
             {
-                sprintMarkers.Add(moses.position.X + scrollX);
-                moses.sprinting = true;
-            }
-            if (moses.sprinting && Input.shiftUp)
-            {
-                sprintMarkers.Add(moses.position.X + scrollX);
-                moses.sprinting = false;
+                if (!moses.sprinting && Input.shiftDown)
+                {
+                    sprintMarkers.Add(moses.position.X + scrollX);
+                }
+                if (moses.sprinting && Input.shiftUp)
+                {
+                    sprintMarkers.Add(moses.position.X + scrollX);
+                }
             }
 
             foreach (Stickfigure s in stickies)
@@ -346,19 +347,20 @@ public class LevelBase:DrawableGameComponent
                     }
                 }
             }
-            moses.update(dt, heightMap);
 
             locustTimeout -= gameTime.ElapsedGameTime;
             if (locustTimeout.TotalMilliseconds <= 0)
             {
                 int plagueLength = random.Next(8, 15);
-                Console.WriteLine("Adding locusts for "+plagueLength+" seconds");
+                Console.WriteLine("Adding locusts for " + plagueLength + " seconds");
                 locusts.Add(new LocustSwarm(plagueLength));
                 locustTimeout += locustTime;
             }
 
             foreach (LocustSwarm swarm in locusts)
                 swarm.update(dt);
+            moses.update(dt, heightMap);
+
         }
 
         // Update the trees
@@ -433,6 +435,7 @@ public class LevelBase:DrawableGameComponent
         }
         JewSaver.primitiveBatch.End();
 
+        // Draw the trees
         if (trees != null)
         {
             for (int i = 0; i < trees.Length; i++)
@@ -462,9 +465,15 @@ public class LevelBase:DrawableGameComponent
             for (int i = 0; i < jumpMarkers.Count; i++)
                 JewSaver.primitiveBatch.DrawCircle(new Vector2(jumpMarkers[i] - scrollX, JewSaver.height - heightMap[Math.Min(Math.Max(0, (int)(jumpMarkers[i])), levelLength - 1)]), Color.Blue, 5);
 
-            // Draw the jump markers
+            // Draw the sprint markers
             for (int i = 0; i < sprintMarkers.Count; i++)
-                JewSaver.primitiveBatch.DrawCircle(new Vector2(sprintMarkers[i] - scrollX, JewSaver.height - heightMap[Math.Min(Math.Max(0, (int)(sprintMarkers[i])), levelLength - 1)]), Color.Pink, 5);
+            {
+                Color col = Color.Green;
+                if (i % 2 != 0)
+                    col = Color.Red;
+
+                JewSaver.primitiveBatch.DrawCircle(new Vector2(sprintMarkers[i] - scrollX, JewSaver.height - heightMap[Math.Min(Math.Max(0, (int)(sprintMarkers[i])), levelLength - 1)]), col, 5);
+            }
 
             // Draw stickies
             foreach (Stickfigure s in stickies)
