@@ -6,15 +6,15 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections;
 
-class Stickfigure
+public class Stickfigure
 {
     const float gravity = 500.0f;
-    const float jumpForce = gravity * 35.0f;
+    const float jumpForce = gravity * 30.0f;
     const double jumpAngle = Math.PI / 180.0f * 45.0f;
     
     private bool isPlayer = false;
     private bool newStickie;
-    private bool inactive;
+    public bool inactive;
 
     public bool dead;
     public bool saved;
@@ -35,10 +35,12 @@ class Stickfigure
     protected float timer;
     protected float spawnTimer;
     protected Color color;
+    protected Color colorHead;
     protected int curJumpIdx;
     protected int curSprintIdx;
     protected int stickieIndex;
     public bool isFemale;
+    public bool isFattie;
 
     public Stickfigure(Vector2 position, int index)
     {
@@ -66,7 +68,7 @@ class Stickfigure
 
         setLimbs(0.0f);
 
-        this.isFemale = (LevelBase.random.NextDouble() > 0.80);
+        this.isFemale = (LevelBase.random.NextDouble() > 0.98);
 
         this.position = this.origPosition;
         this.velocity = Vector2.Zero;
@@ -79,10 +81,11 @@ class Stickfigure
         this.inactive = false;
         this.dead = false;
         this.saved = false;
-        this.jumping = false;
+        this.jumping = true;
         this.sprinting = false;
         this.newStickie = true;
         this.color = (isFemale) ? Color.Pink : Color.Yellow;
+        this.colorHead = Color.Orange;
 
         this.thickness = (int)(scale * mass * mass * 0.75);
 
@@ -91,10 +94,12 @@ class Stickfigure
             mass = 1.2f;
             thickness = (int)(scale * mass * mass * 0.75);
         }
+
+        this.isFattie = (mass > 1.5f);
     }
 
     // Update Method
-    public void update(float dt, float[] heightmap)
+    public void update(float dt)
     {
         if (inactive)
             return;
@@ -143,14 +148,18 @@ class Stickfigure
         float ground;
         float drag = 0.99f;
 
-        float gp = JewSaver.height - heightmap[Math.Min(Math.Max(0, (int)(LevelBase.scrollX + position.X - scale)), LevelBase.levelLength - 1)];
-        float gn = JewSaver.height - heightmap[Math.Min(Math.Max(0, (int)(LevelBase.scrollX + position.X + scale)), LevelBase.levelLength - 1)];
+        float gp = JewSaver.height - LevelBase.heightMap[Math.Min(Math.Max(0, (int)(LevelBase.scrollX + position.X - scale)), LevelBase.levelLength - 1)];
+        float gn = JewSaver.height - LevelBase.heightMap[Math.Min(Math.Max(0, (int)(LevelBase.scrollX + position.X + scale)), LevelBase.levelLength - 1)];
         double angle = Math.Atan((double)Math.Abs(gn - gp) / (double)(scale * 2));
-        ground = JewSaver.height - heightmap[Math.Min(Math.Max(0, (int)(LevelBase.scrollX + position.X)), LevelBase.levelLength - 1)];
+        ground = JewSaver.height - LevelBase.heightMap[Math.Min(Math.Max(0, (int)(LevelBase.scrollX + position.X)), LevelBase.levelLength - 1)];
 
         setLimbs(dt);
         if (!jumping)
         {
+            if (isPlayer)
+            {
+                ;
+            }
             if (gn > gp)
             {
                 // Gradient = \
@@ -161,7 +170,7 @@ class Stickfigure
             {
                 // Gradient = /
                 //ground = JewSaver.height - heightmap[(int)LevelBase.scrollX + (int)lFoot.X];
-                if (angle > Math.PI / 180.0f * 80.0f)
+                if (!isPlayer && angle > Math.PI / 180.0f * 80.0f)
                 {
                     drag = 0.0f;
                     // Add dt to the timer value and if they are stuck for 4 seconds then kill them
@@ -210,7 +219,9 @@ class Stickfigure
         {
             for (int i = curJumpIdx; i < LevelBase.jumpMarkers.Count; i++)
             {
-                if (position.X + LevelBase.scrollX >= LevelBase.jumpMarkers[i])
+                if (position.X > LevelBase.moses.position.X)
+                    curJumpIdx++;
+                else if (position.X + LevelBase.scrollX >= LevelBase.jumpMarkers[i])
                 {
                     force = new Vector2(jumpForce * (float)Math.Cos(jumpAngle), -jumpForce * (float)Math.Sin(jumpAngle));
                     if (sprinting)
@@ -225,7 +236,9 @@ class Stickfigure
         // Do checks for sprint markers and activate sprinting
         for (int i = curSprintIdx; i < LevelBase.sprintMarkers.Count; i++)
         {
-            if (position.X + LevelBase.scrollX >= LevelBase.sprintMarkers[i])
+            if (position.X > LevelBase.moses.position.X)
+                curSprintIdx++;
+            else if (position.X + LevelBase.scrollX >= LevelBase.sprintMarkers[i])
             {
                 sprinting ^= true;
                 curSprintIdx++;
@@ -272,12 +285,19 @@ class Stickfigure
         change += dt;
 
         crotch = position;
-        rFoot = crotch + new Vector2(-2.5f * scale, 7 * scale) + Vector2.Multiply(new Vector2(2.5f * scale, 0), (float)Math.Cos(change));
-        lFoot = crotch + new Vector2(2.5f * scale, 7 * scale) + Vector2.Multiply(new Vector2(-2.5f * scale, 0), (float)Math.Cos(change));
+        rFoot = crotch + new Vector2(-2.5f * scale, 7 * scale);
+        lFoot = crotch + new Vector2(2.5f * scale, 7 * scale);
 
-        crotch -= Vector2.Multiply(new Vector2(0, 1.5f * scale), (float)Math.Cos(change) + 1);
+        if (!dead)
+        {
+            rFoot += Vector2.Multiply(new Vector2(2.5f * scale, 0), (float)Math.Cos(change));
+            lFoot += Vector2.Multiply(new Vector2(-2.5f * scale, 0), (float)Math.Cos(change));
+            crotch -= Vector2.Multiply(new Vector2(0, 1.5f * scale), (float)Math.Cos(change) + 1);
+        }
 
-        shoulder = crotch + new Vector2(0, -8 * scale) + Vector2.Multiply(new Vector2(4, 0), (float)Math.Cos(change * 2));
+        shoulder = crotch + new Vector2(0, -8 * scale);
+        if (!dead)
+            shoulder += Vector2.Multiply(new Vector2(4, 0), (float)Math.Cos(change * 2));
         neck = shoulder + new Vector2(0, -2 * scale);
         head = neck + new Vector2(0, -headSize * scale);
 
@@ -295,6 +315,10 @@ class Stickfigure
             rHand.Y = position.Y;
             lFoot.Y = position.Y;
             rFoot.Y = position.Y;
+
+            // Make them a pile of blood
+            color = Color.Red;
+            colorHead = Color.Yellow;
         }
     }
 
@@ -313,13 +337,13 @@ class Stickfigure
         return (l[0]);
     }
 
-    public void draw(float[] heightmap)
+    public void draw()
     {
         if (inactive)
             return;
 
         // Draw the head
-        JewSaver.primitiveBatch.DrawCircle(head, Color.Orange, headSize * scale);
+        JewSaver.primitiveBatch.DrawCircle(head, colorHead, headSize * scale);
 
         // Begin primitive batch
         JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);

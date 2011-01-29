@@ -93,12 +93,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnimatedSprite.cs" />
+    <Compile Include="Locust.cs" />
+    <Compile Include="ShekelRain.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="Level1.cs" />
     <Compile Include="Level2.cs" />
     <Compile Include="Level3.cs" />
     <Compile Include="LevelBase.cs" />
-    <Compile Include="LocustSwarm.cs" />
     <Compile Include="Menu classes\Menu.cs" />
     <Compile Include="Menu classes\MenuButton.cs" />
     <Compile Include="Menu classes\MenuInputElement.cs" />
@@ -109,6 +110,7 @@
     <Compile Include="JewSaver.cs" />
     <Compile Include="Stickfigure.cs" />
     <Compile Include="Tree.cs" />
+    <Compile Include="Tumbleweed.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

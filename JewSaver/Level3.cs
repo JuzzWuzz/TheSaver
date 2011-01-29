@@ -131,7 +131,7 @@ public class Level3 : LevelBase
 
     protected override void NextLevel()
     {
-        jewSaver.SwitchState(GameState.MAIN_MENU);
+        jewSaver.SwitchState(GameState.SHEKEL_RAIN);
     }
 
     private Color[] CreateLight(Color colour,float radius)
