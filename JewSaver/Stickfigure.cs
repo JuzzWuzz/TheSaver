@@ -195,6 +195,7 @@ class Stickfigure
             }
         }
 
+        // If not jumping already then lookup to see if a jump location has been passed
         if (!jumping)
         {
             for (int i = curJumpIdx; i < LevelBase.jumpMarkers.Count; i++)
@@ -203,7 +204,7 @@ class Stickfigure
                 {
                     force = new Vector2(jumpForce * (float)Math.Cos(jumpAngle), -jumpForce * (float)Math.Sin(jumpAngle));
                     if (sprinting)
-                        force *= 2.0f;
+                        force *= 1.25f;
                     jumping = true;
                     curJumpIdx++;
                     timer = 0.0f;
@@ -211,15 +212,13 @@ class Stickfigure
             }
         }
 
-        if (!isPlayer)
+        // Do checks for sprint markers and activate sprinting
+        for (int i = curSprintIdx; i < LevelBase.sprintMarkers.Count; i++)
         {
-            for (int i = curSprintIdx; i < LevelBase.sprintMarkers.Count; i++)
+            if (position.X + LevelBase.scrollX >= LevelBase.sprintMarkers[i])
             {
-                if (position.X + LevelBase.scrollX >= LevelBase.sprintMarkers[i])
-                {
-                    sprinting ^= true;
-                    curSprintIdx++;
-                }
+                sprinting ^= true;
+                curSprintIdx++;
             }
         }
 

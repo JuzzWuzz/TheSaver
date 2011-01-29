@@ -220,12 +220,10 @@ public class LevelBase:DrawableGameComponent
             if (!moses.sprinting && Input.shiftDown)
             {
                 sprintMarkers.Add(moses.position.X + scrollX);
-                moses.sprinting = true;
             }
             if (moses.sprinting && Input.shiftUp)
             {
                 sprintMarkers.Add(moses.position.X + scrollX);
-                moses.sprinting = false;
             }
 
             foreach (Stickfigure s in stickies)
