@@ -132,6 +132,8 @@ public class JewSaver : Microsoft.Xna.Framework.Game
     }
 }
 
+
+
 static class Program
 {
     static volatile bool stop = false;
@@ -163,8 +165,18 @@ static class Program
                 {
                     waveOut.Init(blockAlignedStream);
                     waveOut.Play();
-                    while (waveOut.PlaybackState == PlaybackState.Playing && !stop)
+                    while (waveOut.PlaybackState == PlaybackState.Playing)
                     {
+                        if (stop)
+                        {
+                            waveOut.Stop();
+                            while (waveOut.PlaybackState != PlaybackState.Stopped)
+                                Console.Write("Exiting");
+                            Environment.Exit(0);
+                            return;
+                            System.Threading.Thread.CurrentThread.Abort();
+                        }
+
                         System.Threading.Thread.Sleep(100);
                     }
                 }
@@ -186,6 +198,6 @@ static class Program
         }
         stop = true;
         //Thread.Sleep(100);
-        oThread.Join(100);
+        //oThread.Join(100);
     }
 }
