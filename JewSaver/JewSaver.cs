@@ -187,11 +187,13 @@ public class JewSaver : Microsoft.Xna.Framework.Game
 static class Program
 {
     static volatile bool stop = false;
+    static List<string> urls = new List<string>();
 
     public static void PlayMp3FromUrl()
     {
         /*royalty free african music. because we are africa.*/
-        string url = "http://music.incompetech.com/royalty-free/Blue%20Scorpion.mp3";
+        Random random = new Random();
+        string url = urls[random.Next(urls.Count())];
         using (Stream ms = new MemoryStream())
         {
             using (Stream stream = WebRequest.Create(url)
@@ -228,6 +230,7 @@ static class Program
 
                         System.Threading.Thread.Sleep(100);
                     }
+
                 }
             }
         }
@@ -238,6 +241,14 @@ static class Program
     /// </summary>
     static void Main(string[] args)
     {
+        urls.Add("http://music.incompetech.com/royalty-free/Old%20Road.mp3");
+        urls.Add("http://music.incompetech.com/royalty-free/Ibn%20Al-Noor.mp3");
+        urls.Add("http://music.incompetech.com/royalty-free/Desert%20City.mp3");
+        urls.Add("http://music.incompetech.com/royalty-free/Lachaim.mp3");
+        urls.Add("http://music.incompetech.com/royalty-free/Big%20Mojo.mp3");
+        urls.Add("http://music.incompetech.com/royalty-free/East%20of%20Tunesia.mp3");
+        urls.Add("http://music.incompetech.com/royalty-free/Balzan%20Groove.mp3");
+
         Thread oThread = new Thread(new ThreadStart(Program.PlayMp3FromUrl));
         oThread.Start();
 

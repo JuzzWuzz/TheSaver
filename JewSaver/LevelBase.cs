@@ -8,7 +8,7 @@ public class LevelBase:DrawableGameComponent
     protected enum LevelMode {EDIT, PLAY};
     protected float[] heightMap;
     protected LevelMode levelMode;
-    protected float scrollX;
+    public static float scrollX;
     float scrollSpeed;
     MenuButton play;
     MenuButton exit;

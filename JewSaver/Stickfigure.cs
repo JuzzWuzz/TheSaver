@@ -4,11 +4,14 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections;
 
 class Stickfigure
 {
     const float gravity = 500.0f;
+    private bool jumping = false;
 
+    static List<float> jumpMarkers = new List<float>();
 
     private bool isPlayer = false;
     private bool moving = false;
@@ -38,6 +41,7 @@ class Stickfigure
     {
         isPlayer = true;
         color = Color.Brown;
+        jumpMarkers.Clear();
     }
 
     public void Initialize()
@@ -123,6 +127,21 @@ class Stickfigure
         // Factor in walking if not dead
         if (!dead)
             force += new Vector2(moveForce * (float)Math.Cos(angle), moveForce * (float)Math.Sin(angle));
+
+        if (isPlayer && !jumping && Input.spaceBarDown)
+        {
+            force += new Vector2(1, -1) * moveForce * 50;
+            jumping = true;
+            jumpMarkers.Add(position.X + LevelBase.scrollX);
+        }
+        if (!isPlayer && !jumping)
+            foreach (float marker in jumpMarkers)
+                if (position.X + LevelBase.scrollX - marker > 1 && position.X + LevelBase.scrollX - marker < 3)
+                {
+                    force += new Vector2(1, -1) * moveForce * 50;
+                    jumping = true;
+                }
+
         // Calculate the acceleration value
         Vector2 accel = force / mass;
         // Add the acceleration to velocity and factor in dt
@@ -135,7 +154,10 @@ class Stickfigure
         // Keep stickie above ground
         float diff = ground - lowestPoint().Y;
         if (diff < 0)
+        {
+            jumping = false;
             position.Y += diff;
+        }
 
         if (dead)
             position.Y = ground;
@@ -213,6 +235,10 @@ class Stickfigure
         // Draw the feet
         JewSaver.primitiveBatch.AddLine(crotch, lFoot, color, color, scale);
         JewSaver.primitiveBatch.AddLine(crotch, rFoot, color, color, scale);
+
+        if (isPlayer)
+            JewSaver.primitiveBatch.AddLine(crotch + new Vector2(8, 14),
+                shoulder + new Vector2(8, -10), Color.Black, 2);
 
         // End primitive batch
         JewSaver.primitiveBatch.End();
