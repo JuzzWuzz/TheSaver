@@ -18,6 +18,9 @@ public class LevelBase:DrawableGameComponent
     Sprite[] stars;
     protected JewSaver jewSaver;
 
+    // for testing
+    public bool showFrameRate;
+
     // landscape sculpting brush
     Rectangle landscapeBrush;
     float brushSize;
@@ -173,6 +176,8 @@ public class LevelBase:DrawableGameComponent
             str.Draw(JewSaver.spriteBatch);
         }
         (exit as MenuInputElement).Draw(JewSaver.spriteBatch);
+        if (showFrameRate)
+            JewSaver.spriteBatch.DrawString(font, 1 / gameTime.ElapsedGameTime.TotalSeconds + "", new Vector2(512, 8), Color.White);
         JewSaver.spriteBatch.End();
 
         JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);
