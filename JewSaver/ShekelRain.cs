@@ -20,7 +20,7 @@ class ShekelRain : DrawableGameComponent
     {
         base.Draw(gameTime);
         JewSaver.spriteBatch.Begin();
-        JewSaver.spriteBatch.DrawString(LevelBase.font, "VEGAS", new Vector2(300, 150), Color.White, 0, 0.5f * LevelBase.font.MeasureString("VEGAS"), 1, SpriteEffects.None, 0);
+        JewSaver.spriteBatch.DrawString(LevelBase.font, "Congratulations! You have saved the Israelites\n from near certain extinction!", new Vector2(300, 150), Color.White, 0, 0.5f * LevelBase.font.MeasureString("VEGAS"), 1, SpriteEffects.None, 0);
         JewSaver.spriteBatch.End();
     
     }
