@@ -23,6 +23,7 @@ public class LevelBase:DrawableGameComponent
     protected bool hasPlayed;
     public static int levelLength;
     public static List<float> jumpMarkers = new List<float>();
+    public static List<float> sprintMarkers = new List<float>();
     int numberOfStickies;
 
     // for testing
@@ -80,6 +81,7 @@ public class LevelBase:DrawableGameComponent
         moses = new Stickfigure(new Vector2(50, 200), 0);
         moses.SetIsPlayer();
         jumpMarkers.Clear();
+        sprintMarkers.Clear();
         if (!hasPlayed)
         {
             stars = new Sprite[JewSaver.height];
@@ -89,12 +91,6 @@ public class LevelBase:DrawableGameComponent
                 stars[i].Alpha = (64 - stars[i].screenRectangle.Top) / 96.0f;
             }
         }
-
-        /*int treeNum = (int)random.Next((int)(30 * heightMap.Length/4096.0f),(int) (60 *heightMap.Length/4096.0f));
-        trees = new Tree[treeNum];
-        for (int i = 0; i < treeNum; i++)
-            trees[i] = new Tree(new Vector2(random.Next(0, heightMap.Length), JewSaver.height - 20));*/
-
     }
 
     protected override void LoadContent()
@@ -206,6 +202,16 @@ public class LevelBase:DrawableGameComponent
             if (!moses.jumping && Input.spaceBarPressed)
             {
                 jumpMarkers.Add(moses.position.X + scrollX);
+            }
+            if (!moses.sprinting && Input.shiftDown)
+            {
+                sprintMarkers.Add(moses.position.X + scrollX);
+                moses.sprinting = true;
+            }
+            if (moses.sprinting && Input.shiftUp)
+            {
+                sprintMarkers.Add(moses.position.X + scrollX);
+                moses.sprinting = false;
             }
 
             foreach (Stickfigure s in stickies)
@@ -367,6 +373,10 @@ public class LevelBase:DrawableGameComponent
             // Draw the jump markers
             for (int i = 0; i < jumpMarkers.Count; i++)
                 JewSaver.primitiveBatch.DrawCircle(new Vector2(jumpMarkers[i] - scrollX, JewSaver.height - heightMap[Math.Min(Math.Max(0, (int)(jumpMarkers[i])), levelLength - 1)]), Color.Blue, 5);
+
+            // Draw the jump markers
+            for (int i = 0; i < sprintMarkers.Count; i++)
+                JewSaver.primitiveBatch.DrawCircle(new Vector2(sprintMarkers[i] - scrollX, JewSaver.height - heightMap[Math.Min(Math.Max(0, (int)(sprintMarkers[i])), levelLength - 1)]), Color.Pink, 5);
 
             // Draw stickies
             foreach (Stickfigure s in stickies)

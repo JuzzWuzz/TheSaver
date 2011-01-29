@@ -14,6 +14,8 @@ public class Input:GameComponent
     public static bool leftMouseDown;
     public static bool rightMouseDown;
     public static bool spaceBarPressed;
+    public static bool shiftDown;
+    public static bool shiftUp;
     public static bool enterDown;
     public static bool escapeDown;
     public static float mouseScrollValue;
@@ -54,6 +56,8 @@ public class Input:GameComponent
         if (movementDir != Vector2.Zero)
             movementDir.Normalize();
         spaceBarPressed = curState.IsKeyDown(Keys.Space) && prevState.IsKeyUp(Keys.Space);
+        shiftDown = curState.IsKeyDown(Keys.LeftShift) || curState.IsKeyDown(Keys.RightShift);
+        shiftUp = curState.IsKeyUp(Keys.LeftShift) && curState.IsKeyUp(Keys.RightShift);
         enterDown = curState.IsKeyDown(Keys.Enter);
         escapeDown = curState.IsKeyDown(Keys.Escape);
     }

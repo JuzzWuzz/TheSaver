@@ -20,6 +20,7 @@ class Stickfigure
     public bool dead;
     public bool saved;
     public bool jumping;
+    public bool sprinting;
 
     private Vector2 crotch, shoulder, lHand, rHand, lFoot, rFoot, neck, head;
 
@@ -34,7 +35,8 @@ class Stickfigure
     protected float timer;
     protected float spawnTimer;
     protected Color color;
-    protected int curIndex;
+    protected int curJumpIdx;
+    protected int curSprintIdx;
     protected int stickieIndex;
 
     public Stickfigure(Vector2 position, int index)
@@ -69,11 +71,13 @@ class Stickfigure
         this.mass = 1.0f + 1.0f * (float)LevelBase.random.NextDouble();
         this.timer = 0.0f;
         this.spawnTimer = 0.0f;
-        this.curIndex = 0;
+        this.curJumpIdx = 0;
+        this.curSprintIdx = 0;
         this.inactive = false;
         this.dead = false;
         this.saved = false;
         this.jumping = false;
+        this.sprinting = false;
         this.newStickie = true;
 
         if (isPlayer)
@@ -182,19 +186,39 @@ class Stickfigure
                 dead = false;
             // Factor in walking if not dead
             if (!dead && !newStickie)
-                force += new Vector2(moveForce * (float)Math.Cos(angle), moveForce * (float)Math.Sin(angle));
+            {
+                Vector2 newForce = new Vector2(moveForce * (float)Math.Cos(angle), moveForce * (float)Math.Sin(angle));
+                if (sprinting)
+                    newForce *= 2.0f;
+
+                force += newForce;
+            }
         }
 
         if (!jumping)
         {
-            for (int i = curIndex; i < LevelBase.jumpMarkers.Count; i++)
+            for (int i = curJumpIdx; i < LevelBase.jumpMarkers.Count; i++)
             {
                 if (position.X + LevelBase.scrollX >= LevelBase.jumpMarkers[i])
                 {
                     force = new Vector2(jumpForce * (float)Math.Cos(jumpAngle), -jumpForce * (float)Math.Sin(jumpAngle));
+                    if (sprinting)
+                        force *= 2.0f;
                     jumping = true;
-                    curIndex++;
+                    curJumpIdx++;
                     timer = 0.0f;
+                }
+            }
+        }
+
+        if (!isPlayer)
+        {
+            for (int i = curSprintIdx; i < LevelBase.sprintMarkers.Count; i++)
+            {
+                if (position.X + LevelBase.scrollX >= LevelBase.sprintMarkers[i])
+                {
+                    sprinting ^= true;
+                    curJumpIdx++;
                 }
             }
         }
