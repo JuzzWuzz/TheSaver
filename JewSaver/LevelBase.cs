@@ -8,6 +8,7 @@ public class LevelBase : DrawableGameComponent
     protected enum LevelMode {EDIT, PLAY};
     public enum TerrainType { SAND, WATER, CANYON, OTHER, ROCK , PARCHED_LAND};
     public static float[] heightMap;
+    protected float[] heightMapBak;
     public static TerrainType[] canSculpt;
     protected LevelMode levelMode;
     public static float scrollX;
@@ -38,7 +39,7 @@ public class LevelBase : DrawableGameComponent
     protected bool hasLocusts;
 
     //Wind stuff
-    protected static Wind wind = new Wind(new TimeSpan(0, 0, 30));
+    protected static Wind wind;
 
     // End screen text
     protected List<string> finalTexts;
@@ -82,6 +83,7 @@ public class LevelBase : DrawableGameComponent
     {
         levelLength = newLevelLength;
         heightMap = new float[levelLength];
+        heightMapBak = new float[levelLength];
         canSculpt = new TerrainType[levelLength];
         finalTexts = new List<string>();
         jewSaver = game;
@@ -156,6 +158,10 @@ public class LevelBase : DrawableGameComponent
         goToNextLevel = false;
 
         treasure = new List<Schekel>();
+
+        wind = new Wind(new TimeSpan(0, 0, 30));
+        Wind.sandCollection.Clear();
+        heightMap = heightMapBak;
     }
 
     protected override void LoadContent()
