@@ -230,7 +230,8 @@ public class LevelBase : DrawableGameComponent
         }
         else if (levelMode == LevelMode.PLAY)
         {
-            (restart as MenuInputElement).CheckInput();
+            if (!goToNextLevel)
+                (restart as MenuInputElement).CheckInput();
             if (showText)
             {
                 textTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -293,7 +294,7 @@ public class LevelBase : DrawableGameComponent
             {
                 if (!moses.dead)
                 {
-                    if (numberOfStickies - deadStickies - savedStickies == 0)
+                    if (moses.saved && numberOfStickies - deadStickies - savedStickies == 0)
                     {
                         showText = true;
                         textTimer = 0;
@@ -307,9 +308,10 @@ public class LevelBase : DrawableGameComponent
                         if (this is Level3)
                         {
                             finalTexts.Add("Finally you have reached the Promised Land!");
-                            if (JewSaver.finalSavedFemales > 1 && JewSaver.finalSavedStickies - JewSaver.finalSavedFemales > 1)
+                            if (JewSaver.finalSavedFemales >= 1 && JewSaver.finalSavedStickies - JewSaver.finalSavedFemales >= 1)
                             {
                                 finalTexts.Add("You have saved your people, congratulations!");
+                                goToNextLevel = true;
                                 return;
                             }
 
@@ -323,6 +325,7 @@ public class LevelBase : DrawableGameComponent
                                     finalTexts.Add("But you do not have any females to repopulate!");
                             }
                             finalTexts.Add("You have single-handedly destroyed a nation.");
+                            return;
                         }
                         else
                         {
@@ -596,7 +599,8 @@ public class LevelBase : DrawableGameComponent
             JewSaver.primitiveBatch.End();
 
             JewSaver.spriteBatch.Begin();
-            (restart as MenuInputElement).Draw(JewSaver.spriteBatch);
+            if (!goToNextLevel)
+                (restart as MenuInputElement).Draw(JewSaver.spriteBatch);
             if (!showText)
             {
                 // Show number of jews still alive

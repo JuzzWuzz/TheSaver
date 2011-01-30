@@ -68,7 +68,7 @@ public class Stickfigure
 
         setLimbs(0.0f);
 
-        this.isFemale = (LevelBase.random.NextDouble() > 0.98);
+        this.isFemale = (LevelBase.random.NextDouble() > 0.95);
 
         this.position = this.origPosition;
         this.velocity = Vector2.Zero;
@@ -340,7 +340,7 @@ public class Stickfigure
 
     public void draw()
     {
-        if (inactive)
+        if (dead && inactive)
             return;
 
         // Draw the head
