@@ -68,7 +68,7 @@ public class Stickfigure
 
         setLimbs(0.0f);
 
-        this.isFemale = (LevelBase.random.NextDouble() > 0.95);
+        this.isFemale = (LevelBase.random.NextDouble() > 0.6);
 
         this.position = this.origPosition;
         this.velocity = Vector2.Zero;

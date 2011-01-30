@@ -39,7 +39,8 @@ public class LevelBase : DrawableGameComponent
     protected bool hasLocusts;
 
     //Wind stuff
-    protected static Wind wind;
+    protected Wind wind;
+    protected bool enableWind;
 
     // End screen text
     protected List<string> finalTexts;
@@ -158,6 +159,7 @@ public class LevelBase : DrawableGameComponent
 
         treasure = new List<Schekel>();
 
+        enableWind = false;
         wind = new Wind(new TimeSpan(0, 0, 30));
         
         if (hasPlayed)
@@ -370,7 +372,8 @@ public class LevelBase : DrawableGameComponent
             moses.update(dt);
 
             //Wind!
-            wind.update(gameTime, ref heightMap);
+            if (enableWind)
+                wind.update(gameTime, ref heightMap);
 
             if (!goToNextLevel)
             {
@@ -657,7 +660,8 @@ public class LevelBase : DrawableGameComponent
     {
         base.Draw(gameTime);
 
-        wind.draw();
+        if (enableWind)
+            wind.draw();
 
         JewSaver.spriteBatch.Begin();
         foreach (Sprite str in stars)
