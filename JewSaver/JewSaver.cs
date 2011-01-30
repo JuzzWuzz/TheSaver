@@ -17,7 +17,7 @@ using System.Net;
 using System.Threading;
 
 // use to specify game state
-public enum GameState {MAIN_MENU, PAUSED, LEVEL_1, LEVEL_2, LEVEL_3, SHEKEL_RAIN};
+public enum GameState {MAIN_MENU, PAUSED, LEVEL_1, LEVEL_2, LEVEL_3};
 
 /// <summary>
 /// This is the main type for your game
@@ -36,7 +36,6 @@ public class JewSaver : Microsoft.Xna.Framework.Game
     Level1 level1;
     Level2 level2;
     Level3 level3;
-    ShekelRain shekelRain;
 
     public static int finalSavedStickies = 0;
     public static int finalSavedFemales = 0;
@@ -181,11 +180,6 @@ public class JewSaver : Microsoft.Xna.Framework.Game
                 level3 = new Level3(this);
                 this.Components.Add(level3);
                 currentLevel = level3;
-                break;
-            case GameState.SHEKEL_RAIN:
-                level3.Enabled = false;
-                shekelRain = new ShekelRain(this);
-                this.Components.Add(shekelRain);
                 break;
             default:
                 break;

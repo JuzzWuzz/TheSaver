@@ -52,6 +52,7 @@ public class LevelBase : DrawableGameComponent
     int savedStickies;
     int savedFemales;
     int savedFatties;
+    protected bool gameAllOver;
 
     Stickfigure[] stickies;
     public static Stickfigure moses;
@@ -109,6 +110,7 @@ public class LevelBase : DrawableGameComponent
         sprintMarkers.Clear();
         finalTexts.Clear();
         showText = false;
+        gameAllOver = false;
 
         locusts = new List<Locust>();
         locustTimeout = new TimeSpan(0, 0, 15);
@@ -231,7 +233,7 @@ public class LevelBase : DrawableGameComponent
         }
         else if (levelMode == LevelMode.PLAY)
         {
-            if (!goToNextLevel)
+            if (!goToNextLevel && !gameAllOver)
                 (restart as MenuInputElement).CheckInput();
             if (showText)
             {
@@ -244,13 +246,18 @@ public class LevelBase : DrawableGameComponent
                     {
                         showText = false;
                         if (goToNextLevel)
-                        {
                             NextLevel();
-                        }
+                        else if (gameAllOver)
+                            return;
                         else
                             Initialize();
                     }
                 }
+                return;
+            }
+            if (gameAllOver)
+            {
+                // TO RAINER AD GOLD STUFF
                 return;
             }
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -308,11 +315,26 @@ public class LevelBase : DrawableGameComponent
 
                         if (this is Level3)
                         {
+                            gameAllOver = true;
                             finalTexts.Add("Finally you have reached the Promised Land!");
                             if (JewSaver.finalSavedFemales >= 1 && JewSaver.finalSavedStickies - JewSaver.finalSavedFemales >= 1)
                             {
                                 finalTexts.Add("You have saved your people, congratulations!");
-                                goToNextLevel = true;
+
+                                // Add ending stats
+                                finalTexts.Add("Congratulations on completing the game");
+                                finalTexts.Add("You managed to save " + JewSaver.finalSavedStickies.ToString() + " stickies in total");
+                                finalTexts.Add("Of which " + JewSaver.finalSavedFemales.ToString() + " were female and " + (JewSaver.finalSavedStickies - JewSaver.finalSavedFemales).ToString() + " were male");
+                                finalTexts.Add("There were also " + JewSaver.finalSavedFatties.ToString() + " fatties");
+
+                                finalTexts.Add("...");
+                                finalTexts.Add("Save the Jew Credits");
+                                finalTexts.Add("Developed for the Global Game Jam 2011 by");
+                                finalTexts.Add("Rizmari Versfeld");
+                                finalTexts.Add("Rainer Dreyer");
+                                finalTexts.Add("Justin Crause");
+
+                                gameAllOver = true;
                                 return;
                             }
 
@@ -500,7 +522,6 @@ public class LevelBase : DrawableGameComponent
         {
             float cubicValue = CosineInterpolate(target, end, (i - midIndex) / (float)(endIndex - midIndex));
             heightMap[i] += (float)((cubicValue - heightMap[i]) * gameTime.ElapsedGameTime.TotalSeconds) * timerMultiplier;
-;
         }
     }
 
@@ -564,69 +585,82 @@ public class LevelBase : DrawableGameComponent
             }
         }
 
-        if (levelMode == LevelMode.EDIT)
+        // Return here if end of game
+        if (gameAllOver)
         {
-            JewSaver.spriteBatch.Begin();
-            (play as MenuInputElement).Draw(JewSaver.spriteBatch);
-            JewSaver.spriteBatch.End();
+            // TODO RAINER ADD GOLD RENDER HERE
         }
-
-        else if (levelMode == LevelMode.PLAY)
+        else
         {
-            // Draw the jump markers
-            for (int i = 0; i < jumpMarkers.Count; i++)
-                JewSaver.primitiveBatch.DrawCircle(new Vector2(jumpMarkers[i] - scrollX, JewSaver.height - heightMap[Math.Min(Math.Max(0, (int)(jumpMarkers[i])), levelLength - 1)]), Color.Blue, 5);
 
-            // Draw the sprint markers
-            for (int i = 0; i < sprintMarkers.Count; i++)
+            if (levelMode == LevelMode.EDIT)
             {
-                Color col = Color.Green;
-                if (i % 2 != 0)
-                    col = Color.Red;
-
-                JewSaver.primitiveBatch.DrawCircle(new Vector2(sprintMarkers[i] - scrollX, JewSaver.height - heightMap[Math.Min(Math.Max(0, (int)(sprintMarkers[i])), levelLength - 1)]), col, 5);
+                JewSaver.spriteBatch.Begin();
+                (play as MenuInputElement).Draw(JewSaver.spriteBatch);
+                JewSaver.spriteBatch.End();
             }
-
-            // Draw stickies
-            foreach (Stickfigure s in stickies)
+            else if (levelMode == LevelMode.PLAY)
             {
-                s.draw();
-            }
-            moses.draw();
+                // Draw the jump markers
+                for (int i = 0; i < jumpMarkers.Count; i++)
+                    JewSaver.primitiveBatch.DrawCircle(new Vector2(jumpMarkers[i] - scrollX, JewSaver.height - heightMap[Math.Min(Math.Max(0, (int)(jumpMarkers[i])), levelLength - 1)]), Color.Blue, 5);
 
-            JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);
-            foreach (Locust l in locusts)
-                l.draw();
-            JewSaver.primitiveBatch.End();
+                // Draw the sprint markers
+                for (int i = 0; i < sprintMarkers.Count; i++)
+                {
+                    Color col = Color.Green;
+                    if (i % 2 != 0)
+                        col = Color.Red;
 
-            JewSaver.spriteBatch.Begin();
-            if (!goToNextLevel)
-                (restart as MenuInputElement).Draw(JewSaver.spriteBatch);
-            if (!showText)
-            {
-                // Show number of jews still alive
-                String text = "Jews Still Alive: " + (numberOfStickies - deadStickies).ToString();
-                Vector2 centre = new Vector2((JewSaver.width - font.MeasureString(text).X) / 2.0f, 10.0f);
-                JewSaver.spriteBatch.DrawString(font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
-                JewSaver.spriteBatch.DrawString(font, text, centre, Color.White);
+                    JewSaver.primitiveBatch.DrawCircle(new Vector2(sprintMarkers[i] - scrollX, JewSaver.height - heightMap[Math.Min(Math.Max(0, (int)(sprintMarkers[i])), levelLength - 1)]), col, 5);
+                }
 
-                // Show number of jews that have been saved
-                text = "Jews Saved: " + savedStickies.ToString() + " (M: " + (savedStickies - savedFemales).ToString() + " F: " + savedFemales.ToString() + ")";
-                centre = new Vector2((JewSaver.width - font.MeasureString(text).X) / 2.0f, 10.0f + font.LineSpacing);
-                JewSaver.spriteBatch.DrawString(font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
-                JewSaver.spriteBatch.DrawString(font, text, centre, Color.White);
+                // Draw stickies
+                foreach (Stickfigure s in stickies)
+                {
+                    s.draw();
+                }
+                moses.draw();
+
+                JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);
+                foreach (Locust l in locusts)
+                    l.draw();
+                JewSaver.primitiveBatch.End();
+
+                JewSaver.spriteBatch.Begin();
+                if (!goToNextLevel)
+                    (restart as MenuInputElement).Draw(JewSaver.spriteBatch);
+                if (!showText)
+                {
+                    // Show number of jews still alive
+                    String text = "Jews Still Alive: " + (numberOfStickies - deadStickies).ToString();
+                    Vector2 centre = new Vector2((JewSaver.width - font.MeasureString(text).X) / 2.0f, 10.0f);
+                    JewSaver.spriteBatch.DrawString(font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
+                    JewSaver.spriteBatch.DrawString(font, text, centre, Color.White);
+
+                    // Show number of jews that have been saved
+                    text = "Jews Saved: " + savedStickies.ToString() + " (M: " + (savedStickies - savedFemales).ToString() + " F: " + savedFemales.ToString() + ")";
+                    centre = new Vector2((JewSaver.width - font.MeasureString(text).X) / 2.0f, 10.0f + font.LineSpacing);
+                    JewSaver.spriteBatch.DrawString(font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
+                    JewSaver.spriteBatch.DrawString(font, text, centre, Color.White);
+                }
+                else
+                {
+                    // Show text saying either "Level Complete" or "Game Over"
+                    String text = "";
+                    if (gameAllOver)
+                        text = "Game Completed";
+                    else if (goToNextLevel)
+                        text = "Level Complete";
+                    else
+                        text = "Game Over";
+                    Vector2 centre = new Vector2((JewSaver.width - MenuJewSaver.font.MeasureString(text).X) / 2.0f, 30.0f);
+                    JewSaver.spriteBatch.DrawString(MenuJewSaver.font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
+                    JewSaver.spriteBatch.DrawString(MenuJewSaver.font, text, centre, Color.White);
+                }
+                JewSaver.spriteBatch.End();
+
             }
-            else
-            {
-                // Show text saying either "Level Complete" or "Game Over"
-                String text = "Game Over";
-                if (goToNextLevel)
-                    text = "Level Complete";
-                Vector2 centre = new Vector2((JewSaver.width - MenuJewSaver.font.MeasureString(text).X) / 2.0f, 30.0f);
-                JewSaver.spriteBatch.DrawString(MenuJewSaver.font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
-                JewSaver.spriteBatch.DrawString(MenuJewSaver.font, text, centre, Color.White);
-            }
-            JewSaver.spriteBatch.End();
         }
         // Final text if applicable
         JewSaver.spriteBatch.Begin();
