@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 public class LevelBase : DrawableGameComponent
 {
     protected enum LevelMode {EDIT, PLAY};
-    protected enum TerrainType { SAND, WATER, CANYON, OTHER, ROCK , PARCHED_LAND};
+    public enum TerrainType { SAND, WATER, CANYON, OTHER, ROCK , PARCHED_LAND};
     public static float[] heightMap;
     public static TerrainType[] canSculpt;
     protected LevelMode levelMode;
@@ -53,8 +53,9 @@ public class LevelBase : DrawableGameComponent
     int savedFemales;
     int savedFatties;
 
-    Stickfigure[] stickies;
+    protected Stickfigure[] stickies;
     public static Stickfigure moses;
+    protected List<Stickfigure>[] collisionBuckets;
 
     /// <summary>
     /// Base constructor for a level
@@ -100,6 +101,9 @@ public class LevelBase : DrawableGameComponent
         exit.font = font;
         exit.buttonPressed += OnQuitPressed;
         stickies = new Stickfigure[numberOfStickies];
+        collisionBuckets = new List<Stickfigure>[128];
+        for (int i = 0; i < 128; i++)
+            collisionBuckets[i] = new List<Stickfigure>();
         for (int i = 0; i < numberOfStickies; i++)
             stickies[i] = new Stickfigure(new Vector2(-50.0f, 0), i + 1);
         moses = new Stickfigure(new Vector2(50, 200), 0);
@@ -272,10 +276,14 @@ public class LevelBase : DrawableGameComponent
                     sprintMarkers.Add(moses.position.X + scrollX);
                 }
             }
-
+            for (int i = 0; i < 128; i++)
+                collisionBuckets[i] = new List<Stickfigure>(); 
             foreach (Stickfigure s in stickies)
             {
                 s.update(dt);
+                int index = (int)((s.position.X + scrollX) / (heightMap.Length / 128));
+                if (index > -1 && index < 128)
+                    collisionBuckets[index].Add(s);
                 if (s.dead)
                     deadStickies++;
                 if (s.saved)
