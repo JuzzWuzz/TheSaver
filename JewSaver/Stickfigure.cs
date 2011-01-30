@@ -230,7 +230,6 @@ public class Stickfigure
                     jumping = true;
                     curJumpIdx++;
                     timer = 0.0f;
-                    Console.WriteLine("here");
                 }
             }
         }
