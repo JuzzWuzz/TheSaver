@@ -37,6 +37,9 @@ public class LevelBase : DrawableGameComponent
     protected TimeSpan locustSpawner;
     protected bool hasLocusts;
 
+    //Wind stuff
+    protected static Wind wind = new Wind(new TimeSpan(0, 0, 30));
+
     // End screen text
     protected List<string> finalTexts;
     float textTimer;
@@ -504,6 +507,9 @@ public class LevelBase : DrawableGameComponent
                 }
             }
 
+            //Wind!
+            wind.update(gameTime, ref heightMap);
+
             // Locusts are optional
             if (hasLocusts)
             {
@@ -635,6 +641,8 @@ public class LevelBase : DrawableGameComponent
     public override void Draw(GameTime gameTime)
     {
         base.Draw(gameTime);
+
+        wind.draw();
 
         JewSaver.spriteBatch.Begin();
         foreach (Sprite str in stars)
