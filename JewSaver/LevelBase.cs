@@ -612,7 +612,7 @@ public class LevelBase : DrawableGameComponent
         else if (canSculpt[startIndex] == TerrainType.PARCHED_LAND)
         {
             if (target > 192)
-                target = 129;
+                target = 192;
             else if (target < 16)
                 target = 16;
             timerMultiplier = 2;

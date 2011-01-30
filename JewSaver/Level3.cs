@@ -44,8 +44,27 @@ public class Level3 : LevelBase
         lights[17] = new AnimatedSprite(vegasLight, 16, 16, 0, 0, -56 + 3064 + 384, -24-48);
         lights[18] = new AnimatedSprite(vegasLight, 16, 16, 0, 0, -56 + 3064 + 384, -8-48);
         lights[19] = new AnimatedSprite(vegasLight, 16, 16, 0, 0, -56 + 3064 + 384, 8-48);
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < 7; i++)
+        {
+            float frac1 = i / 7.0f;
+            float frac2 = 1-frac1;
             lights[i].EnableAnimation(2, 2, 12);
+            lights[i].Colour = new Color(frac2, frac1, 0);
+        }
+        for (int i = 0; i < 7; i++)
+        {
+            float frac1 = i / 7.0f;
+            float frac2 = 1-frac1;
+            lights[i+7].EnableAnimation(2, 2, 12);
+            lights[i+7].Colour = new Color(0, frac2, frac1);
+        }
+        for (int i = 0; i < 6; i++)
+        {
+            float frac1 = i / 6.0f;
+            float frac2 = 1-frac1;
+            lights[i+14].EnableAnimation(2, 2, 12);
+            lights[i+14].Colour = new Color(frac1, 0, frac2);
+        }
         sign = new Sprite(signBack, 128, 64, 0,0,128,64 ,-64 + 3064 + 384 + 512+1, 16 + 192+1);
         hasPlayed = true;
         for (int i = heightMap.Length - 1; i > heightMap.Length - 256; i--)
@@ -64,7 +83,7 @@ public class Level3 : LevelBase
         base.LoadContent();
         vegasLight = new Texture2D(Game.GraphicsDevice, 32, 32);
         Color[] data = new Color[32 * 32];
-        Color[] light = CreateLight(Color.Yellow, 4) ;
+        Color[] light = CreateLight(Color.White, 4) ;
         for (int i = 0; i < 16; i++)
         {
             for (int j = 0; j < 16; j++)
@@ -72,7 +91,7 @@ public class Level3 : LevelBase
                 data[i * 32 + j] = light[i * 16 + j];
             }
         }
-        light = CreateLight(Color.Yellow, 6);
+        light = CreateLight(Color.White, 6);
         for (int i = 0; i < 16; i++)
         {
             for (int j = 0; j < 16; j++)
@@ -87,7 +106,7 @@ public class Level3 : LevelBase
                 data[(16 + i) * 32 + j + 16] = light[i * 16 + j];
             }
         }
-        light = CreateLight(Color.Yellow, 8);
+        light = CreateLight(Color.White, 8);
         for (int i = 0; i < 16; i++)
         {
             for (int j = 0; j < 16; j++)
@@ -107,14 +126,15 @@ public class Level3 : LevelBase
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
-        //if (levelMode == LevelMode.PLAY)
-        //{
-            foreach (AnimatedSprite light in lights)
+        if (levelMode == LevelMode.PLAY)
+        {
+            for(int i = 0; i < lights.Length; i++)
             {
-                light.scrollXValue = scrollX;
-                light.Update(gameTime);
+                lights[i].scrollXValue = scrollX;
+                lights[i].Update(gameTime);
+                lights[i].Colour = lights[i+1>19?0:i+1].Colour;
             }
-        //}
+        }
         sign.scrollXValue = scrollX;
     }
 
