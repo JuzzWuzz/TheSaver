@@ -901,6 +901,14 @@ public class LevelBase : DrawableGameComponent
         }
     }
 
+    protected void AddRocks(int start, int end)
+    {
+        for (int i = start; i < end; i++)
+        {
+            canSculpt[i] = TerrainType.ROCK;
+        }
+    }
+
     protected virtual void NextLevel()
     {
         // override in child classes
