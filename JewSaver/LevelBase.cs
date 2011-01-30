@@ -60,6 +60,12 @@ public class LevelBase : DrawableGameComponent
     public static Stickfigure moses;
     protected List<Stickfigure>[] collisionBuckets;
 
+    //dirty little spot, but whatever. gold stuff:
+    public static float[] hm;
+    float shekelTimeout;
+    List<Schekel> treasure;
+    int sheckels;
+
     /// <summary>
     /// Base constructor for a level
     /// </summary>
@@ -140,6 +146,8 @@ public class LevelBase : DrawableGameComponent
             showText = false;
         }
         goToNextLevel = false;
+
+        treasure = new List<Schekel>();
     }
 
     protected override void LoadContent()
@@ -269,6 +277,19 @@ public class LevelBase : DrawableGameComponent
             if (gameAllOver)
             {
                 // TO RAINER AD GOLD STUFF
+                shekelTimeout -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+                if (shekelTimeout < 0 && treasure.Count <= sheckels * 10)
+                {
+                    shekelTimeout += .05f;
+                    int pos = 0;
+                    for (int i = 0; i < 4; i++)
+                        pos += random.Next(0, 1024);
+                    pos /= 4;
+                    treasure.Add(new Schekel(new Vector2(pos, 0)));
+                }
+                foreach (Schekel s in treasure)
+                    s.update((float)gameTime.ElapsedGameTime.TotalSeconds);
+
                 return;
             }
             float dt = LevelBase.gameSpeedFactor * (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -327,6 +348,17 @@ public class LevelBase : DrawableGameComponent
                         JewSaver.finalSavedFatties += savedFatties;
                         JewSaver.finalSavedFemales += savedFemales;
                         JewSaver.finalSavedStickies += savedStickies;
+
+                        // Gold gets it's own copy of the heightmap
+                        hm = new float[1024];
+                        for (int i = 0; i < 1024; i++)
+                        {
+                            hm[i] = LevelBase.heightMap[(int)LevelBase.scrollX + i];
+                        }
+                        sheckels = 10 * JewSaver.finalSavedStickies
+            + 20 * JewSaver.finalSavedFemales
+            + 50 * JewSaver.finalSavedFatties;
+
 
                         if (this is Level3)
                         {
@@ -605,6 +637,16 @@ public class LevelBase : DrawableGameComponent
         if (gameAllOver)
         {
             // TODO RAINER ADD GOLD RENDER HERE
+            JewSaver.primitiveBatch.Begin(PrimitiveType.LineList);
+            foreach (Schekel s in treasure)
+                s.draw();
+            JewSaver.primitiveBatch.End();
+
+            //Debugging contour!
+            /*JewSaver.primitiveBatch.Begin(PrimitiveType.PointList);
+            for (int i = 0; i < 1024; i++)
+                JewSaver.primitiveBatch.AddVertex(new Vector2(i, hm[i]), Color.Red);
+            JewSaver.primitiveBatch.End();*/
         }
         else
         {
