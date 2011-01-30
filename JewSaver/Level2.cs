@@ -31,6 +31,11 @@ public class Level2 : LevelBase
         tumbleTimer = 0;
         AddTumbleWeed();
         hasPlayed = true;
+
+        openingText = true;
+        finalTexts.Add("Level 2");
+        finalTexts.Add("Press and hold shift for longer jumps!");
+        finalTexts.Add("Watch out for tumbleweeds. Make hills to cover your people");
     }
 
     protected override void NextLevel()

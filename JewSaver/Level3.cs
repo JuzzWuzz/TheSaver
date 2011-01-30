@@ -50,6 +50,13 @@ public class Level3 : LevelBase
         hasPlayed = true;
         for (int i = heightMap.Length - 1; i > heightMap.Length - 256; i--)
             canSculpt[i] = TerrainType.OTHER;
+
+        hasLocusts = true;
+
+        openingText = true;
+        finalTexts.Add("Level 3");
+        finalTexts.Add("Make the final dash to paradise");
+        finalTexts.Add("Watch out for locusts");
     }
 
     protected override void LoadContent()

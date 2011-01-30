@@ -9,14 +9,12 @@ public class Locust
 {
     public Vector2 pos;
     private float height;
-    private float speed;
     public bool dead, splat;
 
     public Locust(Vector2 pos)
     {
         height = pos.Y;
         this.pos = pos;
-        speed = (float)(LevelBase.random.NextDouble() - 0.5);
         dead = splat = false;
     }
 
@@ -42,7 +40,7 @@ public class Locust
 
         if (!splat)
         {
-            pos += new Vector2(((float)Math.Sin(change) + 1) * -4f, (float)Math.Sin(change) * 15f);
+            pos += new Vector2(((float)Math.Sin(change) + 1) * -150.0f, (float)Math.Sin(change) * 150.0f) * dt;
 
             if (pos.X < -10)
             {
