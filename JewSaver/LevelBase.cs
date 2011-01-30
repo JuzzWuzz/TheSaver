@@ -913,7 +913,7 @@ public class LevelBase : DrawableGameComponent
         return a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3;
     }
 
-    private float CosineInterpolate(float y1, float y2, float mu)
+    protected float CosineInterpolate(float y1, float y2, float mu)
     {
         float mu2 = (float)(1 - Math.Cos(mu * Math.PI)) / 2.0f;
         return y1 * (1 - mu2) + y2 * mu2;
