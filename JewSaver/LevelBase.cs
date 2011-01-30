@@ -626,10 +626,11 @@ public class LevelBase : DrawableGameComponent
                 s.draw();
             JewSaver.primitiveBatch.End();
 
-            JewSaver.primitiveBatch.Begin(PrimitiveType.PointList);
+            //Debugging contour!
+            /*JewSaver.primitiveBatch.Begin(PrimitiveType.PointList);
             for (int i = 0; i < 1024; i++)
                 JewSaver.primitiveBatch.AddVertex(new Vector2(i, hm[i]), Color.Red);
-            JewSaver.primitiveBatch.End();
+            JewSaver.primitiveBatch.End();*/
         }
         else
         {
