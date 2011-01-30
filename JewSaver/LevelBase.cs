@@ -35,14 +35,16 @@ public class LevelBase : DrawableGameComponent
     protected TimeSpan locustTime;
     protected int plagueLength;
     protected TimeSpan locustSpawner;
+    protected bool hasLocusts;
 
-    // end screen text
+    // End screen text
     protected List<string> finalTexts;
     float textTimer;
     protected bool showText;
     bool goToNextLevel;
+    protected bool openingText;
 
-    // for testing
+    // For testing
     public bool showFrameRate;
     int frames;
     double fpsTime;
@@ -122,7 +124,9 @@ public class LevelBase : DrawableGameComponent
         sprintMarkers.Clear();
         finalTexts.Clear();
         showText = false;
+        openingText = false;
         gameAllOver = false;
+
 
         frames = 0;
         fpsTime = 0.0;
@@ -131,6 +135,7 @@ public class LevelBase : DrawableGameComponent
         locustTimeout = new TimeSpan(0, 0, 15);
         locustTime = new TimeSpan(0, 1, 0);
         plagueLength = 0;
+        hasLocusts = false;
 
         if (!hasPlayed)
         {
@@ -185,6 +190,19 @@ public class LevelBase : DrawableGameComponent
         (exit as MenuInputElement).CheckInput();
         if (levelMode == LevelMode.EDIT)
         {
+            if (openingText)
+            {
+                textTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                if (textTimer >= 4.0f)
+                {
+                    finalTexts.RemoveAt(0);
+                    textTimer = 0.0f;
+                    if (finalTexts.Count <= 0)
+                    {
+                        openingText = false;
+                    }
+                }
+            }
             (play as MenuInputElement).CheckInput();
             int mouseX = Input.mousePosition.X;
             brushSize += Input.deltaScroll / 240.0f * 16;
@@ -483,44 +501,48 @@ public class LevelBase : DrawableGameComponent
                 }
             }
 
-            locustTimeout -= gameTime.ElapsedGameTime;
-            if (locustTimeout.TotalMilliseconds <= 0)
+            // Locusts are optional
+            if (hasLocusts)
             {
-                plagueLength = random.Next(8, 15);
-                Console.WriteLine("Adding locusts for " + plagueLength + " seconds");
-
-                locustTimeout += locustTime;
-            }
-            else
-            {
-                if (plagueLength > 0)
+                locustTimeout -= gameTime.ElapsedGameTime;
+                if (locustTimeout.TotalMilliseconds <= 0)
                 {
-                    locustSpawner -= gameTime.ElapsedGameTime;
-                    if (locustSpawner.TotalMilliseconds <= 0)
-                    {
-                        locustSpawner = new TimeSpan(0, 0, 0, 0, random.Next(500));
+                    plagueLength = random.Next(8, 15);
+                    Console.WriteLine("Adding locusts for " + plagueLength + " seconds");
 
-                        int spawnZone = (JewSaver.height / 2) / 3;
-                        double rand = random.NextDouble();
-                        if (rand > 0.6)
-                            locusts.Add(new Locust(new Vector2(levelLength, random.Next(0, spawnZone))));
-                        else if (rand > 0.25)
-                            locusts.Add(new Locust(new Vector2(levelLength, random.Next(0, spawnZone * 2))));
-                        else
-                            locusts.Add(new Locust(new Vector2(levelLength, random.Next(0, spawnZone * 3))));
-                    }
-                }
-            }
-            for (int i = 0; i < locusts.Count;)
-            {
-                if (locusts[i].dead)
-                {
-                    locusts.Remove(locusts[i]);
+                    locustTimeout += locustTime;
                 }
                 else
                 {
-                    locusts[i].update(dt);
-                    i++;
+                    if (plagueLength > 0)
+                    {
+                        locustSpawner -= gameTime.ElapsedGameTime;
+                        if (locustSpawner.TotalMilliseconds <= 0)
+                        {
+                            locustSpawner = new TimeSpan(0, 0, 0, 0, random.Next(500));
+
+                            int spawnZone = (JewSaver.height / 2) / 3;
+                            double rand = random.NextDouble();
+                            if (rand > 0.6)
+                                locusts.Add(new Locust(new Vector2(levelLength, random.Next(0, spawnZone))));
+                            else if (rand > 0.25)
+                                locusts.Add(new Locust(new Vector2(levelLength, random.Next(0, spawnZone * 2))));
+                            else
+                                locusts.Add(new Locust(new Vector2(levelLength, random.Next(0, spawnZone * 3))));
+                        }
+                    }
+                }
+                for (int i = 0; i < locusts.Count; )
+                {
+                    if (locusts[i].dead)
+                    {
+                        locusts.Remove(locusts[i]);
+                    }
+                    else
+                    {
+                        locusts[i].update(dt);
+                        i++;
+                    }
                 }
             }
 
@@ -684,11 +706,18 @@ public class LevelBase : DrawableGameComponent
         }
         else
         {
-
+            // Edit mode options
             if (levelMode == LevelMode.EDIT)
             {
                 JewSaver.spriteBatch.Begin();
                 (play as MenuInputElement).Draw(JewSaver.spriteBatch);
+
+                // Show text saying "Edit Mode"
+                String text = "Edit Mode";
+                Vector2 centre = new Vector2((JewSaver.width - font.MeasureString(text).X) / 2.0f, 10.0f);
+                JewSaver.spriteBatch.DrawString(font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
+                JewSaver.spriteBatch.DrawString(font, text, centre, Color.White);
+
                 JewSaver.spriteBatch.End();
             }
             else if (levelMode == LevelMode.PLAY)
@@ -722,6 +751,7 @@ public class LevelBase : DrawableGameComponent
                 JewSaver.spriteBatch.Begin();
                 if (!goToNextLevel)
                     (restart as MenuInputElement).Draw(JewSaver.spriteBatch);
+
                 if (!showText)
                 {
                     // Show number of jews still alive
@@ -756,16 +786,17 @@ public class LevelBase : DrawableGameComponent
         }
         // Final text if applicable
         JewSaver.spriteBatch.Begin();
-        if (showText)
+        if (showText || openingText)
         {
             if (finalTexts.Count <= 0)
             {
                 showText = false;
+                openingText = false;
                 return;
             }
             Vector2 measure = MenuJewSaver.font.MeasureString(finalTexts[0]);
             Vector2 centre = new Vector2((JewSaver.width - measure.X) / 2.0f, (JewSaver.height - measure.Y) / 2.0f);
-            JewSaver.spriteBatch.DrawString(MenuJewSaver.font, finalTexts[0], centre, new Color(1, 1, 1, (float)Math.Sin(textTimer / 10.0f * 2 * Math.PI)));
+            JewSaver.spriteBatch.DrawString(MenuJewSaver.font, finalTexts[0], centre, new Color(1, 1, 1, (float)Math.Sin(textTimer / 8.0f * 2 * Math.PI)));
         }
         JewSaver.spriteBatch.End();
 
@@ -803,6 +834,8 @@ public class LevelBase : DrawableGameComponent
         (play as MenuInputElement).Enabled = false;
         levelMode = LevelMode.PLAY;
         scrollX = 0;
+        openingText = false;
+        finalTexts.Clear();
     }
 
     private void OnQuitPressed()

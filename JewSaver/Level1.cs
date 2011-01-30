@@ -20,8 +20,12 @@ public class Level1:LevelBase
             AddTrees();
         }
         hasPlayed = true;
-        locustTimeout = new TimeSpan(0,0,5);
-        locustTime = new TimeSpan(0, 0, 20);
+
+        openingText = true;
+        finalTexts.Add("Level 1");
+        finalTexts.Add("Get your people to safety!");
+        finalTexts.Add("Press SpaceBar to jump");
+        finalTexts.Add("Use Edit Mode to Sculpt the landscape to make it easier to save your people");
     }
 
     public override void Update(GameTime gameTime)
