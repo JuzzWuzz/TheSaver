@@ -120,7 +120,6 @@ public class Wind
                     s.init(new Vector2(x, LevelBase.heightMap[(int)(x)]), Color.Yellow);
                     deadSand.RemoveAt(0);
                     sandCollection.Add(s);
-
                 }
             }
         }

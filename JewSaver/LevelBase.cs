@@ -134,7 +134,6 @@ public class LevelBase : DrawableGameComponent
         gameAllOver = false;
         gameLost = false;
 
-
         frames = 0;
         fpsTime = 0.0;
 
@@ -160,8 +159,12 @@ public class LevelBase : DrawableGameComponent
         treasure = new List<Schekel>();
 
         wind = new Wind(new TimeSpan(0, 0, 30));
-        Wind.sandCollection.Clear();
-        heightMap = heightMapBak;
+        
+        if (hasPlayed)
+        {
+            for (int i = 0; i < heightMap.Length; i++)
+                heightMap[i] = heightMapBak[i];
+        }
     }
 
     protected override void LoadContent()
@@ -366,6 +369,9 @@ public class LevelBase : DrawableGameComponent
             }
             moses.update(dt);
 
+            //Wind!
+            wind.update(gameTime, ref heightMap);
+
             if (!goToNextLevel)
             {
                 if (!moses.dead)
@@ -518,9 +524,6 @@ public class LevelBase : DrawableGameComponent
                 }
             }
 
-            //Wind!
-            wind.update(gameTime, ref heightMap);
-
             // Locusts are optional
             if (hasLocusts)
             {
@@ -647,6 +650,7 @@ public class LevelBase : DrawableGameComponent
             float cubicValue = CosineInterpolate(target, end, (i - midIndex) / (float)(endIndex - midIndex));
             heightMap[i] += (float)((cubicValue - heightMap[i]) * gameTime.ElapsedGameTime.TotalSeconds) * timerMultiplier;
         }
+        SyncHMapBackup();
     }
 
     public override void Draw(GameTime gameTime)
@@ -943,6 +947,7 @@ public class LevelBase : DrawableGameComponent
             heightMap[i] = CosineInterpolate(-256, heightMap[end], (i - ((int)mid + start)) / mid);
             canSculpt[i] = heightMap[i] >= 16 ? TerrainType.SAND : TerrainType.CANYON;
         }
+        SyncHMapBackup();
     }
 
     /// <summary>
@@ -962,6 +967,7 @@ public class LevelBase : DrawableGameComponent
                 i++;
             }
         }
+        SyncHMapBackup();
     }
 
     protected void AddWater(int start, int end)
@@ -982,6 +988,7 @@ public class LevelBase : DrawableGameComponent
         {
             heightMap[i] = CosineInterpolate(20, sandHeight, (i - end) / 64.0f);
         }
+        SyncHMapBackup();
     }
 
     protected void AddRocks(int start, int end)
@@ -989,6 +996,15 @@ public class LevelBase : DrawableGameComponent
         for (int i = start; i < end; i++)
         {
             canSculpt[i] = TerrainType.ROCK;
+        }
+        SyncHMapBackup();
+    }
+
+    protected void SyncHMapBackup()
+    {
+        for (int i = 0; i < heightMap.Length; i++)
+        {
+            heightMapBak[i] = heightMap[i];
         }
     }
 
