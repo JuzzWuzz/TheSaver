@@ -55,6 +55,7 @@ public class Stickfigure
         color = Color.Brown;
         mass = 1.2f;
         thickness = (int)(scale * mass * mass * 0.75);
+        isFemale = false;
     }
 
     public void Initialize()
@@ -68,12 +69,12 @@ public class Stickfigure
 
         setLimbs(0.0f);
 
-        this.isFemale = (LevelBase.random.NextDouble() > 0.6);
+        this.isFemale = (!isPlayer && LevelBase.random.NextDouble() > 0.6);
 
         this.position = this.origPosition;
         this.velocity = Vector2.Zero;
         this.moveForce = 50.0f;
-        this.mass = 1.0f + (1.0f - ((isFemale) ? 0.5f : 0.0f)) * (float)LevelBase.random.NextDouble();
+        this.mass = 1.0f + (1.0f - ((isFemale && !isPlayer) ? 0.5f : 0.0f)) * (float)LevelBase.random.NextDouble();
         this.timer = 0.0f;
         this.spawnTimer = 0.0f;
         this.curJumpIdx = 0;
@@ -297,6 +298,9 @@ public class Stickfigure
         }
 
         shoulder = crotch + new Vector2(0, -8 * scale);
+        // Make females smaller
+        if (isFemale)
+            shoulder.Y += 6;
         if (!dead)
             shoulder += Vector2.Multiply(new Vector2(4, 0), (float)Math.Cos(change * 2));
         neck = shoulder + new Vector2(0, -2 * scale);
