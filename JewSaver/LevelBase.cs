@@ -44,6 +44,8 @@ public class LevelBase : DrawableGameComponent
 
     // for testing
     public bool showFrameRate;
+    int frames;
+    double fpsTime;
 
     // landscape sculpting brush
     Rectangle landscapeBrush;
@@ -116,6 +118,9 @@ public class LevelBase : DrawableGameComponent
         showText = false;
         gameAllOver = false;
 
+        frames = 0;
+        fpsTime = 0.0;
+
         locusts = new List<Locust>();
         locustTimeout = new TimeSpan(0, 0, 15);
         locustTime = new TimeSpan(0, 1, 0);
@@ -166,6 +171,7 @@ public class LevelBase : DrawableGameComponent
 
     public override void Update(GameTime gameTime)
     {
+        float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
         base.Update(gameTime);
         levelTime += (float)(gameTime.ElapsedGameTime.TotalSeconds);
         (exit as MenuInputElement).CheckInput();
@@ -264,7 +270,6 @@ public class LevelBase : DrawableGameComponent
                 // TO RAINER AD GOLD STUFF
                 return;
             }
-            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             deadStickies = 0;
             savedStickies = 0;
             savedFemales = 0;
@@ -487,6 +492,32 @@ public class LevelBase : DrawableGameComponent
                 }
             }
 
+            foreach (Stickfigure s in stickies)
+            {
+                if (s.dead || s.inactive)
+                    continue;
+                if (s.position.Y - 45 > (JewSaver.height / 2))
+                    continue;
+
+                foreach (Locust l in locusts)
+                {
+                    if (l.dead || l.splat)
+                        continue;
+
+                    if (l.pos.X - 4 > s.position.X)
+                        continue;
+
+                    if (l.pos.X + 4 < s.position.X)
+                        continue;
+
+                    if (s.lowestPoint().Y > l.pos.Y && (s.lowestPoint().Y - 45) < l.pos.Y)
+                    {
+                        l.dead = true;
+                        s.dead = true;
+                        break;
+                    }
+                }
+            }
         }
 
         // Update the trees
@@ -495,6 +526,17 @@ public class LevelBase : DrawableGameComponent
             foreach (Tree tree in trees)
             {
                 tree.update(heightMap);
+            }
+        }
+
+        if (showFrameRate)
+        {
+            fpsTime += gameTime.ElapsedGameTime.TotalSeconds;
+            if (fpsTime >= 1.0)
+            {
+                Console.WriteLine(frames.ToString() + " FPS");
+                frames = 0;
+                fpsTime = 0.0;
             }
         }
     }
@@ -684,6 +726,9 @@ public class LevelBase : DrawableGameComponent
             JewSaver.spriteBatch.DrawString(MenuJewSaver.font, finalTexts[0], centre, new Color(1, 1, 1, (float)Math.Sin(textTimer / 10.0f * 2 * Math.PI)));
         }
         JewSaver.spriteBatch.End();
+
+        if (showFrameRate)
+            frames++;
     }
 
     /// <summary>

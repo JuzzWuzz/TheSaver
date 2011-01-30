@@ -116,8 +116,7 @@ public class Stickfigure
                 newStickie = false;
             }
         }
-        if (stickieIndex == 1)
-            Console.WriteLine(position.X.ToString());
+
         // Save stickes that make it to the end
         if (position.X > LevelBase.levelLength - LevelBase.scrollX + 5 * scale)
         {
@@ -231,6 +230,7 @@ public class Stickfigure
                     jumping = true;
                     curJumpIdx++;
                     timer = 0.0f;
+                    Console.WriteLine("here");
                 }
             }
         }
