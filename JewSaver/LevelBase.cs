@@ -71,6 +71,7 @@ public class LevelBase : DrawableGameComponent
         jewSaver = game;
         hasPlayed = false;
         numberOfStickies = 50;
+        stickies = new Stickfigure[numberOfStickies];
     }
 
     public override void Initialize()
