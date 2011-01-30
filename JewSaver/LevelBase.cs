@@ -15,6 +15,7 @@ public class LevelBase : DrawableGameComponent
     MenuButton play;
     MenuButton exit;
     MenuButton restart;
+    MenuButton fast;
     Texture2D buttonTex;
     public static SpriteFont font;
     Texture2D star;
@@ -28,6 +29,7 @@ public class LevelBase : DrawableGameComponent
     public static List<float> sprintMarkers = new List<float>();
     int numberOfStickies;
     float levelTime;
+    public static float gameSpeedFactor = 1;
 
     //Swarm stuff
     protected static List<Locust> locusts;
@@ -80,6 +82,7 @@ public class LevelBase : DrawableGameComponent
     {
         base.Initialize();
         levelTime = 0;
+        gameSpeedFactor = 1;
         if (!hasPlayed)
         {
             for (int i = 0; i < heightMap.Length; i++)
@@ -102,6 +105,10 @@ public class LevelBase : DrawableGameComponent
         exit = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(JewSaver.width - 8 - 96, 8), "QUIT");
         exit.font = font;
         exit.buttonPressed += OnQuitPressed;
+        fast = new MenuButton(buttonTex, new Point(96, 96), Point.Zero, new Point(96, 96), new Point(8 + 96 + 4, 8), "FAST");
+        fast.font = font;
+        fast.buttonPressed += OnFastPressed;
+        (fast as MenuInputElement).Visible = false;
         stickies = new Stickfigure[numberOfStickies];
         collisionBuckets = new List<Stickfigure>[128];
         for (int i = 0; i < 128; i++)
@@ -167,7 +174,7 @@ public class LevelBase : DrawableGameComponent
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
-        levelTime += (float)(gameTime.ElapsedGameTime.TotalSeconds);
+        levelTime += LevelBase.gameSpeedFactor * (float)(gameTime.ElapsedGameTime.TotalSeconds);
         (exit as MenuInputElement).CheckInput();
         if (levelMode == LevelMode.EDIT)
         {
@@ -264,7 +271,7 @@ public class LevelBase : DrawableGameComponent
                 // TO RAINER AD GOLD STUFF
                 return;
             }
-            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            float dt = LevelBase.gameSpeedFactor * (float)gameTime.ElapsedGameTime.TotalSeconds;
             deadStickies = 0;
             savedStickies = 0;
             savedFemales = 0;
@@ -380,6 +387,8 @@ public class LevelBase : DrawableGameComponent
             // If Moses is saved allow mouse scrolling
             if (moses.saved)
             {
+                (fast as MenuInputElement).Visible = true;
+                (fast as MenuInputElement).CheckInput();
                 //Console.WriteLine("Moses Saved!!!");
                 if (mouseX < 0)
                 {
@@ -543,7 +552,6 @@ public class LevelBase : DrawableGameComponent
             str.scrollXValue = 0.125f * scrollX;
             str.Draw(JewSaver.spriteBatch);
         }
-        (exit as MenuInputElement).Draw(JewSaver.spriteBatch);
         if (showFrameRate)
             JewSaver.spriteBatch.DrawString(font, 1 / gameTime.ElapsedGameTime.TotalSeconds + "", new Vector2(512, 8), Color.White);
         JewSaver.spriteBatch.End();
@@ -666,8 +674,8 @@ public class LevelBase : DrawableGameComponent
                     JewSaver.spriteBatch.DrawString(MenuJewSaver.font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
                     JewSaver.spriteBatch.DrawString(MenuJewSaver.font, text, centre, Color.White);
                 }
+                (fast as MenuInputElement).Draw(JewSaver.spriteBatch);
                 JewSaver.spriteBatch.End();
-
             }
         }
         // Final text if applicable
@@ -683,6 +691,7 @@ public class LevelBase : DrawableGameComponent
             Vector2 centre = new Vector2((JewSaver.width - measure.X) / 2.0f, (JewSaver.height - measure.Y) / 2.0f);
             JewSaver.spriteBatch.DrawString(MenuJewSaver.font, finalTexts[0], centre, new Color(1, 1, 1, (float)Math.Sin(textTimer / 10.0f * 2 * Math.PI)));
         }
+        (exit as MenuInputElement).Draw(JewSaver.spriteBatch);
         JewSaver.spriteBatch.End();
     }
 
@@ -726,6 +735,20 @@ public class LevelBase : DrawableGameComponent
     private void OnRestartPressed()
     {
         this.Initialize();
+    }
+
+    private void OnFastPressed()
+    {
+        if (fast.buttonName.Equals("FAST"))
+        {
+            gameSpeedFactor = 3;
+            fast.buttonName = "SLOW";
+        }
+        else
+        {
+            gameSpeedFactor = 1;
+            fast.buttonName = "FAST";
+        }
     }
 
     protected void AddCanyon(int start, int end)

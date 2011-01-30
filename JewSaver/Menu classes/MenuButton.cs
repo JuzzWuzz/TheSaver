@@ -13,7 +13,7 @@ public class MenuButton:Sprite, MenuInputElement
     public bool held;
     // top left pixel coordinates for different button states
     Point unselectedTLP;
-    string buttonName;
+    public string buttonName;
     Color textColor;
     public SpriteFont font;
     bool lastMouseDown;
