@@ -26,29 +26,44 @@ class ShekelRain : DrawableGameComponent
             float speed = 40f;
             float offset = 3f;
 
-            if (Vector2.Distance(one, two) < 8)
+            if (moving && Vector2.Distance(one, two) < 8)
             {
                 if (oneMoves)
-                    if (384 - one.Y >= hm[(int)one.X] + offset)
-                        one += new Vector2(0, dt * speed);
-                    else
-                    {
-                        oneMoves = false;
-                    }
+                {
+                    one += new Vector2(0, dt * speed);
 
-                if (twoMoves) 
-                    if (384 - two.Y >= hm[(int)two.X] + offset)
-                        two += new Vector2(0, dt * speed);
-                    else
-                    {
-                        twoMoves = false;
-                    }
+                    for (int i = -3; i < 0; i++)
+                        if (384 - one.Y < hm[(int)one.X + i] + offset)
+                        {
+                            oneMoves = false;
+                            break;
+                        }
+                }
+
+                if (twoMoves)
+                {
+                    
+                    two += new Vector2(0, dt * speed);
+
+                    for (int i = 0; i <= 3; i++)
+                        if (384 - two.Y < hm[(int)two.X + i] + offset)
+                        {
+                            twoMoves = false;
+                            break;
+                        }
+                }
                 if (moving && !oneMoves && !twoMoves)
                 {
                     for (int i = (int)one.X; i <= (int)two.X; i++)
                         hm[i] += 2;
                     moving = false;
                 }
+            }
+            else if (moving)
+            {
+                for (int i = (int)one.X; i <= (int)two.X; i++)
+                    hm[i] += 2;
+                moving = false;
             }
         }
 
