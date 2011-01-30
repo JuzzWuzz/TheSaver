@@ -245,6 +245,9 @@ public class LevelBase : DrawableGameComponent
         }
         else if (levelMode == LevelMode.PLAY)
         {
+            MosesActionIcon.change += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+
             if (!goToNextLevel && !gameAllOver)
                 (restart as MenuInputElement).CheckInput();
             if (showText)
@@ -653,16 +656,19 @@ public class LevelBase : DrawableGameComponent
             {
                 // Draw the jump markers
                 for (int i = 0; i < jumpMarkers.Count; i++)
-                    JewSaver.primitiveBatch.DrawCircle(new Vector2(jumpMarkers[i] - scrollX, JewSaver.height - heightMap[Math.Min(Math.Max(0, (int)(jumpMarkers[i])), levelLength - 1)]), Color.Blue, 5);
+                    MosesActionIcon.draw(
+                        new Vector2(jumpMarkers[i] - scrollX, JewSaver.height - heightMap[Math.Min(Math.Max(0, (int)(jumpMarkers[i])), levelLength - 1)])
+                        , MosesActionIcon.ActionType.JUMP);
 
                 // Draw the sprint markers
                 for (int i = 0; i < sprintMarkers.Count; i++)
                 {
-                    Color col = Color.Green;
+                    MosesActionIcon.ActionType type = MosesActionIcon.ActionType.RUN;
                     if (i % 2 != 0)
-                        col = Color.Red;
-
-                    JewSaver.primitiveBatch.DrawCircle(new Vector2(sprintMarkers[i] - scrollX, JewSaver.height - heightMap[Math.Min(Math.Max(0, (int)(sprintMarkers[i])), levelLength - 1)]), col, 5);
+                        type = MosesActionIcon.ActionType.STOP;
+                    MosesActionIcon.draw(
+                        new Vector2(sprintMarkers[i] - scrollX, JewSaver.height - heightMap[Math.Min(Math.Max(0, (int)(sprintMarkers[i])), levelLength - 1)])
+                        , type);
                 }
 
                 // Draw stickies
