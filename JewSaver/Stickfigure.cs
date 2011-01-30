@@ -194,7 +194,7 @@ public class Stickfigure
                 inactive = false;
 
             LevelBase.TerrainType terrType = LevelBase.canSculpt[Math.Min(Math.Max(0, (int)(LevelBase.scrollX + position.X)), LevelBase.levelLength - 1)];
-            if (terrType == LevelBase.TerrainType.CANYON)
+            if (terrType == LevelBase.TerrainType.CANYON || terrType == LevelBase.TerrainType.ROCK)
             {
                 dead = true;
             }

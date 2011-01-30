@@ -19,7 +19,7 @@ public class Schekel
 
     public void update(float dt)
     {
-        float speed = 40f;
+        float speed = 100f;
         float offset = 2f;
 
         if (moving && Vector2.Distance(one, two) < 8)
@@ -29,7 +29,7 @@ public class Schekel
                 one += new Vector2(0, dt * speed);
 
                 for (int i = -3; i < 0; i++)
-                    if (384 - one.Y < LevelBase.hm[(int)one.X + i] + offset)
+                    if (JewSaver.height - one.Y < LevelBase.hm[(int)one.X + i] + offset)
                     {
                         oneMoves = false;
                         break;
@@ -42,7 +42,7 @@ public class Schekel
                 two += new Vector2(0, dt * speed);
 
                 for (int i = 0; i <= 3; i++)
-                    if (384 - two.Y < LevelBase.hm[(int)two.X + i] + offset)
+                    if (JewSaver.height - two.Y < LevelBase.hm[(int)two.X + i] + offset)
                     {
                         twoMoves = false;
                         break;

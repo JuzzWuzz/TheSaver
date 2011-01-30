@@ -57,6 +57,7 @@ public class LevelBase : DrawableGameComponent
     int savedFemales;
     int savedFatties;
     protected bool gameAllOver;
+    protected bool gameLost;
 
     protected Stickfigure[] stickies;
     public static Stickfigure moses;
@@ -126,6 +127,7 @@ public class LevelBase : DrawableGameComponent
         showText = false;
         openingText = false;
         gameAllOver = false;
+        gameLost = false;
 
 
         frames = 0;
@@ -277,7 +279,7 @@ public class LevelBase : DrawableGameComponent
             if (showText)
             {
                 textTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-                if (textTimer >= 4.0f)
+                if (textTimer >= 1.0f) // <<<<
                 {
                     finalTexts.RemoveAt(0);
                     textTimer = 0.0f;
@@ -288,11 +290,14 @@ public class LevelBase : DrawableGameComponent
                             NextLevel();
                         else if (gameAllOver)
                             return;
+                        else if (gameLost)
+                            OnQuitPressed();
                         else
                             Initialize();
                     }
                 }
-                return;
+                if (!gameAllOver)
+                    return;
             }
             if (gameAllOver)
             {
@@ -368,37 +373,38 @@ public class LevelBase : DrawableGameComponent
                         JewSaver.finalSavedFemales += savedFemales;
                         JewSaver.finalSavedStickies += savedStickies;
 
-                        // Gold gets it's own copy of the heightmap
-                        hm = new float[1024];
-                        for (int i = 0; i < 1024; i++)
-                        {
-                            hm[i] = LevelBase.heightMap[(int)LevelBase.scrollX + i];
-                        }
-                        sheckels = 10 * JewSaver.finalSavedStickies
-            + 20 * JewSaver.finalSavedFemales
-            + 50 * JewSaver.finalSavedFatties;
-
-
                         if (this is Level3)
                         {
-                            gameAllOver = true;
+                            // Snap to end of map
+                            scrollX = heightMap.Length - JewSaver.width - 1;
+
+                            // Gold gets it's own copy of the heightmap
+                            hm = new float[1024];
+                            for (int i = 0; i < 1024; i++)
+                            {
+                                hm[i] = LevelBase.heightMap[(int)scrollX + i];
+                            }
+                            sheckels = 10 * (JewSaver.finalSavedStickies - JewSaver.finalSavedFemales)
+                                     + 20 * JewSaver.finalSavedFemales
+                                     + 50 * JewSaver.finalSavedFatties;
+
                             finalTexts.Add("Finally you have reached the Promised Land!");
                             if (JewSaver.finalSavedFemales >= 1 && JewSaver.finalSavedStickies - JewSaver.finalSavedFemales >= 1)
                             {
-                                finalTexts.Add("You have saved your people, congratulations!");
+                                finalTexts.Add("You have saved your people!");
 
                                 // Add ending stats
                                 finalTexts.Add("Congratulations on completing the game");
                                 finalTexts.Add("You managed to save " + JewSaver.finalSavedStickies.ToString() + " stickies in total");
                                 finalTexts.Add("Of which " + JewSaver.finalSavedFemales.ToString() + " were female and " + (JewSaver.finalSavedStickies - JewSaver.finalSavedFemales).ToString() + " were male");
-                                finalTexts.Add("There were also " + JewSaver.finalSavedFatties.ToString() + " fatties");
-
-                                finalTexts.Add("...");
-                                finalTexts.Add("Save the Jew Credits");
+                                finalTexts.Add(JewSaver.finalSavedFatties.ToString() + " of these were fatties");
+                                
+                                finalTexts.Add("");
+                                finalTexts.Add("Follow Moses Credits");
                                 finalTexts.Add("Developed for the Global Game Jam 2011 by");
-                                finalTexts.Add("Rizmari Versfeld");
-                                finalTexts.Add("Rainer Dreyer");
                                 finalTexts.Add("Justin Crause");
+                                finalTexts.Add("Rainer Dreyer");
+                                finalTexts.Add("Rizmari Versfeld");
 
                                 gameAllOver = true;
                                 return;
@@ -414,6 +420,7 @@ public class LevelBase : DrawableGameComponent
                                     finalTexts.Add("But you do not have any females to repopulate!");
                             }
                             finalTexts.Add("You have single-handedly destroyed a nation.");
+                            gameLost = true;
                             return;
                         }
                         else
@@ -701,6 +708,70 @@ public class LevelBase : DrawableGameComponent
                 s.draw();
             JewSaver.primitiveBatch.End();
 
+            if (!showText)
+            {
+                JewSaver.spriteBatch.Begin();
+                // Show text saying "Score"
+                String text = "Score";
+                Vector2 pos = new Vector2((JewSaver.width - font.MeasureString(text).X) / 2.0f, 10.0f);
+                Vector2 offset;
+                JewSaver.spriteBatch.DrawString(font, text, pos + new Vector2(-2.0f + 1.0f), Color.Black);
+                JewSaver.spriteBatch.DrawString(font, text, pos, Color.White);
+
+                text = "Males bonus (x10):";
+                pos = new Vector2(JewSaver.width / 2.0f, 150.0f);
+                offset = new Vector2(font.MeasureString(text).X, 0.0f);
+                JewSaver.spriteBatch.DrawString(font, text, pos + new Vector2(-2.0f + 1.0f), Color.Black, 0.0f, offset, 1.0f, SpriteEffects.None, 1.0f);
+                JewSaver.spriteBatch.DrawString(font, text, pos, Color.White, 0.0f, offset, 1.0f, SpriteEffects.None, 1.0f);
+
+                text = "Females bonus (x20):";
+                pos.Y += font.LineSpacing;
+                offset = new Vector2(font.MeasureString(text).X, 0.0f);
+                JewSaver.spriteBatch.DrawString(font, text, pos + new Vector2(-2.0f + 1.0f), Color.Black, 0.0f, offset, 1.0f, SpriteEffects.None, 1.0f);
+                JewSaver.spriteBatch.DrawString(font, text, pos, Color.White, 0.0f, offset, 1.0f, SpriteEffects.None, 1.0f);
+
+                text = "Fatties Bonus (x50):";
+                pos.Y += font.LineSpacing;
+                offset = new Vector2(font.MeasureString(text).X, 0.0f);
+                JewSaver.spriteBatch.DrawString(font, text, pos + new Vector2(-2.0f + 1.0f), Color.Black, 0.0f, offset, 1.0f, SpriteEffects.None, 1.0f);
+                JewSaver.spriteBatch.DrawString(font, text, pos, Color.White, 0.0f, offset, 1.0f, SpriteEffects.None, 1.0f);
+
+                text = "Total Score:";
+                pos.Y += font.LineSpacing;
+                offset = new Vector2(font.MeasureString(text).X, 0.0f);
+                JewSaver.spriteBatch.DrawString(font, text, pos + new Vector2(-2.0f + 1.0f), Color.Black, 0.0f, offset, 1.0f, SpriteEffects.None, 1.0f);
+                JewSaver.spriteBatch.DrawString(font, text, pos, Color.White, 0.0f, offset, 1.0f, SpriteEffects.None, 1.0f);
+
+
+                Vector2 right = new Vector2(font.MeasureString("--" + sheckels.ToString()).X, 0.0f);
+
+                text = ((JewSaver.finalSavedStickies - JewSaver.finalSavedFemales) * 10.0f).ToString();
+                pos = new Vector2(JewSaver.width / 2.0f, 150.0f);
+                offset = right - new Vector2(font.MeasureString(text).X, 0.0f);
+                JewSaver.spriteBatch.DrawString(font, text, pos + new Vector2(-2.0f + 1.0f), Color.Black, 0.0f, -offset, 1.0f, SpriteEffects.None, 1.0f);
+                JewSaver.spriteBatch.DrawString(font, text, pos, Color.White, 0.0f, -offset, 1.0f, SpriteEffects.None, 1.0f);
+
+                text = (JewSaver.finalSavedFemales * 20.0f).ToString();
+                pos.Y += font.LineSpacing;
+                offset = right - new Vector2(font.MeasureString(text).X, 0.0f);
+                JewSaver.spriteBatch.DrawString(font, text, pos + new Vector2(-2.0f + 1.0f), Color.Black, 0.0f, -offset, 1.0f, SpriteEffects.None, 1.0f);
+                JewSaver.spriteBatch.DrawString(font, text, pos, Color.White, 0.0f, -offset, 1.0f, SpriteEffects.None, 1.0f);
+
+                text = (JewSaver.finalSavedFatties * 50.0f).ToString();
+                pos.Y += font.LineSpacing;
+                offset = right - new Vector2(font.MeasureString(text).X, 0.0f);
+                JewSaver.spriteBatch.DrawString(font, text, pos + new Vector2(-2.0f + 1.0f), Color.Black, 0.0f, -offset, 1.0f, SpriteEffects.None, 1.0f);
+                JewSaver.spriteBatch.DrawString(font, text, pos, Color.White, 0.0f, -offset, 1.0f, SpriteEffects.None, 1.0f);
+
+                text = sheckels.ToString();
+                pos.Y += font.LineSpacing;
+                offset = right - new Vector2(font.MeasureString(text).X, 0.0f);
+                JewSaver.spriteBatch.DrawString(font, text, pos + new Vector2(-2.0f + 1.0f), Color.Black, 0.0f, -offset, 1.0f, SpriteEffects.None, 1.0f);
+                JewSaver.spriteBatch.DrawString(font, text, pos, Color.White, 0.0f, -offset, 1.0f, SpriteEffects.None, 1.0f);
+
+                JewSaver.spriteBatch.End();
+            }
+
             //Debugging contour!
             /*JewSaver.primitiveBatch.Begin(PrimitiveType.PointList);
             for (int i = 0; i < 1024; i++)
@@ -761,13 +832,13 @@ public class LevelBase : DrawableGameComponent
                 if (!showText)
                 {
                     // Show number of jews still alive
-                    String text = "Jews Still Alive: " + (numberOfStickies - deadStickies).ToString();
+                    String text = "Followers Still Alive: " + (numberOfStickies - deadStickies).ToString();
                     Vector2 centre = new Vector2((JewSaver.width - font.MeasureString(text).X) / 2.0f, 10.0f);
                     JewSaver.spriteBatch.DrawString(font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
                     JewSaver.spriteBatch.DrawString(font, text, centre, Color.White);
 
                     // Show number of jews that have been saved
-                    text = "Jews Saved: " + savedStickies.ToString() + " (M: " + (savedStickies - savedFemales).ToString() + " F: " + savedFemales.ToString() + ")";
+                    text = "Followers Saved: " + savedStickies.ToString() + " (M: " + (savedStickies - savedFemales).ToString() + " F: " + savedFemales.ToString() + ")";
                     centre = new Vector2((JewSaver.width - font.MeasureString(text).X) / 2.0f, 10.0f + font.LineSpacing);
                     JewSaver.spriteBatch.DrawString(font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
                     JewSaver.spriteBatch.DrawString(font, text, centre, Color.White);
