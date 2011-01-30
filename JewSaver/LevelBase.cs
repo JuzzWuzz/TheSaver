@@ -54,8 +54,9 @@ public class LevelBase : DrawableGameComponent
     int savedFatties;
     protected bool gameAllOver;
 
-    Stickfigure[] stickies;
+    protected Stickfigure[] stickies;
     public static Stickfigure moses;
+    protected List<Stickfigure>[] collisionBuckets;
 
     //dirty little spot, but whatever. gold stuff:
     public static float[] hm;
@@ -108,6 +109,9 @@ public class LevelBase : DrawableGameComponent
         exit.font = font;
         exit.buttonPressed += OnQuitPressed;
         stickies = new Stickfigure[numberOfStickies];
+        collisionBuckets = new List<Stickfigure>[128];
+        for (int i = 0; i < 128; i++)
+            collisionBuckets[i] = new List<Stickfigure>();
         for (int i = 0; i < numberOfStickies; i++)
             stickies[i] = new Stickfigure(new Vector2(-50.0f, 0), i + 1);
         moses = new Stickfigure(new Vector2(50, 200), 0);
@@ -302,10 +306,14 @@ public class LevelBase : DrawableGameComponent
                     sprintMarkers.Add(moses.position.X + scrollX);
                 }
             }
-
+            for (int i = 0; i < 128; i++)
+                collisionBuckets[i] = new List<Stickfigure>(); 
             foreach (Stickfigure s in stickies)
             {
                 s.update(dt);
+                int index = (int)((s.position.X + scrollX) / (heightMap.Length / 128));
+                if (index > -1 && index < 128)
+                    collisionBuckets[index].Add(s);
                 if (s.dead)
                     deadStickies++;
                 if (s.saved)
@@ -788,7 +796,7 @@ public class LevelBase : DrawableGameComponent
         while (i < treeNum)
         {
             int xVal = random.Next(0, heightMap.Length);
-            if (canSculpt[xVal] == TerrainType.SAND)
+            if (canSculpt[xVal] == TerrainType.SAND || canSculpt[xVal] == TerrainType.PARCHED_LAND)
             {
                 trees[i] = new Tree(new Vector2(xVal, JewSaver.height - 20));
                 i++;

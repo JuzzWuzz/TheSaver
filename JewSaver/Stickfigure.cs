@@ -101,7 +101,7 @@ public class Stickfigure
     // Update Method
     public void update(float dt)
     {
-        if (dead && inactive)
+        if ((dead || saved) && inactive)
             return;
 
         // If a new stickie make invulnarable when starting and spawn one after the other
@@ -116,9 +116,10 @@ public class Stickfigure
                 newStickie = false;
             }
         }
-
+        if (stickieIndex == 1)
+            Console.WriteLine(position.X.ToString());
         // Save stickes that make it to the end
-        if (position.X > JewSaver.width + 5 * scale)
+        if (position.X > LevelBase.levelLength - LevelBase.scrollX + 5 * scale)
         {
             saved = true;
             inactive = true;
@@ -340,7 +341,7 @@ public class Stickfigure
 
     public void draw()
     {
-        if (dead && inactive)
+        if ((dead || saved) && inactive)
             return;
 
         // Draw the head
