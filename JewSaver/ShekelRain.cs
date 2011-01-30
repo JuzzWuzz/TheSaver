@@ -14,56 +14,37 @@ class ShekelRain : DrawableGameComponent
 
     private class Schekel {
         Vector2 one, two;
-        bool oneMoves, twoMoves, moving;
+        bool oneMoves, twoMoves;
         public Schekel(Vector2 pos) {
             one = new Vector2(-3 + pos.X, pos.Y);
             two = new Vector2(3 + pos.X, pos.Y);
-            oneMoves = twoMoves = moving = true;
+            oneMoves = twoMoves = true;
         }
 
         public void update(float dt)
         {
             float speed = 40f;
-            float offset = 3f;
+            float offset = 2f;
 
-            if (moving && Vector2.Distance(one, two) < 8)
+            if (Vector2.Distance(one, two) < 8)
             {
                 if (oneMoves)
-                {
-                    one += new Vector2(0, dt * speed);
+                    if (384 - one.Y >= hm[(int)one.X] + offset)
+                        one += new Vector2(0, dt * speed);
+                    else
+                    {
+                        hm[(int)one.X] += 2;
+                        oneMoves = false;
+                    }
 
-                    for (int i = -3; i < 0; i++)
-                        if (384 - one.Y < hm[(int)one.X + i] + offset)
-                        {
-                            oneMoves = false;
-                            break;
-                        }
-                }
-
-                if (twoMoves)
-                {
-                    
-                    two += new Vector2(0, dt * speed);
-
-                    for (int i = 0; i <= 3; i++)
-                        if (384 - two.Y < hm[(int)two.X + i] + offset)
-                        {
-                            twoMoves = false;
-                            break;
-                        }
-                }
-                if (moving && !oneMoves && !twoMoves)
-                {
-                    for (int i = (int)one.X; i <= (int)two.X; i++)
-                        hm[i] += 2;
-                    moving = false;
-                }
-            }
-            else if (moving)
-            {
-                for (int i = (int)one.X; i <= (int)two.X; i++)
-                    hm[i] += 2;
-                moving = false;
+                if (twoMoves) 
+                    if (384 - two.Y >= hm[(int)two.X] + offset)
+                        two += new Vector2(0, dt * speed);
+                    else
+                    {
+                        hm[(int)two.X] += 2;
+                        twoMoves = false;
+                    }
             }
         }
 
@@ -139,9 +120,9 @@ class ShekelRain : DrawableGameComponent
         {
             timeout += .05f;
             int pos = 0;
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 4; i++)
                 pos += r.Next(0, 1024);
-            pos /= 3;
+            pos /= 4;
             treasure.Add(new Schekel(new Vector2(pos,0)));
         }
         foreach (Schekel s in treasure)
