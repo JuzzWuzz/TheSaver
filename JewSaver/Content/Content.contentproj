@@ -38,13 +38,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ButtonText.spritefont">
-      <Name>ButtonText</Name>
-      <Importer>FontDescriptionImporter</Importer>
-      <Processor>FontDescriptionProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="LevelText.spritefont">
       <Name>LevelText</Name>
       <Importer>FontDescriptionImporter</Importer>
@@ -59,6 +52,13 @@
     </Compile>
     <Compile Include="LindseySmall.spritefont">
       <Name>LindseySmall</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="LindseyButton.spritefont">
+      <Name>LindseyButton</Name>
       <Importer>FontDescriptionImporter</Importer>
       <Processor>FontDescriptionProcessor</Processor>
     </Compile>

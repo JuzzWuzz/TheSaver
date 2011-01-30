@@ -108,13 +108,13 @@ public class LevelBase : DrawableGameComponent
         brushSize = 224;
         landscapeBrush = new Rectangle(0, 0, (int)(brushSize * 1.5f), (int)brushSize);
         play = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(8, 8), "PLAY");
-        play.font = font;
+        play.font = MenuJewSaver.font;
         play.buttonPressed += OnPlayPressed;
         restart = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(8, 8), "RESET");
-        restart.font = font;
+        restart.font = MenuJewSaver.font;
         restart.buttonPressed += OnRestartPressed;
         exit = new MenuButton(buttonTex, new Point(96, 96), new Point(0, 0), new Point(96, 96), new Point(JewSaver.width - 8 - 96, 8), "QUIT");
-        exit.font = font;
+        exit.font = MenuJewSaver.font;
         exit.buttonPressed += OnQuitPressed;
         stickies = new Stickfigure[numberOfStickies];
         collisionBuckets = new List<Stickfigure>[128];
@@ -852,9 +852,9 @@ public class LevelBase : DrawableGameComponent
                         text = "Level Complete";
                     else
                         text = "Game Over";
-                    Vector2 centre = new Vector2((JewSaver.width - MenuJewSaver.font.MeasureString(text).X) / 2.0f, 30.0f);
-                    JewSaver.spriteBatch.DrawString(MenuJewSaver.font, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
-                    JewSaver.spriteBatch.DrawString(MenuJewSaver.font, text, centre, Color.White);
+                    Vector2 centre = new Vector2((JewSaver.width - MenuJewSaver.fontBig.MeasureString(text).X) / 2.0f, 30.0f);
+                    JewSaver.spriteBatch.DrawString(MenuJewSaver.fontBig, text, centre + new Vector2(-2.0f + 1.0f), Color.Black);
+                    JewSaver.spriteBatch.DrawString(MenuJewSaver.fontBig, text, centre, Color.White);
                 }
                 JewSaver.spriteBatch.End();
             }
@@ -869,9 +869,9 @@ public class LevelBase : DrawableGameComponent
                 openingText = false;
                 return;
             }
-            Vector2 measure = MenuJewSaver.font.MeasureString(finalTexts[0]);
+            Vector2 measure = MenuJewSaver.fontBig.MeasureString(finalTexts[0]);
             Vector2 centre = new Vector2((JewSaver.width - measure.X) / 2.0f, (JewSaver.height - measure.Y) / 2.0f);
-            JewSaver.spriteBatch.DrawString(MenuJewSaver.font, finalTexts[0], centre, new Color(1, 1, 1, (float)Math.Sin(textTimer / 8.0f * 2 * Math.PI)));
+            JewSaver.spriteBatch.DrawString(MenuJewSaver.fontBig, finalTexts[0], centre, new Color(1, 1, 1, (float)Math.Sin(textTimer / 8.0f * 2 * Math.PI)));
         }
         (exit as MenuInputElement).Draw(JewSaver.spriteBatch);
         JewSaver.spriteBatch.End();

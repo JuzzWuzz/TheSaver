@@ -8,6 +8,7 @@ public class MenuJewSaver:Menu
     Texture2D buttonTexture;
     MenuButton newGame;
     MenuButton exit;
+    public static SpriteFont fontBig;
     public static SpriteFont font;
     JewSaver jewSaver;
     Texture2D vegasLight;
@@ -32,8 +33,8 @@ public class MenuJewSaver:Menu
         newGame.buttonPressed += OnNewGameClicked;
         menuInputElements.Add(newGame);
         menuInputElements.Add(exit);
-        newGame.font = font;
-        exit.font = font;
+        newGame.font = fontBig;
+        exit.font = fontBig;
         lights = new AnimatedSprite[24 + 24 + 2 + 2];
         for (int i = 0; i < 24; i++)
         {
@@ -111,7 +112,8 @@ public class MenuJewSaver:Menu
         }
         buttonTexture = new Texture2D(Game.GraphicsDevice, 256, 64);
         buttonTexture.SetData<Color>(textureData);
-        font = Game.Content.Load<SpriteFont>("ButtonText");
+        font = Game.Content.Load<SpriteFont>("LindseyButton");
+        fontBig = Game.Content.Load<SpriteFont>("Lindsey");
         titleFont = Game.Content.Load<SpriteFont>("Lindsey");
         titleFontSmall = Game.Content.Load<SpriteFont>("LindseySmall");
         Color[] blck = { Color.Black};
