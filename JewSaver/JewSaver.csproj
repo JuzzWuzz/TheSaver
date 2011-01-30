@@ -112,6 +112,7 @@
     <Compile Include="Stickfigure.cs" />
     <Compile Include="Tree.cs" />
     <Compile Include="Tumbleweed.cs" />
+    <Compile Include="Wind.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
