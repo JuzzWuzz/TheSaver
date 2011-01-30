@@ -31,7 +31,6 @@ public class Level1:LevelBase
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
-        //Console.WriteLine(locustTimeout);
     }
 
     protected override void NextLevel()

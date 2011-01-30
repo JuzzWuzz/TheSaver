@@ -282,7 +282,7 @@ public class LevelBase : DrawableGameComponent
             if (showText)
             {
                 textTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-                if (textTimer >= 1.0f) // <<<<
+                if (textTimer >= 4.0f)
                 {
                     finalTexts.RemoveAt(0);
                     textTimer = 0.0f;
@@ -304,7 +304,6 @@ public class LevelBase : DrawableGameComponent
             }
             if (gameAllOver)
             {
-                // TO RAINER AD GOLD STUFF
                 shekelTimeout -= (float)gameTime.ElapsedGameTime.TotalSeconds;
                 if (shekelTimeout < 0 && treasure.Count <= sheckels * 10)
                 {
@@ -448,7 +447,6 @@ public class LevelBase : DrawableGameComponent
             // If Moses is saved allow mouse scrolling
             if (moses.saved)
             {
-                //Console.WriteLine("Moses Saved!!!");
                 if (mouseX < 0)
                 {
                     if (scrollX > 0)
@@ -524,7 +522,7 @@ public class LevelBase : DrawableGameComponent
                 if (locustTimeout.TotalMilliseconds <= 0)
                 {
                     plagueLength = random.Next(8, 15);
-                    Console.WriteLine("Adding locusts for " + plagueLength + " seconds");
+                    //Console.WriteLine("Adding locusts for " + plagueLength + " seconds");
 
                     locustTimeout += locustTime;
                 }
@@ -743,7 +741,7 @@ public class LevelBase : DrawableGameComponent
                 JewSaver.spriteBatch.DrawString(font, text, pos + new Vector2(-2.0f + 1.0f), Color.Black, 0.0f, offset, 1.0f, SpriteEffects.None, 1.0f);
                 JewSaver.spriteBatch.DrawString(font, text, pos, Color.White, 0.0f, offset, 1.0f, SpriteEffects.None, 1.0f);
 
-                text = "Total Score:";
+                text = "Total Score (x10):";
                 pos.Y += font.LineSpacing;
                 offset = new Vector2(font.MeasureString(text).X, 0.0f);
                 JewSaver.spriteBatch.DrawString(font, text, pos + new Vector2(-2.0f + 1.0f), Color.Black, 0.0f, offset, 1.0f, SpriteEffects.None, 1.0f);
@@ -778,12 +776,6 @@ public class LevelBase : DrawableGameComponent
 
                 JewSaver.spriteBatch.End();
             }
-
-            //Debugging contour!
-            /*JewSaver.primitiveBatch.Begin(PrimitiveType.PointList);
-            for (int i = 0; i < 1024; i++)
-                JewSaver.primitiveBatch.AddVertex(new Vector2(i, hm[i]), Color.Red);
-            JewSaver.primitiveBatch.End();*/
         }
         else
         {
