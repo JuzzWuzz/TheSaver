@@ -782,7 +782,7 @@ public class LevelBase : DrawableGameComponent
                 JewSaver.spriteBatch.DrawString(font, text, pos + new Vector2(-2.0f + 1.0f), Color.Black, 0.0f, -offset, 1.0f, SpriteEffects.None, 1.0f);
                 JewSaver.spriteBatch.DrawString(font, text, pos, Color.White, 0.0f, -offset, 1.0f, SpriteEffects.None, 1.0f);
 
-                text = sheckels.ToString();
+                text = (sheckels * 10).ToString();
                 pos.Y += font.LineSpacing;
                 offset = right - new Vector2(font.MeasureString(text).X, 0.0f);
                 JewSaver.spriteBatch.DrawString(font, text, pos + new Vector2(-2.0f + 1.0f), Color.Black, 0.0f, -offset, 1.0f, SpriteEffects.None, 1.0f);
