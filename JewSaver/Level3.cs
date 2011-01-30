@@ -16,13 +16,20 @@ public class Level3 : LevelBase
     public override void Initialize()
     {
         base.Initialize();
-        //if (!hasPlayed)
-        //{
-        // good canyon size is 170
-        //AddCanyon(374, 374 + 170);
-        //AddCanyon(1040, 1210);
-        //AddTrees();
-        //}
+        if (!hasPlayed)
+        {   
+            int increment = 512;
+            for (int i = 0; i < 4096; i += increment)
+            {
+                if (i != 0 && i != 4048)
+                {
+                    int halfWidth = (int)(0.4f * increment / 2);
+                    AddRocks(i - halfWidth, i + halfWidth);
+                }
+                if (increment > 0)
+                    increment -= 24;
+            }
+        }
         lights = new AnimatedSprite[20];
         lights[0] = new AnimatedSprite(vegasLight, 16, 16, 0, 0, -56 + 3064 + 384, 24 - 48);
         lights[1] = new AnimatedSprite(vegasLight, 16, 16, 0, 0, -40 + 3064 + 384, 24-48);
