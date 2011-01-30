@@ -997,8 +997,33 @@ public class LevelBase : DrawableGameComponent
 
     protected void AddRocks(int start, int end)
     {
-        for (int i = start; i < end; i++)
+        int length = end - start;
+        int [,] heights = new int[(int)(length/16.0f),2];
+        float begin = heightMap[start];
+        int beginIndex = 0;
+        int current = 0;
+        for (int i = 0; i < heights.Length / 2; i++)
         {
+            heights[i, 0] = random.Next(0, 128);
+            heights[i, 1] = i * 16 + random.Next(0, 16);
+            // do loop
+            while (current < heights[i, 1])
+            {
+                if (start + current < end)
+                {
+                    heightMap[start + current] = begin + (current - beginIndex) / (float)(heights[i, 1] - beginIndex) * (heights[i, 0] - begin);
+                    canSculpt[start + current] = TerrainType.ROCK;
+                    current++;
+                }
+                else
+                    break;
+            }
+            begin = heights[i,0];
+            beginIndex = heights[i, 1];
+        }
+        for (int i = beginIndex + start; i < end; i++)
+        {
+            heightMap[i] = begin + (i - beginIndex - start) / (float)(end - beginIndex-start) * (heightMap[end] - begin);
             canSculpt[i] = TerrainType.ROCK;
         }
         SyncHMapBackup();

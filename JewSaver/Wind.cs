@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 public class Wind
 {
     public static Random r = new Random();
-    TimeSpan timeLeft;
+    public TimeSpan timeLeft;
 
     //giving the user access to their sand backup data
     //and allowing the level to clear the sand from drawing.

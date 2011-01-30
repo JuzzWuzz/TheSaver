@@ -8,6 +8,9 @@ public class Level3 : LevelBase
     Texture2D signBack;
     AnimatedSprite []lights;
     Sprite sign;
+    float windWait;
+    float windTimer;
+
     public Level3(JewSaver game)
         : base(game, 4096)
     {
@@ -30,6 +33,8 @@ public class Level3 : LevelBase
                     increment -= 24;
             }
         }
+        windWait = random.Next(20);
+        windTimer = 0;
         lights = new AnimatedSprite[20];
         lights[0] = new AnimatedSprite(vegasLight, 16, 16, 0, 0, -56 + 3064 + 384, 24 - 48);
         lights[1] = new AnimatedSprite(vegasLight, 16, 16, 0, 0, -40 + 3064 + 384, 24-48);
@@ -133,6 +138,19 @@ public class Level3 : LevelBase
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
+        if (!enableWind)
+        {
+            windTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (windTimer >= windWait)
+            {
+                enableWind = true;
+                windWait = random.Next(20);
+                windTimer = 0;
+                wind = new Wind(new TimeSpan(0,0,random.Next(10,20)));
+            }
+        }
+        else if (wind.timeLeft.TotalSeconds <= 0)
+            enableWind = false;
         if (levelMode == LevelMode.PLAY)
         {
             for(int i = 0; i < lights.Length; i++)
