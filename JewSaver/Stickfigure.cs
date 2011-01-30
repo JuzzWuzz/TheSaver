@@ -116,14 +116,6 @@ public class Stickfigure
             }
         }
 
-        // Kill falled stickies
-        if (position.Y > JewSaver.height)
-        {
-            dead = true;
-            inactive = true;
-            return;
-        }
-
         // Save stickes that make it to the end
         if (position.X > JewSaver.width + 5 * scale)
         {
@@ -156,10 +148,6 @@ public class Stickfigure
         setLimbs(dt);
         if (!jumping)
         {
-            if (isPlayer)
-            {
-                ;
-            }
             if (gn > gp)
             {
                 // Gradient = \
@@ -195,14 +183,22 @@ public class Stickfigure
         {
             force = -velocity * mass / dt;
             // If the impact force is higher than this value then kill stickie
-            if (Math.Abs((force.Y / gravity)) >= 55.0f && !newStickie)
+            if (!isPlayer && Math.Abs((force.Y / gravity)) >= 55.0f && !newStickie)
                 dead = true;
 
             force = Vector2.Zero;
+
+            LevelBase.TerrainType terrType = LevelBase.canSculpt[Math.Min(Math.Max(0, (int)(LevelBase.scrollX + position.X)), LevelBase.levelLength - 1)];
+            if (terrType == LevelBase.TerrainType.CANYON)
+            {
+                dead = true;
+            }
+            else if (terrType == LevelBase.TerrainType.WATER)
+            {
+                if (!isPlayer)
+                    dead = true;
+            }
         }
-        // Make sure the player can't die
-        if (isPlayer && dead)
-            dead = false;
         // Factor in walking if not dead
         if (!dead && !newStickie && !jumping)
         {

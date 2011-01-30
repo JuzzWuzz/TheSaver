@@ -14,7 +14,13 @@ public class Level2 : LevelBase
         base.Initialize();
         if (!hasPlayed)
         {
-            AddWater(256, 768);
+            for (int i = 768; i < heightMap.Length; i++)
+            {
+                heightMap[i] = (float)(32 + 8 * Math.Sin(i / 4096.0f * Math.PI * 24));
+                canSculpt[i] = TerrainType.PARCHED_LAND;
+            }
+            AddWater(320, 448);
+            AddWater(640, 768);
             AddTrees();
         }
         hasPlayed = true;
