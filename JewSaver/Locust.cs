@@ -44,15 +44,15 @@ public class Locust
 
             if (pos.X < -10)
             {
-                //Console.WriteLine("Locust killed");
+                // Locust killed
                 dead = true;
                 return;
             }
 
             if (pos.Y > JewSaver.height - LevelBase.heightMap[Math.Min(Math.Max(0, (int)(pos.X + LevelBase.scrollX)), LevelBase.levelLength - 1)])
             {
+                // SplaT
                 splat = true;
-                Console.WriteLine("SplaT!");
             }
         }
     }

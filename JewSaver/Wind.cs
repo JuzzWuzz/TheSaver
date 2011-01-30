@@ -10,7 +10,11 @@ public class Wind
     public static Random r = new Random();
     TimeSpan timeLeft;
 
-    private class Sand
+    //giving the user access to their sand backup data
+    //and allowing the level to clear the sand from drawing.
+    public static List<Sand> sandCollection, deadSand;
+
+    public class Sand
     {
         public Vector2 pos;
         public Color col;
@@ -58,7 +62,6 @@ public class Wind
         }
     }
 
-    List<Sand> sandCollection, deadSand;
 
     public Wind(TimeSpan duration)
     {
@@ -117,7 +120,6 @@ public class Wind
                     s.init(new Vector2(x, LevelBase.heightMap[(int)(x)]), Color.Yellow);
                     deadSand.RemoveAt(0);
                     sandCollection.Add(s);
-
                 }
             }
         }

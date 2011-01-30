@@ -18,6 +18,9 @@ public class Level1:LevelBase
             AddCanyon(374, 374 + 170);
             AddCanyon(1040, 1210);
             AddTrees();
+
+            for (int i = 0; i < LevelBase.levelLength; i++)
+                heightMapBak[i] = heightMap[i];
         }
         hasPlayed = true;
 
@@ -31,7 +34,6 @@ public class Level1:LevelBase
     public override void Update(GameTime gameTime)
     {
         base.Update(gameTime);
-        //Console.WriteLine(locustTimeout);
     }
 
     protected override void NextLevel()
