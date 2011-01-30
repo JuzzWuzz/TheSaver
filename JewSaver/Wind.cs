@@ -51,10 +51,10 @@ public class Wind
         }
 
         public void draw() {
-            JewSaver.primitiveBatch.AddVertex(pos, col);
-            JewSaver.primitiveBatch.AddVertex(new Vector2(pos.X-1, pos.Y-1), col);
-            JewSaver.primitiveBatch.AddVertex(new Vector2(pos.X-1, pos.Y), col);
-            JewSaver.primitiveBatch.AddVertex(new Vector2(pos.X, pos.Y-1), col);
+            JewSaver.primitiveBatch.AddVertex(new Vector2(pos.X - LevelBase.scrollX, pos.Y), col);
+            JewSaver.primitiveBatch.AddVertex(new Vector2(pos.X - 1 - LevelBase.scrollX, pos.Y - 1), col);
+            JewSaver.primitiveBatch.AddVertex(new Vector2(pos.X - 1 - LevelBase.scrollX, pos.Y), col);
+            JewSaver.primitiveBatch.AddVertex(new Vector2(pos.X - LevelBase.scrollX, pos.Y - 1), col);
         }
     }
 
@@ -100,7 +100,7 @@ public class Wind
         {
             //while running
             for (int i = 0; i < LevelBase.levelLength; i++)
-                if (LevelBase.canSculpt[i] == LevelBase.TerrainType.SAND)
+                if (LevelBase.canSculpt[i] == LevelBase.TerrainType.SAND && heightmap[i] > 16)
                     LevelBase.heightMap[i] -= (float)gt.ElapsedGameTime.TotalSeconds * 3;
 
             counter += gt.ElapsedGameTime;
