@@ -43,7 +43,7 @@ public class Level2 : LevelBase
         base.Update(gameTime);
         if (levelMode == LevelMode.PLAY)
         {
-            tumbleTimer += LevelBase.gameSpeedFactor*(float)gameTime.ElapsedGameTime.TotalSeconds;
+            tumbleTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (tumbleTimer > 20)
             {
                 tumbleTimer -= 3;

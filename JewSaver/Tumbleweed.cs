@@ -83,21 +83,21 @@ public class Tumbleweed
         gradient.Normalize();
         Vector2 velocity = new Vector2(speedLeft * -1, speedDown * 1);
         velocity.Normalize();
-        position += 240.0f * velocity * LevelBase.gameSpeedFactor * (float)gameTime.ElapsedGameTime.TotalSeconds;
+        position += 240.0f * velocity *(float)gameTime.ElapsedGameTime.TotalSeconds;
         if (384 - position.Y - radius > (heightLeft + heightRight) / 2.0f || isAtHole)
         {
             speedDown += 0.5f;
-            rotation += 0.5f * speedLeft * LevelBase.gameSpeedFactor * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            rotation += 0.5f * speedLeft * (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (isAtHole)
-                speedDown += 100;
-            speedLeft += (float)(gradient.Y * LevelBase.gameSpeedFactor * gameTime.ElapsedGameTime.TotalSeconds * 120.0f);
+                speedDown += 30;
+            speedLeft += (float)(gradient.Y * gameTime.ElapsedGameTime.TotalSeconds * 120.0f);
         }
         else
         {
             position.Y = 384 - (heightLeft + heightRight) / 2.0f - radius;
             speedDown = 0;
-            rotation += 1.5f * speedLeft * LevelBase.gameSpeedFactor * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            speedLeft += (float)(gradient.Y * LevelBase.gameSpeedFactor * gameTime.ElapsedGameTime.TotalSeconds * 240.0f);
+            rotation += 1.5f * speedLeft *(float)gameTime.ElapsedGameTime.TotalSeconds;
+            speedLeft += (float)(gradient.Y *  gameTime.ElapsedGameTime.TotalSeconds * 240.0f);
         }
 
         for (int i = 0; i < 150; i++)

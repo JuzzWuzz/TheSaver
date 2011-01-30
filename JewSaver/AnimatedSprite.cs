@@ -45,7 +45,7 @@ public class AnimatedSprite:Sprite
     {
         if (animated)
         {
-            timer += LevelBase.gameSpeedFactor * gameTime.ElapsedGameTime.TotalSeconds;
+            timer +=  gameTime.ElapsedGameTime.TotalSeconds;
             if (timer >= frameTime)
             {
                 timer -= frameTime;
