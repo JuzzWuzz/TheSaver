@@ -627,8 +627,8 @@ public class LevelBase : DrawableGameComponent
         }
         else if (canSculpt[startIndex] == TerrainType.PARCHED_LAND)
         {
-            if (target > 128)
-                target = 128;
+            if (target > 192)
+                target = 192;
             else if (target < 16)
                 target = 16;
             timerMultiplier = 2;
@@ -657,7 +657,6 @@ public class LevelBase : DrawableGameComponent
             str.scrollXValue = 0.125f * scrollX;
             str.Draw(JewSaver.spriteBatch);
         }
-        (exit as MenuInputElement).Draw(JewSaver.spriteBatch);
         if (showFrameRate)
             JewSaver.spriteBatch.DrawString(font, 1 / gameTime.ElapsedGameTime.TotalSeconds + "", new Vector2(512, 8), Color.White);
         JewSaver.spriteBatch.End();
@@ -866,7 +865,6 @@ public class LevelBase : DrawableGameComponent
                     JewSaver.spriteBatch.DrawString(MenuJewSaver.font, text, centre, Color.White);
                 }
                 JewSaver.spriteBatch.End();
-
             }
         }
         // Final text if applicable
@@ -883,6 +881,7 @@ public class LevelBase : DrawableGameComponent
             Vector2 centre = new Vector2((JewSaver.width - measure.X) / 2.0f, (JewSaver.height - measure.Y) / 2.0f);
             JewSaver.spriteBatch.DrawString(MenuJewSaver.font, finalTexts[0], centre, new Color(1, 1, 1, (float)Math.Sin(textTimer / 8.0f * 2 * Math.PI)));
         }
+        (exit as MenuInputElement).Draw(JewSaver.spriteBatch);
         JewSaver.spriteBatch.End();
 
         if (showFrameRate)

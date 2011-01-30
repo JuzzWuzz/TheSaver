@@ -111,6 +111,6 @@ public class Level2 : LevelBase
     private void AddTumbleWeed()
     {
         int radius= random.Next(12, 20);
-        tumbles.Add(new Tumbleweed(radius, new Vector2(3076-5, 384 - (heightMap[1576] + radius))));
+        tumbles.Add(new Tumbleweed(radius, new Vector2(3076-5, 384 - (heightMap[3076-5] + radius))));
     }
 }
