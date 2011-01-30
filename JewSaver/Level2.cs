@@ -44,7 +44,7 @@ public class Level2 : LevelBase
         if (levelMode == LevelMode.PLAY)
         {
             tumbleTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (tumbleTimer > 10)
+            if (tumbleTimer > 20)
             {
                 tumbleTimer -= 3;
                 AddTumbleWeed();
@@ -59,15 +59,32 @@ public class Level2 : LevelBase
                     weed.Update(gameTime, heightMap[(int)weed.position.X - 4], heightMap[(int)weed.position.X + 4], canSculpt[(int)(weed.position.X)] == TerrainType.WATER || canSculpt[(int)(weed.position.X)] == TerrainType.CANYON);
                     weed.scrollXValue = scrollX;
                 }
-                int bucket = (int)(weed.position.X / (heightMap.Length / 128));
-                for (int i = 0; i < collisionBuckets[bucket].Count; i++)
+                int bucket1 = (int)((weed.position.X-weed.radius) / (heightMap.Length / 128));
+                int bucket2 = (int)((weed.position.X + weed.radius) / (heightMap.Length / 128));
+                if (bucket1 > -1)
                 {
-                    Stickfigure stick = collisionBuckets[bucket][i];
-                    if (!stick.dead)
+                    for (int i = 0; i < collisionBuckets[bucket1].Count; i++)
                     {
-                        double dist2 = Math.Pow(stick.position.X+scrollX - weed.position.X,2) + Math.Pow(stick.position.Y - weed.position.Y,2);
-                        if (dist2 < 64)
-                            stick.dead = true;
+                        Stickfigure stick = collisionBuckets[bucket1][i];
+                        if (!stick.dead)
+                        {
+                            double dist2 = Math.Pow(stick.position.X + scrollX - weed.position.X, 2) + Math.Pow(stick.position.Y - weed.position.Y, 2);
+                            if (dist2 < weed.radius*weed.radius)
+                                stick.dead = true;
+                        }
+                    }
+                }
+                if (bucket1 != bucket2 && bucket2 < 128)
+                {
+                    for (int i = 0; i < collisionBuckets[bucket2].Count; i++)
+                    {
+                        Stickfigure stick = collisionBuckets[bucket2][i];
+                        if (!stick.dead)
+                        {
+                            double dist2 = Math.Pow(stick.position.X + scrollX - weed.position.X, 2) + Math.Pow(stick.position.Y - weed.position.Y, 2);
+                            if (dist2 < weed.radius * weed.radius)
+                                stick.dead = true;
+                        }
                     }
                 }
             }

@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 public class Tumbleweed
 {
-    float radius;
+    public float radius;
     public Vector2 position;
     public float scrollXValue;
     float rotation;
@@ -32,7 +32,7 @@ public class Tumbleweed
             speedDown += 0.5f;
             rotation += 0.5f * speedLeft * (float)gameTime.ElapsedGameTime.TotalSeconds;
             if (isAtHole)
-                speedDown += 5;
+                speedDown += 100;
             speedLeft += (float)(gradient.Y * gameTime.ElapsedGameTime.TotalSeconds * 120.0f);
         }
         else
